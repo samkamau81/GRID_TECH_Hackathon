@@ -1,4 +1,4 @@
-# Campus Power Planner â€” Approach Report
+# Campus Power Planner Approach Report
 
 ## Executive summary
 
