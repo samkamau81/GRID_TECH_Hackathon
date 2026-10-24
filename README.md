@@ -2,7 +2,7 @@
 
 A team project for the GridTech Hackathon: a decision-support tool for comparing energy portfolios for a fictional data-center campus in Williamson County, Texas.
 
-> **Project status (updated 2026-10-24):** The repository currently contains the hackathon brief, benchmark packet, scoring rubric, and setup guidance. The app, recommendation engine, dispatch model, and generated results have not yet been implemented. This README is a living guide and should be updated as those pieces are built.
+> **Project status (updated 2026-10-24):** The repository includes a local Campus Power Planner dashboard and Python recommendation/API backend in `data/Contestant_Packet/team_app/`, along with validated benchmark outputs. The model uses a limited curated candidate set; it is a screening tool, not a global optimizer or real-world project quote.
 
 ## Living product specification
 
@@ -48,8 +48,12 @@ Judges score the five-minute presentation and demo. Make the logic, assumptions,
 .
 ├── .claude/
 │   └── settings.json                 # Claude Code project settings; contains no API key
+├── Campus Power Planner.html        # Canonical standalone frontend
 ├── data/
-│   └── Contestant_Packet[FINAL].zip  # Released challenge packet
+│   ├── Contestant_Packet[FINAL].zip  # Released challenge packet
+│   └── Contestant_Packet/
+│       ├── team_app/                 # Campus Power Planner HTML and Python backend
+│       └── outputs/                  # Validated benchmark results
 ├── problem statement/
 │   └── GridTech_Hackathon_Problem_Statement.pdf
 ├── scoring rubric/
@@ -60,7 +64,7 @@ Judges score the five-minute presentation and demo. Make the logic, assumptions,
 └── .gitignore                        # Excludes .env and local secrets
 ```
 
-As implementation begins, add team-owned code under `data/Contestant_Packet/team_app/` and generated artifacts under `data/Contestant_Packet/outputs/` (or document any agreed alternative). Do not modify, move, rename, or re-save the supplied benchmark inputs and checker. Keep the extracted packet structure intact.
+Team-owned code lives under `data/Contestant_Packet/team_app/` and generated artifacts under `data/Contestant_Packet/outputs/`. Do not modify, move, rename, or re-save the supplied benchmark inputs and checker. Keep the extracted packet structure intact.
 
 ## Getting started
 
@@ -88,7 +92,14 @@ If PowerShell blocks activation, run the virtual environment's Python executable
 
 ### 3. Run the app
 
-**Not available yet.** Update this section when the app framework, entry point, and local run command are chosen. The intended product should run locally without API keys, accounts, or calls to external services.
+The canonical frontend is the root-level `Campus Power Planner.html`; its contents are kept intact and the local Python server serves that exact file at `http://127.0.0.1:8000/`. Python backend modules remain in `data/Contestant_Packet/team_app/` and expose the recommendation API. Python 3.10+ and the packet requirements (`pandas`, `numpy`) are needed. From the repository root:
+
+```powershell
+python -m pip install -r data/Contestant_Packet/starter/requirements.txt
+python data/Contestant_Packet/team_app/server.py
+```
+
+The server binds to loopback by default. The engine can also be run directly with `python data/Contestant_Packet/team_app/run.py --help`.
 
 ## Planned product behavior
 
