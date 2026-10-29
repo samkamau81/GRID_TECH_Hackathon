@@ -4,7 +4,7 @@
 
 The product requirements and app-building guidance live in this Google Doc:
 
-[Open the living GridTech app specification](https://docs.google.com/document/d/1B7Cn1Hs347fT3MlIAfdn-k-fZxYArB4Pa-Pjs_Q1-ww/edit)
+[Open the living PeakPower app specification](https://docs.google.com/document/d/1B7Cn1Hs347fT3MlIAfdn-k-fZxYArB4Pa-Pjs_Q1-ww/edit)
 
 **The Google Doc is the editable source of truth.** This repository file is only a stable pointer and workflow note; do not replace the live document with a downloaded or committed copy.
 

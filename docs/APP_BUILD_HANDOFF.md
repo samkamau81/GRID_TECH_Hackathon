@@ -1,6 +1,6 @@
-# GridTech Power Planner Integrated Build Handoff
+# PeakPower Integrated Build Handoff
 
-This is the single implementation handoff for the GridTech Power Planner. It combines the backend MVP brief and the product/front-end design requirements so the team can build from one shared file. The source backend brief and Product Design Doc remain unchanged in the parent `GRID_Hackathon` folder.
+This is the single implementation handoff for PeakPower. It combines the backend MVP brief and the product/front-end design requirements so the team can build from one shared file. The source backend brief and Product Design Doc remain unchanged in the parent `GRID_Hackathon` folder.
 
 ## Agreed implementation order
 
@@ -20,7 +20,7 @@ The full source content from both supplied files is retained below. Added integr
 
 ## Backend MVP brief
 
-# GridTech backend MVP build brief
+# PeakPower backend MVP build brief
 
 ## Goal
 
@@ -119,7 +119,7 @@ Back End Design
 
 Front - End Design aspect
 
-Build the front end for a hackathon demo app called “GridTech Power Planner.” It helps a data-center developer compare energy portfolios for a fictional campus in Williamson County, Texas.
+Build the front end for a hackathon demo app called “PeakPower.” It helps a data-center developer compare energy portfolios for a fictional campus in Williamson County, Texas.
 
 The app should feel like a clear, credible energy-planning dashboard: clean, modern and easy for a nontechnical judge to understand in a five-minute demo. Prioritize decision clarity over decorative visuals. Use responsive layouts and accessible colors, labels, and controls.
 

@@ -1,4 +1,4 @@
-"""First backend iteration for GridTech Power Planner.
+"""First backend iteration for PeakPower.
 
 This module searches a deliberately small, documented portfolio set and uses
 only the shared packet accounting/checker for benchmark scoring. It does not
@@ -470,7 +470,7 @@ def write_submission(result: dict[str, Any], output_dir: Path) -> None:
 def main() -> None:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run GridTech's first backend iteration using the official benchmark checker.")
+    parser = argparse.ArgumentParser(description="Run PeakPower's first backend iteration using the official benchmark checker.")
     parser.add_argument("--start-month", type=int, default=20)
     parser.add_argument("--grid-delay-months", type=int, default=0)
     parser.add_argument("--policy", choices=POLICIES, default="strict")
