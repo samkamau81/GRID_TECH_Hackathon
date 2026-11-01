@@ -1,0 +1,22 @@
+/* Responsive and reduced-motion rules, kept in their original relative order.
+   Loaded last so they override the base rules exactly as they did inline. */
+@media (max-width:640px){nav.steps small{display:none}nav.steps button{padding:8px 8px;gap:6px}nav.steps b{font-size:13.5px;line-height:1.15}nav.steps .n{width:20px;height:20px;font-size:11px}}
+@media (max-width:700px){.chart svg{min-width:640px}}
+@media (max-width:860px){.models{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.models{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.lp2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:700px){.lpgrid svg{min-width:640px}}
+@media (max-width:700px){.why{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.herog{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.qopts{border-left:0;padding-left:0;border-top:1px solid var(--rule);padding-top:10px}}
+@media (max-width:900px){.infra2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:860px){.props{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1000px){.run2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.env2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1000px){.decs{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1050px){.op2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:700px){.site svg{min-width:720px}}
+@media (prefers-reduced-motion:reduce){.site .flow.on,.site .fan.on{animation:none}}
+@media (max-width:1000px){.live2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:620px){.now{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.busy::before{animation:none}}

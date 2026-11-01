@@ -1,0 +1,70 @@
+{
+  "source_zip": "data\\data_centers.zip",
+  "source_sha256": "c9e7b78be972afa0396dc6de47b680db3c0bbd9897c5cc8cd943ba204ee51e65",
+  "source_files": [
+    "country_summary.csv",
+    "data_centers.csv",
+    "reported_totals.csv"
+  ],
+  "rows_read": 4802,
+  "records_written": 4802,
+  "excluded": [],
+  "stats": {
+    "total": 4802,
+    "us": 1789,
+    "countries": 116,
+    "usStates": 47,
+    "usStatesTaggedOnly": 43,
+    "withoutCountry": 2
+  },
+  "field_fill_counts": {
+    "name": 3669,
+    "operator": 2888,
+    "owner": 141,
+    "country": 4800,
+    "state": 1855,
+    "city": 1665,
+    "street": 1986,
+    "footprint_area_m2": 3894,
+    "website": 1118
+  },
+  "state_inference": {
+    "enabled": true,
+    "boundary_source": "https://eric.clst.org/assets/wiki/uploads/Stuff/gz_2010_us_040_00_500k.json",
+    "boundary_sha256": "bd3852d963315c3a2a6a3cdfcb36e6bece0fec516a72278c6d8eacce228568b1",
+    "validated_against_tagged": 821,
+    "agreed_with_tag": 820,
+    "tagged_outside_any_boundary": 0,
+    "agreement_rate": 0.9988,
+    "minimum_required": 0.95,
+    "inferred": 968,
+    "unresolved_left_blank": 0
+  },
+  "state_normalisation": {
+    "normalised full state name to code": 5
+  },
+  "facility_kinds": {
+    "unclassified": 3226,
+    "telecom_carrier": 160,
+    "hyperscale": 604,
+    "colocation": 723,
+    "government_or_public": 9,
+    "financial": 38,
+    "research_or_academic": 42
+  },
+  "records_without_country": [
+    {
+      "id": "node/13296692502",
+      "name": "Dhiraagu Data Centre"
+    },
+    {
+      "id": "way/430604130",
+      "name": "中華電信"
+    }
+  ],
+  "records_sharing_identical_coordinates": [],
+  "country_summary_csv_mismatches": [],
+  "osm_url_not_derivable_from_id": 0,
+  "reported_totals_countries": 52,
+  "geocoding": "not needed: every record has valid coordinates"
+}

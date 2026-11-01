@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Peak Power – Plan the power. Run the plant.</title>
+<meta name="description" content="Peak Power is an interactive simulator for planning and operating the power supply of a data-center campus.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='%230d6672' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!-- Shared design tokens (colours, fonts, light/dark themes) from the prototype; landing.css holds the page styles. -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+<a class="skip" href="#about">Skip to content</a>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top" aria-label="Peak Power, back to top"><span class="mark" aria-hidden="true"></span>PEAK POWER</a>
+    <nav aria-label="Page sections">
+      <a href="#about">About</a>
+      <a href="#team">Creators</a>
+      <a href="data-centers.html">Data centers</a>
+      <a class="nav-cta" href="prototype.html">Open prototype</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- Section 1: Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-in">
+      <div class="hero-copy">
+        <p class="eyebrow hero-a1">Data-center power planning</p>
+        <h1 id="hero-title" class="hero-a2">PEAK <span>POWER</span></h1>
+        <p class="tagline hero-a3">Plan the power. Run the plant.</p>
+        <p class="lede hero-a4">Peak Power is an interactive simulator that helps a data-center developer choose how to power a 75&nbsp;MW campus, then shows how that plan performs hour by hour over ten years.</p>
+        <div class="hero-actions hero-a5">
+          <a class="btn btn-primary" href="prototype.html">Open the prototype <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#about">What is it?</a>
+        </div>
+        <dl class="stats hero-a5">
+          <div><dt>Campus peak demand</dt><dd>75 MW</dd></div>
+          <div><dt>Planning horizon</dt><dd>10 years</dd></div>
+          <div><dt>Hourly steps simulated</dt><dd>87,600</dd></div>
+        </dl>
+      </div>
+
+      <figure class="hero-visual hero-a3">
+        <svg viewBox="0 0 480 400" role="img" aria-labelledby="viz-t viz-d">
+          <title id="viz-t">Power sources feeding a data-center campus</title>
+          <desc id="viz-d">An illustration of the resource types the prototype can combine, each supplying the campus: grid power, wind, solar, nuclear, onsite gas and a battery.</desc>
+          <g class="viz-links" fill="none" stroke-width="3" stroke-linecap="round">
+            <path d="M130 50 C230 50 230 200 330 200"  style="stroke:var(--s-grid)"/>
+            <path d="M130 115 C230 115 230 200 330 200" style="stroke:var(--s-wind)"/>
+            <path d="M130 180 C230 180 230 200 330 200" style="stroke:var(--s-solar)"/>
+            <path d="M130 245 C230 245 230 200 330 200" style="stroke:var(--s-nuc)"/>
+            <path d="M130 310 C230 310 230 200 330 200" style="stroke:var(--s-gas)"/>
+            <path d="M130 375 C230 375 230 200 330 200" style="stroke:var(--s-bat)"/>
+          </g>
+          <g class="viz-nodes">
+            <rect x="0" y="30"  width="130" height="40" rx="8"/><text x="14" y="55">Grid power</text>
+            <rect x="0" y="95"  width="130" height="40" rx="8"/><text x="14" y="120">Wind</text>
+            <rect x="0" y="160" width="130" height="40" rx="8"/><text x="14" y="185">Solar</text>
+            <rect x="0" y="225" width="130" height="40" rx="8"/><text x="14" y="250">Nuclear</text>
+            <rect x="0" y="290" width="130" height="40" rx="8"/><text x="14" y="315">Onsite gas</text>
+            <rect x="0" y="355" width="130" height="40" rx="8"/><text x="14" y="380">Battery</text>
+          </g>
+          <g class="viz-campus">
+            <rect x="330" y="140" width="150" height="120" rx="12"/>
+            <text x="405" y="195" text-anchor="middle" class="big">Campus</text>
+            <text x="405" y="218" text-anchor="middle">75 MW peak</text>
+          </g>
+        </svg>
+        <figcaption>Illustrative: the resource types the prototype can combine.</figcaption>
+      </figure>
+    </div>
+    <a class="scroll-hint" href="#about" aria-label="Scroll to the next section"><span aria-hidden="true">↓</span></a>
+  </section>
+
+  <!-- Section 2: About the project -->
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">About the project</p>
+        <h2 id="about-title">What Is Peak Power?</h2>
+        <p class="section-lede">Peak Power is a planning and operations simulator for a fictional data-center campus in Williamson County, Texas. It runs entirely in your browser: you choose how the campus is powered, and Peak Power replays every hour of the plan to show what it costs, how clean it is, and how it holds up.</p>
+      </div>
+
+      <div class="grid-2">
+        <article class="card reveal">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3Z"/><path d="M12 10v5M12 18v.5"/></svg></span>
+          <h3>The problem</h3>
+          <p>A data-center developer has to balance <strong>speed to power</strong>, <strong>cost</strong> and <strong>environmental performance</strong>. Energy resources differ in when they become available, how they operate and what they cost, and the campus grid connection arrives in stages, which limits how much power can flow in at each date.</p>
+        </article>
+        <article class="card reveal">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg></span>
+          <h3>The objectives</h3>
+          <ul class="ticks">
+            <li>Recommend a feasible mix of power sources that serves the campus.</li>
+            <li>Protect essential demand and account for flexible work during grid stress.</li>
+            <li>Explain the trade-offs behind every recommendation.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="reveal">
+        <h3 class="sub-h">How the prototype shows it</h3>
+        <p class="section-lede narrow">The prototype walks through three steps, from the first decision to the live operation of the plant.</p>
+      </div>
+      <ol class="steps">
+        <li class="card step reveal">
+          <span class="step-n" aria-hidden="true">1</span>
+          <h4>Site Planning</h4>
+          <p>Compare power options and revenue models, set the limits that matter, and pick a start month.</p>
+        </li>
+        <li class="card step reveal">
+          <span class="step-n" aria-hidden="true">2</span>
+          <h4>Run the plant</h4>
+          <p>Review the plant like a board: cost, alerts, contracts and the big decisions.</p>
+        </li>
+        <li class="card step reveal">
+          <span class="step-n" aria-hidden="true">3</span>
+          <h4>Live Operations</h4>
+          <p>Watch the site run with a forecast, alerts and equipment status, and simulate events such as a wind lull or an outage.</p>
+        </li>
+      </ol>
+
+      <aside class="expect reveal" aria-label="What to expect">
+        <h3>What to expect</h3>
+        <p>Pick a scenario, watch a plan take shape, and test it against stress. Peak Power is a screening tool built from benchmark assumptions: results compare options and are not a real project quote or a guarantee of uptime.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Section 3: Meet the creators -->
+  <section class="section section-alt" id="team" aria-labelledby="team-title">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">The team</p>
+        <h2 id="team-title">Meet the Minds Behind Peak Power</h2>
+        <p class="section-lede">Four creators built Peak Power together.</p>
+      </div>
+      <!-- To use a photo, replace the .avatar span in a card with:
+           <img class="avatar" src="assets/images/NAME.jpg" alt="Photo of NAME" width="96" height="96"> -->
+      <ul class="team">
+        <li class="card person reveal">
+          <span class="avatar" aria-hidden="true">S</span>
+          <h3>Samuel</h3>
+          <p class="role">Role: <em>to be added</em></p>
+          <p class="bio">Placeholder: a short biography will go here.</p>
+        </li>
+        <li class="card person reveal">
+          <span class="avatar" aria-hidden="true">A</span>
+          <h3>Aliyah</h3>
+          <p class="role">Role: <em>to be added</em></p>
+          <p class="bio">Placeholder: a short biography will go here.</p>
+        </li>
+        <li class="card person reveal">
+          <span class="avatar" aria-hidden="true">M</span>
+          <h3>Mridul</h3>
+          <p class="role">Role: <em>to be added</em></p>
+          <p class="bio">Placeholder: a short biography will go here.</p>
+        </li>
+        <li class="card person reveal">
+          <span class="avatar" aria-hidden="true">MJ</span>
+          <h3>MD Joy</h3>
+          <p class="role">Role: <em>to be added</em></p>
+          <p class="bio">Placeholder: a short biography will go here.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Section 4: Explore the prototype -->
+  <section class="section cta" id="explore" aria-labelledby="cta-title">
+    <div class="wrap cta-in reveal">
+      <h2 id="cta-title">Ready to Experience Peak Power?</h2>
+      <p class="section-lede">Explore our interactive prototype and discover Peak Power in action.</p>
+      <a class="btn btn-next" href="prototype.html">Next <span aria-hidden="true">→</span></a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>PEAK POWER</strong> · Created for the GridTech Hackathon, Columbia University Energy Symposium. The campus, offers and scenarios are fictional benchmark assumptions.</p>
+  </div>
+</footer>
+
+<script src="js/landing.js"></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PeakPower</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='%230d6672' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/reset.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/planning.css">
+<link rel="stylesheet" href="css/plant-review.css">
+<link rel="stylesheet" href="css/live-operations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>PeakPower</h1>
+    <div class="site">Williamson County, TX · <b>75 MW peak</b>, 69 MW average · grid import <b>0 → 25 → 50 → 75 MW</b> at months 18 / 24 / 30 · 10-year horizon</div>
+    <nav class="sitelinks" aria-label="Peak Power pages"><a href="index.html">Introduction</a><a href="data-centers.html">Data Center Explorer</a></nav>
+  </header>
+  <nav class="steps" role="tablist">
+    <button role="tab" id="tab-1" data-s="1"><span class="n">1</span><span style="min-width:0"><b>Site Planning</b><small>Power, revenue, start month</small></span></button>
+    <button role="tab" id="tab-2" data-s="2"><span class="n">2</span><span style="min-width:0"><b>Run the plant</b><small>Board review: cost, alerts, big decisions</small></span></button>
+    <button role="tab" id="tab-3" data-s="3"><span class="n">3</span><span style="min-width:0"><b>Live Operations</b><small>Site, forecast, alerts, equipment</small></span></button>
+  </nav>
+
+  <!-- ============ STEP 1 ============ -->
+  <section class="view" id="v-1" role="tabpanel" aria-labelledby="tab-1">
+    <div class="box">
+      <p class="eyebrow"><span class="k">A</span>When to open · the month with the highest 10-year profit wins</p>
+      <div class="legend"><span><i style="background:var(--good)"></i>Profit</span><span><i style="background:var(--cost)"></i>Power cost</span><span><i style="height:0;border-top:3px solid var(--rev)"></i>Revenue (label above)</span><span class="muted">10 years, constant 2023 dollars</span></div>
+      <div class="chart" id="starts"></div>
+      <div id="rec" style="margin-top:10px"></div>
+      <div id="o-why"></div>
+    </div>
+
+    <div class="box">
+      <p class="eyebrow" style="margin:0"><span class="k">B</span>Key options · the chart re-runs</p>
+      <div class="qrow" aria-label="Key options">
+                    <div class="in"><label for="q-model">Revenue model <span class="tag">team</span></label><select id="q-model"><option value="lease">Capacity lease</option><option value="pass">Lease + power pass-through</option><option value="bundled">All-in price per MWh</option><option value="hybrid">Combined, by tier</option></select></div>
+          <div class="in"><label for="q-tier" id="q-tierl">Rent level</label><select id="q-tier"></select></div>
+          <div class="in"><label for="q-delay">Grid connection</label><select id="q-delay"></select></div>
+          <div class="in"><label for="q-cap">Carbon cap</label><select id="q-cap"></select></div>
+          <div class="in"><label for="q-capmode">Cap applies to</label><select id="q-capmode"></select></div>
+      </div>
+    </div>
+
+    <div class="box">
+      <p class="eyebrow"><span class="k">C</span>Revenue models: how the campus earns money <span class="tag">team valuation</span></p>
+      <div class="models" id="models"></div>
+      <div class="mparams" id="mparams"></div>
+      <div id="mrec"></div>
+    </div>
+
+
+    <div class="box">
+      <p class="eyebrow"><span class="k">D</span>Site and infrastructure for this start month</p>
+      <div id="infra"></div>
+    </div>
+
+    <div class="box">
+      <p class="eyebrow"><span class="k">E</span>The seven power sources: when each is available and what it costs</p>
+      <div class="legend"><span><i style="background:var(--s-grid);opacity:.35"></i>Grid import limit (MW)</span><span><i style="background:var(--s-wind)"></i>Contract, delivered over the grid</span><span><i style="background:var(--s-gas)"></i>Onsite equipment</span><span><i style="background:var(--ink);width:2px;height:12px"></i>Your start month</span></div>
+      <div class="chart" id="pipe"></div>
+      <p class="muted sm">Contracts pay for all available output and share the grid limit. Onsite units pay a fixed yearly charge plus fuel.</p>
+    </div>
+
+
+    <details class="box fold" id="lp-fold"><summary><span class="eyebrow" style="margin:0"><span class="k">F</span>Site layout planner <span class="tag">try it</span></span><span class="muted sm">Drag data halls and power units onto the plot, then test the layout</span></summary>
+      <p class="muted sm">Click to place, drag to move, R to rotate, Delete to remove. Power-yard squares are 0.05 acre (packet land per MW). Buildings are illustrative.</p>
+      <div class="lp2"><div><div class="tools" id="lp-tools"></div><div class="chart lpgrid" id="lp-grid"></div></div><div id="lp-side"></div></div>
+      <div id="lp"></div>
+    </details>
+
+    <details class="settings"><summary>Limits and conditions <span class="sum" id="set-sum"></span></summary>
+      <div class="inputs">
+        <div class="in"><label for="s-dead">Full campus no later than</label><select id="s-dead"></select><span class="hint">packet target: month 30</span></div>
+        <div class="in"><label for="s-cap">Carbon limit, 10-year average</label><select id="s-cap"></select></div>
+        <div class="in"><label for="s-delay">Grid connection</label><select id="s-delay"></select></div>
+        <div class="in"><label for="s-ren">Wind and solar contract start <span class="tag">ext.</span></label><select id="s-ren"></select></div>
+        <div class="in"><label for="s-growth">Demand after full campus <span class="tag">ext.</span></label><select id="s-growth"></select></div>
+        <div class="in"><label for="s-weather">Weather year <span class="tag">ext.</span></label><select id="s-weather"></select></div>
+        <div class="in"><label for="s-grid">Grid stress</label><select id="s-grid"></select></div>
+        <div class="in"><label for="q-acres">Land for onsite power</label><select id="q-acres"></select></div>
+      </div>
+    </details>
+
+    <div class="next"><span class="muted sm" id="o-nextlbl"></span><button class="btn pri" type="button" id="go-2">Start the plant →</button></div>
+  </section>
+
+  <!-- ============ STEP 2 ============ -->
+  <section class="view" id="v-2" role="tabpanel" aria-labelledby="tab-2" hidden>
+    <div class="box" id="c-head"></div>
+    <div class="run2">
+      <div class="box"><div class="boxh"><p class="eyebrow" style="margin:0">The plant · where energy and money went</p><div class="seg" role="group" aria-label="Period" id="c-win"></div></div><p class="muted sm" id="c-wlab" style="margin:2px 0 6px"></p><div class="chart" id="c-plant"></div></div>
+      <div class="box"><p class="eyebrow">Alerts</p><div class="alerts" id="c-alerts"></div></div>
+    </div>
+    <div class="box"><p class="eyebrow">Power cost per MWh, month by month</p><div class="legend" id="c-costleg"></div><div class="chart" id="c-cost"></div></div>
+    <div class="box"><p class="eyebrow">Environmental report · carbon and clean energy</p>
+      <div class="kpis" id="env-kpi"></div>
+      <div class="env2"><div><p class="muted sm" style="margin:8px 0 2px">CO₂ by year, tonnes · label = kg/MWh · faded = projection</p><div class="legend"><span><i style="background:var(--s-gas)"></i>Onsite gas (scope 1)</span><span><i style="background:var(--s-grid)"></i>Grid power (scope 2)</span><span><i style="background:var(--s-rel)"></i>Work moved to remote site</span></div><div class="chart" id="env-yr"></div></div>
+        <div><p class="muted sm" style="margin:8px 0 2px">Clean energy share by hour of day and month · darker = cleaner</p><div class="legend"><span><i style="background:var(--s-wind);opacity:.1"></i>0%</span><span><i style="background:var(--s-wind);opacity:.55"></i>50%</span><span><i style="background:var(--s-wind)"></i>100%</span><span class="muted">line = now</span></div><div class="chart" id="env-hm"></div></div></div>
+      <details class="fold" style="margin-top:10px"><summary><span class="sm" style="font-weight:600">Projected impacts by plan</span><span class="muted sm">CO₂ to month 120, cost per tonne avoided · from month <span class="atm"></span></span></summary><div id="env-imp" style="margin-top:6px"></div></details>
+      <p class="muted sm">Emission factors are the packet's: gas units by heat rate, grid power at the packet's hourly-average grid intensity falling 3% a year, and moved work at the remote site's grid intensity. The packet does not count grid power as clean, so the hourly clean share is wind, solar, nuclear and battery used on site.</p>
+    </div>
+    <div class="box"><p class="eyebrow">Board decisions · operations runs gas and batch work for you</p><div class="decs" id="c-decs"></div><p class="vs" id="c-vs"></p></div>
+    <div class="next"><button class="btn" type="button" id="back-1">← Change start month</button><button class="btn pri" type="button" id="go-3">Go to Live Operations →</button></div>
+  </section>
+
+  <!-- ============ STEP 3 ============ -->
+  <section class="view" id="v-3" role="tabpanel" aria-labelledby="tab-3" hidden>
+    <div class="box">
+      <div class="liveh">
+        <div class="clock" id="l-clock"></div><span class="status" id="l-status"></span>
+        <div class="ctrl"><button class="btn" type="button" id="l-play">❚❚ Pause</button>
+          <div class="seg" role="group" aria-label="Playback speed" id="l-speed"><button type="button" data-v="1">1 h/step</button><button type="button" data-v="6">6 h</button><button type="button" data-v="24">1 day</button><button type="button" data-v="168">1 week</button></div></div>
+      </div>
+      <div class="now">
+            <div><div class="lab">Client demand now</div><div class="val" id="l-dem"></div></div>
+            <div><div class="hbar" id="l-dbar"></div><div class="keys"><span><i style="background:var(--t0)"></i>Always-on</span><span><i style="background:var(--t1)"></i>Movable</span><span><i style="background:var(--t2)"></i>Batch</span></div></div>
+            <div><div class="lab">Being met by</div><div class="val" id="l-met"></div></div>
+            <div><div class="hbar" id="l-sbar"></div><div class="keys" id="l-skeys"></div></div>
+          </div>
+      <div class="tot" id="l-tot"></div>
+    </div>
+    <div class="op2">
+      <div class="col">
+        <section class="box" aria-label="Site"><p class="eyebrow">The site, live · click any equipment</p><div class="chart site" id="site"></div>
+          <div class="keys" style="margin-top:2px"><span><i style="background:var(--good)"></i>running</span><span><i style="background:var(--ink-3)"></i>standby</span><span><i style="background:#c98500"></i>warning or service</span><span><i style="background:var(--bad)"></i>offline</span><span class="muted">line width = MW flowing</span></div></section>
+        <section class="box" aria-label="How demand was met">
+          <p class="eyebrow">Last 7 days · demand (line) and how it was met</p>
+          <div class="chart" id="l-week"></div>
+          <div class="chart" id="l-over" style="cursor:pointer;margin-top:2px" title="Click to jump"></div>
+          <div class="jumps"><span class="muted" style="font-size:12px">Jump to</span><button class="btn" type="button" data-j="open">First power</button><button class="btn" type="button" data-j="grid">Grid arrives</button><button class="btn" type="button" data-j="stress">Next grid stress</button><button class="btn" type="button" data-j="full">Full campus</button><button class="btn" type="button" data-j="y6">Year 6</button></div>
+        </section>
+      </div>
+      <div class="col">
+        <section class="box" id="eq-panel" aria-label="Selected equipment"></section>
+        <section class="box" aria-label="Forecast"><p class="eyebrow">Forecast · next 72 hours</p>
+          <div class="legend"><span><i style="background:var(--s-wind)"></i>Wind</span><span><i style="background:var(--s-solar)"></i>Solar</span><span><i style="background:var(--ink-3);opacity:.4"></i>uncertainty <span class="tag">ext.</span></span><span><i style="height:0;border-top:2px solid var(--ink)"></i>Demand</span><span><i style="height:0;border-top:2px dashed var(--s-grid)"></i>Grid limit</span><span><i style="height:0;border-top:2px dotted var(--ink-3)"></i>Grid + onsite</span></div>
+          <div class="chart" id="fc"></div><div class="flags" id="fc-flags"></div></section>
+        <section class="box" aria-label="Alerts"><p class="eyebrow">Alerts and actions</p><div class="alerts" id="al"></div>
+          <div class="sim"><label for="sim" class="sm" style="font-weight:600">Simulate tomorrow</label><select id="sim"></select><select id="sim-src" aria-label="Which unit trips" hidden></select><div class="muted sm" id="sim-d"></div></div>
+          <div id="op-report" style="margin-top:10px"></div></section>
+      </div>
+    </div>
+  </section>
+    </div>
+  </section>
+
+  <footer><b>Data and model.</b> Power costs, carbon, demand and its tiers, wind and solar profiles, prices, grid schedule, stress events and the seven resource offers come from the contestant packet; builds start from 384 pre-simulated plans that passed its official checker and are re-run hour by hour in your browser with the checker's accounting. Revenue models, demand growth, weather years, contract delays, forecast events and the rented generator ($350/MWh, 0.74 t CO₂/MWh) are ours and labeled. The packet does not allow selling power back to the grid. Cost is the packet's decision cost (energy, equipment, contracts, $123.50/MWh to move work, $1,000/MWh for paused batch work), constant 2023 dollars, undiscounted. Dispatch follows simple rules, not an optimizer.</footer>
+</div>
+
+
+<!-- Data and engine first, then the app files in dependency order (main.js starts the app). -->
+<script src="js/data/reference-data.js"></script>
+<script src="js/data/scenarios.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app/core.js"></script>
+<script src="js/app/settings.js"></script>
+<script src="js/app/simulation.js"></script>
+<script src="js/app/planning.js"></script>
+<script src="js/app/site-layout.js"></script>
+<script src="js/app/plant-review.js"></script>
+<script src="js/app/plant-reports.js"></script>
+<script src="js/app/plant-alerts.js"></script>
+<script src="js/app/live-run.js"></script>
+<script src="js/app/live-operator.js"></script>
+<script src="js/app/live-site-diagram.js"></script>
+<script src="js/app/live-forecast.js"></script>
+<script src="js/app/live-alerts.js"></script>
+<script src="js/app/live-equipment.js"></script>
+<script src="js/app/main.js"></script>
+
+</body>
+</html>

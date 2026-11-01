@@ -13,7 +13,18 @@ PACKET_DIR = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = PACKET_DIR / "outputs"
 WEB_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-FRONTEND_PATH = PROJECT_ROOT / "PeakPower.html"
+FRONTEND_DIR = PROJECT_ROOT / "peak-power"
+FRONTEND_PATH = FRONTEND_DIR / "index.html"  # introduction page
+# Other pages of the frontend, served by exact path.
+PAGES = {"/prototype.html": FRONTEND_DIR / "prototype.html", "/data-centers.html": FRONTEND_DIR / "data-centers.html"}
+# Only these folders of the frontend are served, with explicit content types.
+ASSET_TYPES = {
+    ".css": "text/css; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".geojson": "application/geo+json; charset=utf-8",
+    ".json": "application/json; charset=utf-8",
+}
+ASSET_DIRS = ("css", "js", "data")
 
 
 @lru_cache(maxsize=24)
@@ -49,10 +60,22 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _send_frontend(self) -> None:
         if not FRONTEND_PATH.is_file():
-            return self.send_error(404, "PeakPower.html was not found at the project root")
-        raw = FRONTEND_PATH.read_bytes()
+            return self.send_error(404, "peak-power/index.html was not found at the project root")
+        self._send_file(FRONTEND_PATH, "text/html; charset=utf-8")
+
+    def _send_asset(self, route: str) -> None:
+        parts = route.lstrip("/").split("/")
+        target = (FRONTEND_DIR / Path(*parts)).resolve()
+        content_type = ASSET_TYPES.get(target.suffix)
+        inside = FRONTEND_DIR.resolve() in target.parents
+        if parts[0] not in ASSET_DIRS or content_type is None or not inside or not target.is_file():
+            return self.send_error(404, "Not found")
+        self._send_file(target, content_type)
+
+    def _send_file(self, path: Path, content_type: str) -> None:
+        raw = path.read_bytes()
         self.send_response(200)
-        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(raw)))
         self.send_header("Cache-Control", "no-cache")
         self.end_headers()
@@ -62,9 +85,11 @@ class Handler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         if not parsed.path.startswith("/api/"):
             route = unquote(parsed.path)
-            if route in ("/", "/index.html", f"/{FRONTEND_PATH.name}"):
+            if route in ("/", "/index.html"):
                 return self._send_frontend()
-            return self.send_error(404, "Not found")
+            if route in PAGES and PAGES[route].is_file():
+                return self._send_file(PAGES[route], "text/html; charset=utf-8")
+            return self._send_asset(route)
         params = parse_qs(parsed.query)
         try:
             if parsed.path == "/api/health":

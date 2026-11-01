@@ -1,0 +1,62 @@
+/* Shared styles for every Peak Power page: base, navigation, type, buttons, footer.
+   Colours and fonts come from css/tokens.css. Page-specific styles live in landing.css and data-centers.css. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { max-width: 100%; }
+a { color: inherit; }
+h1, h2, h3, h4 { font-family: var(--f-display); line-height: 1.1; margin: 0; }
+p { margin: 0; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)) max(20px, env(safe-area-inset-right, 0px)); }
+
+.skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--accent); color: var(--accent-ink); padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; }
+.skip:focus { top: 12px; }
+
+/* ---- navigation ---- */
+.nav { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid transparent; transition: border-color .25s, box-shadow .25s; }
+.nav.scrolled { border-bottom-color: var(--rule); box-shadow: 0 4px 18px rgb(0 0 0 / .06); }
+.nav-in { max-width: 1120px; margin: 0 auto; height: 60px; padding-inline: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--f-display); font-weight: 700; font-size: 20px; letter-spacing: .08em; text-decoration: none; }
+.mark { width: 14px; height: 22px; background: var(--accent); clip-path: polygon(60% 0, 0 58%, 42% 58%, 30% 100%, 100% 36%, 56% 36%); }
+.nav nav { display: flex; align-items: center; gap: 6px; }
+.nav nav a { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--ink-2); padding: 8px 12px; border-radius: 6px; transition: color .2s, background .2s; }
+.nav nav a:hover { color: var(--ink); background: var(--accent-soft); }
+.nav nav .nav-cta { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.nav nav .nav-cta:hover { background: var(--accent); color: var(--accent-ink); filter: brightness(1.1); }
+
+/* ---- shared type ---- */
+.eyebrow { font-family: var(--f-display); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+h2 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 700; text-wrap: balance; }
+.section-lede { color: var(--ink-2); font-size: 1.1rem; max-width: 62ch; margin-top: 14px; }
+.section-lede.narrow { max-width: 56ch; }
+
+/* ---- buttons ---- */
+.btn { display: inline-flex; align-items: center; gap: 10px; font: inherit; font-weight: 600; text-decoration: none; padding: 13px 24px; border-radius: 999px; border: 2px solid transparent; transition: transform .2s ease, box-shadow .2s ease, background .2s, border-color .2s; }
+.btn span { display: inline-block; transition: transform .2s ease; }
+.btn:hover span { transform: translateX(4px); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 35%, transparent); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 45%, transparent); }
+.btn-ghost { border-color: var(--rule); color: var(--ink); background: var(--panel); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+.foot { padding: 28px 0 36px; border-top: 1px solid var(--rule); color: var(--ink-2); font-size: 13.5px; }
+.foot strong { color: var(--ink); letter-spacing: .06em; }
+
+@media (max-width: 560px) {
+  .nav nav a:not(.nav-cta) { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

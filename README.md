@@ -2,7 +2,7 @@
 
 ## Executive summary
 
-PeakPower is an interactive screening tool for planning power supply for a fictional data-center campus in Williamson County, Texas. Its main page, `PeakPower.html`, contains the interface, benchmark reference data, a library of candidate plans, and the browser-side hourly simulation. The app follows a three-step workflow: decide when and how to open, review a proposed plant, then inspect and operate the selected plan through live forecasts and event scenarios.
+PeakPower is an interactive screening tool for planning power supply for a fictional data-center campus in Williamson County, Texas. Its frontend, in `peak-power/` (introduction page `peak-power/index.html`, prototype `peak-power/prototype.html`), contains the interface, benchmark reference data, a library of candidate plans, and the browser-side hourly simulation. The app follows a three-step workflow: decide when and how to open, review a proposed plant, then inspect and operate the selected plan through live forecasts and event scenarios.
 
 PeakPower makes cost, carbon, service timing, grid limits, and operational response visible together. It is a scenario tool built from benchmark assumptions; it is not a real project quote or a guarantee of uptime.
 
@@ -17,7 +17,7 @@ PeakPower makes cost, carbon, service timing, grid limits, and operational respo
 
 ## Implemented approach
 
-PeakPower embeds the benchmark reference-year time series and resource catalog in the HTML file. It also includes **384 pre-simulated candidate plans** that passed the supplied checker. For a selected scenario, its browser-side engine reconstructs the full 87,600-hour horizon and re-dispatches the chosen capacities using transparent operating rules. The page then summarizes energy flows, costs, emissions, service outcomes, and alerts for the selected plan and its alternatives.
+PeakPower embeds the benchmark reference-year time series and resource catalog in its data scripts (`peak-power/js/data/`). It also includes **384 pre-simulated candidate plans** that passed the supplied checker. For a selected scenario, its browser-side engine reconstructs the full 87,600-hour horizon and re-dispatches the chosen capacities using transparent operating rules. The page then summarizes energy flows, costs, emissions, service outcomes, and alerts for the selected plan and its alternatives.
 
 The benchmark horizon is 120 model months. It uses the packet’s fictional Texas campus profile, hourly load tiers, wind and solar shapes, electricity and gas prices, resource availability, grid limits, and recurring stress events. Mature load is 75 MW peak and 69 MW average. The reference grid schedule increases import capacity from 0 to 25, 50 and 75 MW at months 18, 24 and 30. Prices are screening assumptions in constant 2023 dollars; the model does not discount costs. The packet inputs are regional proxies and repeated reference-year shapes, not site forecasts.
 
@@ -46,7 +46,8 @@ flowchart TD
 
 ## Software structure and run instructions
 
-- **Canonical frontend:** root-level `PeakPower.html`. The Python server returns this file unchanged at `/`, `/index.html`, and `/PeakPower.html`.
+- **Canonical frontend:** `peak-power/` (see `peak-power/README.md`; the original single file is kept in `backup/PeakPower.original.html`). The Python server returns the introduction page `peak-power/index.html` at `/` and `/index.html`, the prototype at `/prototype.html`, and serves its `/css/*` and `/js/*` files.
+- **Data Center Explorer:** `peak-power/data-centers.html`, an interactive world and United States map of data centers built from `data/data_centers.zip` (an OpenStreetMap-derived extract). `scripts/process_data_centers.py` validates it and writes `peak-power/data/processed/data-centers.geojson`; see `peak-power/README.md` for how to refresh it. The page has no power-capacity data because the dataset has none.
 - **Python backend:** `data/Contestant_Packet/team_app/server.py` exposes health, recommendation, policy-comparison, and grid-delay endpoints. `engine.py` provides the benchmark recommendation logic and command-line entry point. This service is available separately; the current HTML runs its embedded browser engine and does not call the Python API.
 - **Python API model:** the separate Python engine evaluates a documented 14-portfolio candidate set against the supplied checker. Its recommendation endpoint can use the validated default output files. This is a distinct implementation from the HTML’s 384-plan library and should not be presented as if it powers the browser page.
 
@@ -65,4 +66,4 @@ The local server binds to `127.0.0.1:8000` by default. The browser page is self-
 - The benchmark uses regional proxy data and repeats reference-year shapes across the horizon; results are not forecasts.
 - The HTML plan library is finite, and dispatch is rule-based. Results are screening comparisons, not proof of a globally optimal portfolio.
 - Equipment outages, startups, gas delivery and other real-world operating constraints are simplified or represented only in optional scenarios.
-- The root HTML and Python API currently run separate calculation paths. The HTML file is intentionally preserved unchanged; its browser-side results do not come from the Python endpoints.
+- The frontend and Python API currently run separate calculation paths. The frontend's calculation code is preserved unchanged; its browser-side results do not come from the Python endpoints.

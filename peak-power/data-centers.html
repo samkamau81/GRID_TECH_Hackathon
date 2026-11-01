@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Global Data Center Explorer – Peak Power</title>
+<meta name="description" content="An interactive map of data centers worldwide and across the United States, built from an OpenStreetMap-derived dataset.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='%230d6672' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" integrity="sha384-pmjIAcz2bAn0xukfxADbZIb3t8oRT9Sv0rvO+BR5Csr6Dhqq+nZs59P0pPKQJkEV" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" integrity="sha384-wgw+aLYNQ7dlhK47ZPK7FRACiq7ROZwgFNg0m04avm4CaXS+Z9Y7nMu8yNjBKYC+" crossorigin="anonymous">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/data-centers.css">
+</head>
+<body>
+<a class="skip" href="#explorer">Skip to the map</a>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="index.html" aria-label="Peak Power, introduction"><span class="mark" aria-hidden="true"></span>PEAK POWER</a>
+    <nav aria-label="Peak Power pages">
+      <a href="index.html">Introduction</a>
+      <a href="prototype.html">Prototype</a>
+      <a href="data-centers.html" aria-current="page">Data Center Explorer</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="page-head wrap" aria-labelledby="page-title">
+    <p class="eyebrow">Energy infrastructure</p>
+    <h1 id="page-title">Global Data Center Explorer</h1>
+    <p class="lede">Where mapped data centers are concentrated worldwide and across the United States. The data comes from an OpenStreetMap-derived dataset, so it shows facilities that have been mapped, not a complete census, and it contains no power-capacity figures.</p>
+  </section>
+
+  <section class="wrap" aria-label="Summary statistics">
+    <div class="stat-cards" id="stats" aria-live="polite">
+      <div class="stat skeleton"><span class="stat-k">Data centers</span><span class="stat-v">…</span></div>
+    </div>
+    <p class="coverage" id="coverage" hidden></p>
+    <div class="top-lists">
+      <section class="panel" aria-labelledby="tc-h">
+        <h2 id="tc-h">Top five countries</h2>
+        <ol class="bars" id="top-countries"></ol>
+      </section>
+      <section class="panel" aria-labelledby="ts-h">
+        <h2 id="ts-h">Top five US states</h2>
+        <ol class="bars" id="top-states"></ol>
+      </section>
+    </div>
+  </section>
+
+  <section class="wrap explorer" id="explorer" aria-label="Map and filters">
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Map view">
+        <button type="button" id="view-global" aria-pressed="true">Global View</button>
+        <button type="button" id="view-us" aria-pressed="false">United States View</button>
+      </div>
+      <div class="seg" role="group" aria-label="Map layer">
+        <button type="button" id="mode-clusters" aria-pressed="true">Clusters</button>
+        <button type="button" id="mode-markers" aria-pressed="false">Markers</button>
+        <button type="button" id="mode-heat" aria-pressed="false">Density heatmap</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite">Loading data…</p>
+    </div>
+    <p class="mode-note" id="mode-note" hidden>The heatmap shows where mapped data centers are concentrated. It does not represent electricity consumption or power demand.</p>
+
+    <div class="explorer-grid">
+      <details class="filters panel" id="filters" open>
+        <summary>Filters</summary>
+        <div class="filters-body">
+          <label class="fld" for="f-search">Search name or operator
+            <input id="f-search" type="search" autocomplete="off" placeholder="e.g. Equinix">
+          </label>
+          <label class="fld" for="f-region">Region
+            <select id="f-region"><option value="">All regions</option></select>
+          </label>
+          <label class="fld" for="f-country">Country
+            <select id="f-country"><option value="">All countries</option></select>
+          </label>
+          <label class="fld" for="f-state">US state
+            <select id="f-state"><option value="">All states</option></select>
+            <span class="hint" id="state-hint"></span>
+          </label>
+          <label class="fld" for="f-city">City
+            <select id="f-city"><option value="">All cities</option></select>
+            <span class="hint" id="city-hint"></span>
+          </label>
+          <fieldset class="kinds">
+            <legend>Facility type</legend>
+            <div id="kinds"></div>
+          </fieldset>
+          <button type="button" class="btn btn-ghost btn-sm" id="f-reset">Reset filters</button>
+        </div>
+      </details>
+
+      <div class="map-wrap">
+        <div id="map" role="region" aria-label="Interactive map of data centers" tabindex="-1"></div>
+        <div class="map-overlay" id="map-overlay" role="status">
+          <div class="spinner" aria-hidden="true"></div><p>Loading data centers…</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap notes" aria-labelledby="notes-h">
+    <h2 id="notes-h">About this data</h2>
+    <ul id="notes"></ul>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>PEAK POWER</strong> · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Basemap tiles by OpenStreetMap.</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js" integrity="sha384-mFKkGiGvT5vo1fEyGCD3hshDdKmW3wzXW/x+fWriYJArD0R3gawT6lMvLboM22c0" crossorigin="anonymous"></script>
+<script src="js/data-centers.js"></script>
+</body>
+</html>
