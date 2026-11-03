@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Investment Intelligence – Peak Power</title>
+<meta name="description" content="Weather-aware exploration of where US data centers could be built: climate, cooling energy, electricity cost, grid reliability and hazard exposure.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='%230d6672' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" integrity="sha384-pmjIAcz2bAn0xukfxADbZIb3t8oRT9Sv0rvO+BR5Csr6Dhqq+nZs59P0pPKQJkEV" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" integrity="sha384-wgw+aLYNQ7dlhK47ZPK7FRACiq7ROZwgFNg0m04avm4CaXS+Z9Y7nMu8yNjBKYC+" crossorigin="anonymous">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/investment.css">
+</head>
+<body class="ii">
+<a class="skip" href="#ii-map-section">Skip to the map</a>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="index.html" aria-label="Peak Power, introduction"><span class="mark" aria-hidden="true"></span>PEAK POWER</a>
+    <nav aria-label="Peak Power pages">
+      <a href="index.html">Introduction</a>
+      <a href="prototype.html">Prototype</a>
+      <a href="data-centers.html">Data Center Explorer</a>
+      <a href="investment-intelligence.html" aria-current="page">Investment Intelligence</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="ii-hero wrap" aria-labelledby="ii-title">
+    <p class="eyebrow">Weather-aware siting analysis</p>
+    <h1 id="ii-title">Investment Intelligence</h1>
+    <p class="ii-lede">Explore how weather, climate, electricity prices, grid reliability and natural-hazard exposure shape where a US data center could be built. Click anywhere in the United States to see its climate history, estimated cooling energy and a screening score, then compare locations and test what-if scenarios.</p>
+    <p class="ii-notice" role="note"><strong>Modelled estimates, not facts.</strong> The cooling model and scoring weights are illustrative and have not been validated against real facilities. Scores are a screening comparison, not a financial return forecast or investment advice.</p>
+  </section>
+
+  <section class="wrap ii-stage" id="ii-map-section" aria-label="Map, scenario and location analysis">
+    <div class="ii-toolbar">
+      <div class="ii-seg" role="group" aria-label="Map mode">
+        <button type="button" id="mode-existing" aria-pressed="false">Existing Data Centers</button>
+        <button type="button" id="mode-climate" aria-pressed="false">Weather &amp; Climate</button>
+        <button type="button" id="mode-suit" aria-pressed="true">Investment Suitability</button>
+      </div>
+      <div class="ii-seg" role="group" aria-label="Map extent">
+        <button type="button" id="ext-us" aria-pressed="true">United States</button>
+        <button type="button" id="ext-global" aria-pressed="false">Global View</button>
+      </div>
+      <div class="ii-search">
+        <label class="sr-only" for="ii-search">Search for a US place</label>
+        <input id="ii-search" type="search" autocomplete="off" placeholder="Search a US city, e.g. Ashburn" aria-controls="ii-results" aria-expanded="false">
+        <ul id="ii-results" class="ii-results" role="listbox" hidden></ul>
+      </div>
+    </div>
+    <div class="ii-subbar">
+      <label id="metric-wrap" class="ii-inline" hidden>Show <select id="ii-metric" aria-label="Climate measure shown on the map"></select></label>
+      <label class="ii-inline"><input type="checkbox" id="ov-dc"> Existing data centers</label>
+      <label class="ii-inline"><input type="checkbox" id="ov-wx"> Current weather at data center hubs</label>
+      <button type="button" class="btn btn-ghost ii-sm" id="ii-center">Analyze map centre</button>
+      <p class="ii-status" id="ii-status" role="status" aria-live="polite">Loading data…</p>
+    </div>
+
+    <div class="ii-grid">
+      <!-- scenario and weights -->
+      <aside class="ii-card ii-controls" aria-label="What-if scenario">
+        <h2>What-if scenario</h2>
+        <p class="ii-hint">Changes update the map colours, the selected location, the comparison and the ranking.</p>
+        <label class="ii-fld" for="sc-it">IT load <output id="sc-it-o">50 MW</output>
+          <input id="sc-it" type="range" min="5" max="200" step="5" value="50"></label>
+        <label class="ii-fld" for="sc-pue">Baseline PUE <output id="sc-pue-o">1.40</output>
+          <input id="sc-pue" type="range" min="1.10" max="2.00" step="0.01" value="1.40">
+          <span class="ii-hint">PUE on a mild day (20 °C). Climate moves it up or down from here.</span></label>
+        <label class="ii-fld" for="sc-sys">Cooling system
+          <select id="sc-sys"></select>
+          <span class="ii-hint" id="sc-sys-note"></span></label>
+        <fieldset class="ii-fld ii-price">
+          <legend>Electricity price</legend>
+          <label class="ii-inline"><input type="radio" name="price" id="sc-price-auto" checked> State average (EIA)</label>
+          <label class="ii-inline"><input type="radio" name="price" id="sc-price-own"> My own
+            <input id="sc-price" type="number" min="1" max="60" step="0.1" value="8" aria-label="Electricity price in cents per kWh" disabled> ¢/kWh</label>
+        </fieldset>
+        <label class="ii-fld" for="sc-hours">Operating hours per year <output id="sc-hours-o">8,760</output>
+          <input id="sc-hours" type="range" min="1000" max="8760" step="20" value="8760"></label>
+        <label class="ii-fld" for="sc-clim">Climate assumption
+          <select id="sc-clim">
+            <option value="0">Recent history (as observed)</option>
+            <option value="1">+1 °C warmer</option>
+            <option value="2">+2 °C warmer</option>
+            <option value="3">+3 °C warmer</option>
+          </select>
+          <span class="ii-hint">A uniform temperature offset to test sensitivity. Not a climate forecast.</span></label>
+        <div class="ii-two">
+          <label class="ii-fld" for="sc-hor">Horizon (years)<input id="sc-hor" type="number" min="1" max="30" step="1" value="10"></label>
+          <label class="ii-fld" for="sc-esc">Price change per year (%)<input id="sc-esc" type="number" min="-10" max="20" step="0.5" value="0"></label>
+        </div>
+
+        <div class="ii-group">
+          <h3>Score weights</h3>
+          <p class="ii-hint">Illustrative defaults, not validated preferences. Weights are relative.</p>
+          <div id="ii-weights"></div>
+          <button type="button" class="btn btn-ghost ii-sm" id="sc-reset">Reset scenario</button>
+        </div>
+
+        <div class="ii-usage" id="ii-usage" aria-live="polite"></div>
+      </aside>
+
+      <!-- map -->
+      <div class="ii-mapcol">
+        <div class="ii-mapwrap">
+          <div id="ii-map" role="region" aria-label="Interactive US map. Click a location to analyse it." tabindex="-1"></div>
+          <div class="ii-overlay" id="ii-overlay" role="status"><div class="ii-spinner" aria-hidden="true"></div><p>Loading data…</p></div>
+        </div>
+        <p class="ii-mapnote" id="ii-mapnote"></p>
+      </div>
+
+      <!-- location panel -->
+      <aside class="ii-card ii-panel" id="ii-panel" aria-label="Location analysis" aria-live="polite">
+        <div class="ii-empty" id="ii-empty">
+          <h2>Location analysis</h2>
+          <p>Click anywhere on the US map, or search for a place, to see:</p>
+          <ul><li>current weather</li><li>multi-year climate history</li><li>estimated cooling energy and electricity cost</li><li>environmental risk indicators</li><li>a modelled suitability score</li></ul>
+          <p class="ii-hint">Each new analysis uses about 78 of the free weather API’s 10,000 daily calls, so results are stored and reused.</p>
+        </div>
+        <div id="ii-loc" hidden></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap ii-section" aria-labelledby="cmp-h">
+    <h2 id="cmp-h">Compare locations</h2>
+    <p class="ii-hint">Analyse a location, then press “Add to comparison” (up to four). Differences are relative to the first column and use the scenario on the left.</p>
+    <div class="ii-tablewrap" id="ii-compare"><p class="ii-muted">No locations added yet.</p></div>
+  </section>
+
+  <section class="wrap ii-section" aria-labelledby="rank-h">
+    <h2 id="rank-h">State ranking <span class="ii-badge">modelled</span></h2>
+    <p class="ii-hint" id="rank-note"></p>
+    <div class="ii-tablewrap ii-scroll" id="ii-rank"></div>
+  </section>
+
+  <section class="wrap ii-section ii-advisor" aria-labelledby="adv-h">
+    <h2 id="adv-h">Peak Power Investment Advisor</h2>
+    <p class="ii-hint">Ask about the modelled results. Answers are built from the same engines as the page, with the numbers always coming from the data and the model. <strong>No language model is connected</strong>, so only the question types below are understood.</p>
+    <form class="ii-ask" id="adv-form">
+      <label class="sr-only" for="adv-q">Your question</label>
+      <input id="adv-q" type="text" autocomplete="off" placeholder="e.g. How does Texas compare with Virginia?">
+      <button type="submit" class="btn btn-primary ii-sm">Ask</button>
+    </form>
+    <div class="ii-chips" id="adv-chips" aria-label="Example questions"></div>
+    <div class="ii-answer" id="adv-answer" aria-live="polite"></div>
+  </section>
+
+  <section class="wrap ii-section ii-method" id="methodology" aria-labelledby="meth-h">
+    <h2 id="meth-h">Data sources and methodology</h2>
+    <div id="ii-method"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>PEAK POWER</strong> · Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> (CC BY 4.0, free tier for non-commercial use). Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Electricity data: US EIA. Hazard data: FEMA National Risk Index (this page is not endorsed by FEMA).</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
+<script src="js/climate-stats.js"></script>
+<script src="js/us-geo.js"></script>
+<script src="js/cooling-model.js"></script>
+<script src="js/scoring-engine.js"></script>
+<script src="js/scenario-engine.js"></script>
+<script src="js/weather-service.js"></script>
+<script src="js/investment-data.js"></script>
+<script src="js/investment-advisor.js"></script>
+<script src="js/investment-panels.js"></script>
+<script src="js/investment-map.js"></script>
+</body>
+</html>

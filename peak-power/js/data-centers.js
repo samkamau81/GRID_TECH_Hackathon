@@ -282,7 +282,7 @@
     records.forEach(function (r) {
       var k = KIND_BY_KEY[r.p.kind] || KIND_BY_KEY.unclassified;
       var m = L.circleMarker([r.lat, r.lon], { radius: 6, color: '#ffffff', weight: 1, fillColor: k.color, fillOpacity: 0.9 });
-      m.bindTooltip(function () { return tipText(r.p); }, { direction: 'top', offset: [0, -4] });
+      m.bindTooltip(function () { return el('span', { text: tipText(r.p) }); }, { direction: 'top', offset: [0, -4] });   // an element: a string would be parsed as HTML
       m.bindPopup(function () { return popupNode(r.p); }, { maxWidth: 320 });
       r.marker = m;
     });

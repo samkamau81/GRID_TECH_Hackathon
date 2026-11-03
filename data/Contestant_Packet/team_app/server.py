@@ -1,6 +1,7 @@
 """Offline local HTTP API and static frontend server for PeakPower."""
 from __future__ import annotations
 
+import gzip
 import json
 from functools import lru_cache
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -16,7 +17,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 FRONTEND_DIR = PROJECT_ROOT / "peak-power"
 FRONTEND_PATH = FRONTEND_DIR / "index.html"  # introduction page
 # Other pages of the frontend, served by exact path.
-PAGES = {"/prototype.html": FRONTEND_DIR / "prototype.html", "/data-centers.html": FRONTEND_DIR / "data-centers.html"}
+PAGES = {name: FRONTEND_DIR / name.lstrip("/") for name in ("/prototype.html", "/data-centers.html", "/investment-intelligence.html")}
 # Only these folders of the frontend are served, with explicit content types.
 ASSET_TYPES = {
     ".css": "text/css; charset=utf-8",
@@ -25,6 +26,12 @@ ASSET_TYPES = {
     ".json": "application/json; charset=utf-8",
 }
 ASSET_DIRS = ("css", "js", "data")
+COMPRESSIBLE = {"text/html", "text/css", "text/javascript", "application/json", "application/geo+json"}
+
+
+@lru_cache(maxsize=64)
+def _gzipped(path: Path, mtime_ns: int, raw: bytes) -> bytes:
+    return gzip.compress(raw, compresslevel=6)
 
 
 @lru_cache(maxsize=24)
@@ -74,8 +81,14 @@ class Handler(SimpleHTTPRequestHandler):
 
     def _send_file(self, path: Path, content_type: str) -> None:
         raw = path.read_bytes()
+        compress = len(raw) > 1024 and "gzip" in self.headers.get("Accept-Encoding", "") and content_type.split(";")[0] in COMPRESSIBLE
+        if compress:
+            raw = _gzipped(path, path.stat().st_mtime_ns, raw)
         self.send_response(200)
         self.send_header("Content-Type", content_type)
+        if compress:
+            self.send_header("Content-Encoding", "gzip")
+        self.send_header("Vary", "Accept-Encoding")
         self.send_header("Content-Length", str(len(raw)))
         self.send_header("Cache-Control", "no-cache")
         self.end_headers()
@@ -136,6 +149,13 @@ class Handler(SimpleHTTPRequestHandler):
             return self._send_json(400, {"error": str(exc)})
 
 
+class Server(ThreadingHTTPServer):
+    # The default listen backlog is 5. A page that opens ~30 files at once (e.g. through a tunnel) overflows it
+    # and the OS refuses the extra connections, which a proxy reports as 502.
+    request_queue_size = 128
+    daemon_threads = True
+
+
 def main() -> None:
     import argparse
     parser = argparse.ArgumentParser(description="Run the local PeakPower frontend and API.")
@@ -144,7 +164,7 @@ def main() -> None:
     args = parser.parse_args()
     engine.checker.verify_released_data()
     engine.checker.validate_inputs()
-    server = ThreadingHTTPServer((args.host, args.port), Handler)
+    server = Server((args.host, args.port), Handler)
     print(f"PeakPower: http://{args.host}:{args.port}")
     print("Local-only, offline backend. Press Ctrl+C to stop.")
     try:
