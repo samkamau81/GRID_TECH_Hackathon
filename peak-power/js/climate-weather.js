@@ -90,7 +90,7 @@
 
   function once(key, work) {
     if (inflight[key]) return inflight[key];
-    var p = work().then(function (v) { delete inflight[key]; return v; }, function (e) { delete inflight[key]; throw e; });
+    var p = Promise.resolve().then(work).then(function (v) { delete inflight[key]; return v; }, function (e) { delete inflight[key]; throw e; });
     inflight[key] = p;
     return p;
   }

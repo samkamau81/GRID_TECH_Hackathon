@@ -1,6 +1,7 @@
-/* Global Data Center Explorer.
+/* Data Center Climate Explorer.
    Loads data/processed/data-centers.geojson (made by scripts/process_data_centers.py) and shows it on a Leaflet map
    with filters, summary statistics and three layers: clusters, individual markers and a density heatmap.
+   Current weather (js/climate-weather.js, Open-Meteo) is fetched only when a data center, a map point or a searched place is selected.
    All dataset text is inserted with textContent, never innerHTML. */
 (function () {
   'use strict';
@@ -66,6 +67,8 @@
   KINDS.forEach(function (k) { st.kinds[k[0]] = true; });
 
   var map, cluster, plainGroup, heat, legendBox, legendBody, legendControl;
+  // markercluster adds thousands of markers in chunks; removing the group mid-way throws, so layer changes wait for it to finish.
+  var clusterBusy = false, busySince = 0, pendingRender = false;
 
   // ------------------------------------------------------------------ filtering
   // `skip` names a filter to ignore, so each selector can list the options that are valid under the *other* filters.
@@ -229,7 +232,8 @@
       maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    cluster = L.markerClusterGroup({ chunkedLoading: true, showCoverageOnHover: false, maxClusterRadius: 55, animate: !REDUCED_MOTION });
+    cluster = L.markerClusterGroup({ chunkedLoading: true, showCoverageOnHover: false, maxClusterRadius: 55, animate: !REDUCED_MOTION,
+      chunkProgress: function (done, total) { if (done >= total) { clusterBusy = false; if (pendingRender) { pendingRender = false; renderLayers(); } } } });
     heat = L.heatLayer([], { radius: 14, blur: 16, maxZoom: 5, max: 3, minOpacity: 0.3,
       gradient: { 0.25: '#2a78d6', 0.5: '#1baf7a', 0.75: '#eda100', 1: '#eb6834' } });
 
@@ -243,6 +247,8 @@
       }
     });
     map.addControl(new ResetControl());
+    // Clicking empty map shows the weather there. Markers do not bubble clicks, so this never fires for a data center.
+    map.on('click', function (e) { showPlaceWeather(e.latlng.wrap(), 'Selected location'); });
 
     // Top-right keeps the legend off the busiest areas; it collapses so it never has to hide the data.
     legendControl = L.control({ position: 'topright' });
@@ -256,12 +262,53 @@
     legendControl.addTo(map);
   }
 
-  function popupNode(p) {
+  // ------------------------------------------------------------------ current weather panel
+  var W = window.ClimateWeather;
+  var fmt1 = function (v, unit) { return v === null || v === undefined ? '\u2013' : (Math.round(v * 10) / 10) + ' ' + unit; };
+  function unitText(u) { return u === 'mp/h' ? 'mph' : u === 'inch' ? 'in' : u; }
+
+  // Returns a box that shows a loading state, then the weather, or a clear "unavailable" message. The caller's content stays visible either way.
+  function weatherNode(lat, lon) {
+    var box = el('div', { class: 'wx', 'aria-live': 'polite' });
+    if (!W) { box.appendChild(el('p', { class: 'wx-msg wx-err', text: 'Weather is unavailable: the weather module did not load.' })); return box; }
+    box.appendChild(el('h4', { text: 'Current local weather' }));
+    box.appendChild(el('p', { class: 'wx-msg', text: 'Loading weather\u2026' }));
+    W.getCurrentWeather(lat, lon).then(function (w) {
+      clear(box); box.appendChild(el('h4', { text: 'Current local weather' }));
+      var u = w.units;
+      var head = el('p', { class: 'wx-head' }, [el('span', { class: 'wx-icon', 'aria-hidden': 'true', text: w.icon || '' }), el('span', { text: w.condition || 'Conditions not reported' })]);
+      var dl = el('dl');
+      [['Temperature', fmt1(w.temperature, unitText(u.temperature))], ['Feels like', fmt1(w.apparentTemperature, unitText(u.temperature))],
+       ['Humidity', fmt1(w.humidity, unitText(u.humidity))], ['Wind speed', fmt1(w.windSpeed, unitText(u.wind))],
+       ['Precipitation', fmt1(w.precipitation, unitText(u.precipitation))]].forEach(function (r) {
+        dl.appendChild(el('dt', { text: r[0] })); dl.appendChild(el('dd', { text: r[1] }));
+      });
+      box.appendChild(head); box.appendChild(dl);
+      box.appendChild(el('p', { class: 'wx-src', text: (w.time ? 'Model value for ' + w.time.replace('T', ' ') + ' local time' + (w.timezone ? ' (' + w.timezone + ')' : '') + '. ' : '') + 'Weather data by Open-Meteo.com. Current conditions are modelled for the area, not measured at the site.' }));
+    }).catch(function (err) {
+      clear(box); box.appendChild(el('h4', { text: 'Current local weather' }));
+      box.appendChild(el('p', { class: 'wx-msg wx-err', text: 'Weather unavailable: ' + (err && err.message ? err.message : 'unknown error') }));
+      var retry = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Try again' });
+      retry.addEventListener('click', function () { box.replaceWith(weatherNode(lat, lon)); });
+      box.appendChild(retry);
+    });
+    return box;
+  }
+
+  // A popup for a point that is not a data center: a clicked spot or a searched place.
+  function showPlaceWeather(latlng, title, subtitle) {
+    var node = el('div', { class: 'pop' }, [el('h3', { text: title }), subtitle ? el('p', { class: 'pop-en', text: subtitle }) : null,
+      el('p', { class: 'pop-en', text: 'Coordinates: ' + latlng.lat.toFixed(4) + ', ' + latlng.lng.toFixed(4) }), weatherNode(latlng.lat, latlng.lng)]);
+    L.popup({ maxWidth: 320 }).setLatLng(latlng).setContent(node).openOn(map);
+  }
+
+  function popupNode(p, lat, lon) {
     var rows = [];
     var add = function (k, v) { if (v) rows.push([k, v]); };
     var where = [p.street, p.city, p.state ? stateName(p.state) + (p.stateSrc === 'inferred' ? ' (state inferred from coordinates)' : '') : '', p.postcode, countryName(p)].filter(Boolean).join(', ');
     add('Operator', p.operator); add('Owner', p.owner); add('Type', KIND_BY_KEY[p.kind] && KIND_BY_KEY[p.kind].label);
     add('Location', where);
+    if (lat !== undefined) add('Coordinates', lat.toFixed(5) + ', ' + lon.toFixed(5));
     add('Building footprint', p.footprintM2 && num(p.footprintM2) + ' m²'); add('Levels', p.levels); add('Height', p.heightM && p.heightM + ' m');
     add('Opened / start date', p.startDate); add('Last edited on OSM', p.edited);
     var dl = el('dl');
@@ -271,7 +318,7 @@
     if (site) links.appendChild(el('a', { href: site, target: '_blank', rel: 'noopener noreferrer', text: 'Website' }));
     links.appendChild(el('a', { href: 'https://www.openstreetmap.org/' + p.id, target: '_blank', rel: 'noopener noreferrer', text: 'View on OpenStreetMap' }));
     var title = p.name || 'Unnamed data center';
-    return el('div', { class: 'pop' }, [el('h3', { text: title }), p.nameEn && p.nameEn !== p.name ? el('p', { class: 'pop-en', text: p.nameEn }) : null, dl, links]);
+    return el('div', { class: 'pop' }, [el('h3', { text: title }), p.nameEn && p.nameEn !== p.name ? el('p', { class: 'pop-en', text: p.nameEn }) : null, dl, lat === undefined ? null : weatherNode(lat, lon), links]);
   }
   function tipText(p) {
     var loc = [p.city, p.state ? p.state : '', countryName(p)].filter(Boolean).join(', ');
@@ -281,17 +328,19 @@
   function makeMarkers() {
     records.forEach(function (r) {
       var k = KIND_BY_KEY[r.p.kind] || KIND_BY_KEY.unclassified;
-      var m = L.circleMarker([r.lat, r.lon], { radius: 6, color: '#ffffff', weight: 1, fillColor: k.color, fillOpacity: 0.9 });
+      var m = L.circleMarker([r.lat, r.lon], { radius: 6, color: '#ffffff', weight: 1, fillColor: k.color, fillOpacity: 0.9, bubblingMouseEvents: false });
       m.bindTooltip(function () { return el('span', { text: tipText(r.p) }); }, { direction: 'top', offset: [0, -4] });   // an element: a string would be parsed as HTML
-      m.bindPopup(function () { return popupNode(r.p); }, { maxWidth: 320 });
+      m.bindPopup(function () { return popupNode(r.p, r.lat, r.lon); }, { maxWidth: 320 });
       r.marker = m;
     });
   }
 
   function renderLayers() {
+    if (clusterBusy && Date.now() - busySince < 8000) { pendingRender = true; return; }
     [cluster, plainGroup, heat].forEach(function (l) { if (l && map.hasLayer(l)) map.removeLayer(l); });
     var ms = filtered.map(function (r) { return r.marker; });
     if (st.mode === 'clusters') {
+      clusterBusy = ms.length > 0; busySince = Date.now();
       cluster.clearLayers(); cluster.addLayers(ms); map.addLayer(cluster);
     } else if (st.mode === 'markers') {
       plainGroup = L.layerGroup(ms); map.addLayer(plainGroup);
@@ -368,6 +417,34 @@
     refresh(true);
   }
 
+  function bindPlaceSearch() {
+    var form = $('wx-form'), input = $('wx-q'), list = $('wx-results'), usOnly = $('wx-us');
+    if (!form) return;
+    var note = function (t) { clear(list); list.appendChild(el('li', { class: 'wx-none', text: t })); };
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var q = input.value.trim();
+      if (q.length < 2) { note('Type at least two letters.'); return; }
+      if (!W) { note('Place search is unavailable: the weather module did not load.'); return; }
+      note('Searching\u2026');
+      W.searchPlaces(q, usOnly.checked ? { countryCode: 'US' } : {}).then(function (places) {
+        clear(list);
+        if (!places.length) { note('No places found. Try a different spelling' + (usOnly.checked ? ' or untick \u201cUS only\u201d.' : '.')); return; }
+        places.forEach(function (pl) {
+          var label = [pl.name, pl.admin1, pl.country].filter(Boolean).join(', ');
+          var b = el('button', { type: 'button', text: label });
+          b.addEventListener('click', function () {
+            clear(list);
+            var ll = L.latLng(pl.lat, pl.lng);
+            map.flyTo(ll, Math.max(map.getZoom(), 9), { animate: !REDUCED_MOTION, duration: 0.8 });
+            showPlaceWeather(ll, pl.name, [pl.admin1, pl.country].filter(Boolean).join(', '));
+          });
+          list.appendChild(el('li', {}, [b]));
+        });
+      }).catch(function (err) { note('Place search failed: ' + (err && err.message ? err.message : 'unknown error')); });
+    });
+  }
+
   function bindEvents() {
     $('view-global').addEventListener('click', function () { setView('global'); });
     $('view-us').addEventListener('click', function () { setView('us'); });
@@ -384,6 +461,7 @@
       timer = setTimeout(function () { st.q = plain(e.target.value.trim()); refresh(true); }, 180);
     });
     $('f-reset').addEventListener('click', resetFilters);
+    bindPlaceSearch();
     // On narrow screens the filter panel starts collapsed so the map is reachable without scrolling.
     if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) $('filters').open = false;
   }

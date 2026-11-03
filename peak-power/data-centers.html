@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Global Data Center Explorer – Peak Power</title>
-<meta name="description" content="An interactive map of data centers worldwide and across the United States, built from an OpenStreetMap-derived dataset.">
+<title>Data Center Climate Explorer – Peak Power</title>
+<meta name="description" content="Explore data center infrastructure and local weather conditions across the United States and around the world.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='%230d6672' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -24,17 +24,16 @@
     <nav aria-label="Peak Power pages">
       <a href="index.html">Introduction</a>
       <a href="prototype.html">Prototype</a>
-      <a href="data-centers.html" aria-current="page">Data Center Explorer</a>
-      <a href="investment-intelligence.html">Investment Intelligence</a>
+      <a href="data-centers.html" aria-current="page">Data Center Climate Explorer</a>
     </nav>
   </div>
 </header>
 
 <main>
   <section class="page-head wrap" aria-labelledby="page-title">
-    <p class="eyebrow">Energy infrastructure</p>
-    <h1 id="page-title">Global Data Center Explorer</h1>
-    <p class="lede">Where mapped data centers are concentrated worldwide and across the United States. The data comes from an OpenStreetMap-derived dataset, so it shows facilities that have been mapped, not a complete census, and it contains no power-capacity figures.</p>
+    <p class="eyebrow">Energy infrastructure · Weather</p>
+    <h1 id="page-title">Data Center Climate Explorer</h1>
+    <p class="lede">Explore data center infrastructure and local weather conditions across the United States and around the world. Select a data center, click the map, or search for a place to see its current weather. The data comes from an OpenStreetMap-derived dataset, so it shows facilities that have been mapped, not a complete census, and it contains no power-capacity figures.</p>
   </section>
 
   <section class="wrap" aria-label="Summary statistics">
@@ -71,8 +70,15 @@
 
     <div class="explorer-grid">
       <details class="filters panel" id="filters" open>
-        <summary>Filters</summary>
+        <summary>Filters &amp; weather lookup</summary>
         <div class="filters-body">
+          <form class="fld wx-search" id="wx-form" role="search" aria-label="Look up the weather for a place">
+            <label for="wx-q">Weather for a place</label>
+            <div class="wx-row"><input id="wx-q" type="search" autocomplete="off" placeholder="e.g. Ashburn"><button type="submit" class="btn btn-ghost btn-sm">Search</button></div>
+            <label class="wx-us"><input type="checkbox" id="wx-us" checked> US places only</label>
+            <ul class="wx-results" id="wx-results" aria-live="polite"></ul>
+            <span class="hint">Or click any point on the map. Weather is fetched only when you select a location.</span>
+          </form>
           <label class="fld" for="f-search">Search name or operator
             <input id="f-search" type="search" autocomplete="off" placeholder="e.g. Equinix">
           </label>
@@ -115,13 +121,14 @@
 
 <footer class="foot">
   <div class="wrap">
-    <p><strong>PEAK POWER</strong> · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Basemap tiles by OpenStreetMap.</p>
+    <p><strong>PEAK POWER</strong> · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Basemap tiles by OpenStreetMap. Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; free API, non-commercial use).</p>
   </div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" integrity="sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js" integrity="sha384-mFKkGiGvT5vo1fEyGCD3hshDdKmW3wzXW/x+fWriYJArD0R3gawT6lMvLboM22c0" crossorigin="anonymous"></script>
+<script src="js/climate-weather.js"></script>
 <script src="js/data-centers.js"></script>
 </body>
 </html>

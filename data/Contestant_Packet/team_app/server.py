@@ -17,15 +17,20 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 FRONTEND_DIR = PROJECT_ROOT / "peak-power"
 FRONTEND_PATH = FRONTEND_DIR / "index.html"  # introduction page
 # Other pages of the frontend, served by exact path.
-PAGES = {name: FRONTEND_DIR / name.lstrip("/") for name in ("/prototype.html", "/data-centers.html", "/investment-intelligence.html")}
+PAGES = {name: FRONTEND_DIR / name.lstrip("/") for name in ("/prototype.html", "/data-centers.html")}
 # Only these folders of the frontend are served, with explicit content types.
 ASSET_TYPES = {
     ".css": "text/css; charset=utf-8",
     ".js": "text/javascript; charset=utf-8",
     ".geojson": "application/geo+json; charset=utf-8",
     ".json": "application/json; charset=utf-8",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".webp": "image/webp",
+    ".svg": "image/svg+xml",
 }
-ASSET_DIRS = ("css", "js", "data")
+ASSET_DIRS = ("css", "js", "data", "assets")
 COMPRESSIBLE = {"text/html", "text/css", "text/javascript", "application/json", "application/geo+json"}
 
 

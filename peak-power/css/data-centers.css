@@ -138,3 +138,22 @@ h1 { font-size: clamp(2.2rem, 5.5vw, 3.6rem); font-weight: 700; letter-spacing: 
   .stat, .spinner { animation: none; }
   .spinner { border-top-color: var(--accent); }
 }
+
+/* ---- weather (Open-Meteo) ---- */
+.wx { margin: 10px 0 4px; padding-top: 8px; border-top: 1px solid var(--rule, #d9dfe2); }
+.wx h4 { margin: 0 0 4px; font-size: 13px; letter-spacing: .02em; }
+.wx-head { display: flex; align-items: center; gap: 8px; margin: 0 0 2px; font-weight: 600; }
+.wx-icon { font-size: 1.5rem; line-height: 1; }
+.wx dl { margin: 6px 0; }
+.wx-msg { margin: 4px 0; color: var(--ink-2); }
+.wx-err { color: #b3261e; }
+.wx-src { margin: 4px 0 0; font-size: 11.5px; color: var(--ink-2); line-height: 1.4; }
+.wx-search { gap: 6px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.wx-row { display: flex; gap: 8px; }
+.wx-row input { flex: 1 1 auto; min-width: 0; }
+.wx-us { display: flex; align-items: center; gap: 6px; font-weight: 400; font-size: 13px; }
+.wx-us input { width: auto; }
+.wx-results { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.wx-results button { width: 100%; text-align: left; font: inherit; font-size: 13px; color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.wx-results button:hover, .wx-results button:focus-visible { border-color: var(--accent); }
+.wx-none { font-size: 13px; font-weight: 400; color: var(--ink-2); }

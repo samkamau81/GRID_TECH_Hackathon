@@ -52,8 +52,10 @@ h2 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 700; text-wrap: balance; 
 .foot { padding: 28px 0 36px; border-top: 1px solid var(--rule); color: var(--ink-2); font-size: 13.5px; }
 .foot strong { color: var(--ink); letter-spacing: .06em; }
 
-@media (max-width: 560px) {
-  .nav nav a:not(.nav-cta) { display: none; }
+@media (max-width: 560px) {   /* keep all three tabs: the bar wraps to a second row */
+  .nav-in { height: auto; flex-wrap: wrap; padding-block: 8px; gap: 6px 16px; }
+  .nav nav { width: 100%; gap: 4px; }
+  .nav nav a { flex: 1 1 0; text-align: center; font-size: 13px; padding: 7px 6px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

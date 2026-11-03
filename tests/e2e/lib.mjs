@@ -7,7 +7,6 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
-export const helpers = require(path.join(ROOT, 'tests', 'unit', 'helpers.js'));
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export function findChrome() {
@@ -93,15 +92,13 @@ export async function openPage(b, { width = 1400, height = 900, dark, mocks = []
     close: () => b.send('Target.closeTarget', { targetId }) };
 }
 
-// Canned Open-Meteo / FEMA responses, built with the real climate helpers so they are shaped like the live API
-export function openMeteoMocks({ onArchive, onCurrent, onGeocode, femaBody } = {}) {
-  const archive = (meanC) => { const h = helpers.hourlySeries({ mean: meanC, annualAmp: 11, dailyAmp: 5, rh: 60, years: 3, startYear: 2023, windMph: 9 });
-    return { latitude: 39.05, longitude: -77.53, elevation: 92, timezone: 'America/New_York', hourly: { time: h.time, temperature_2m: h.temperature_2m, relative_humidity_2m: h.relative_humidity_2m, wet_bulb_temperature_2m: h.temperature_2m.map((t) => t - 4), wind_speed_10m: h.wind_speed_10m } }; };
-  const current = { elevation: 92, current_units: { temperature_2m: '°F' }, current: { time: '2026-11-01T14:30', temperature_2m: 53, apparent_temperature: 51.3, weather_code: 3, wind_speed_10m: 0.9, relative_humidity_2m: 74, wet_bulb_temperature_2m: 47 } };
+// Canned Open-Meteo responses shaped like the live API (forecast current conditions and place search), so tests never use the free allowance.
+export function openMeteoMocks({ onCurrent, onGeocode, failCurrent } = {}) {
+  const current = { latitude: 39.05, longitude: -77.53, timezone: 'America/New_York', timezone_abbreviation: 'EST',
+    current_units: { time: 'iso8601', temperature_2m: '\u00b0F', apparent_temperature: '\u00b0F', relative_humidity_2m: '%', weather_code: 'wmo code', wind_speed_10m: 'mp/h', precipitation: 'inch', is_day: '' },
+    current: { time: '2026-11-01T14:30', interval: 900, temperature_2m: 53.4, apparent_temperature: 51.3, relative_humidity_2m: 61, weather_code: 3, wind_speed_10m: 7.2, precipitation: 0, is_day: 1 } };
   return [
-    { re: /archive-api\.open-meteo\.com/, pattern: '*archive-api.open-meteo.com*', handler: async (u) => { onArchive && onArchive(u); return onArchive && onArchive.fail ? onArchive.fail() : { body: archive(onArchive && onArchive.mean || 13) }; } },
-    { re: /api\.open-meteo\.com\/v1\/forecast/, pattern: '*api.open-meteo.com/v1/forecast*', handler: async (u) => { onCurrent && onCurrent(u); const n = (new URL(u).searchParams.get('latitude') || '').split(',').length; return { body: n > 1 ? Array.from({ length: n }, (_, i) => ({ ...current, current: { ...current.current, temperature_2m: 50 + i } })) : current }; } },
-    { re: /geocoding-api\.open-meteo\.com/, pattern: '*geocoding-api.open-meteo.com*', handler: async (u) => { onGeocode && onGeocode(u); return { body: { results: [{ name: 'Ashburn', admin1: 'Virginia', country_code: 'US', latitude: 39.04, longitude: -77.49 }, { name: 'Ashburn', admin1: 'Georgia', country_code: 'US', latitude: 31.7, longitude: -83.65 }] } }; } },
-    ...(femaBody ? [{ re: /arcgis\.com/, pattern: '*arcgis.com*', handler: async () => ({ body: femaBody }) }] : [])
+    { re: /api\.open-meteo\.com\/v1\/forecast/, pattern: '*api.open-meteo.com/v1/forecast*', handler: async (u) => { onCurrent && onCurrent(u); return failCurrent ? { status: 500, body: { error: true } } : { body: current }; } },
+    { re: /geocoding-api\.open-meteo\.com/, pattern: '*geocoding-api.open-meteo.com*', handler: async (u) => { onGeocode && onGeocode(u); return { body: { results: [{ name: 'Ashburn', admin1: 'Virginia', country: 'United States', country_code: 'US', latitude: 39.04372, longitude: -77.48749 }] } }; } }
   ];
 }
