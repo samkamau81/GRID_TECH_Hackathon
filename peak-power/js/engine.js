@@ -2,9 +2,12 @@
 // dispatches a fixed portfolio hour by hour (same rules as team_app/engine.py) and does the
 // checker's common accounting. Stress scenarios can add events, harshen caps or delay the grid.
 // Unlike the Python sizing engine, this one never throws: load it cannot serve is reported as unserved.
+// Battery rules follow the symposium packet (v6.0.1, V2): the battery may charge from any portfolio source (merchant grid,
+// offsite contracts or onsite gas), behind the meter; discharge earns clean credit only in proportion to the clean share of
+// that model year's charging (see `credit` in dispatch()).
 (function (root) {
   const N = 87600, HPM = 730, HPY = 8760;
-  const ETA = Math.sqrt(0.85), REMOTE_LOCAL = 12 / 1.05, ARB = 100, HOLD = 72, FLUSH = 96;
+  const ETA = Math.sqrt(0.85), REMOTE_LOCAL = 12 / 1.05, ARB = 100, CHARGE_PX = 45, HOLD = 72, FLUSH = 96;   // discharge above ARB, grid-charge below CHARGE_PX ($/MWh)
   const GAS = ['fuel_cell', 'gas_engine', 'gas_turbine'];
   const REL_PRICE = 1.05 * 70 + 50, INT_PRICE = 1000;
   const RENT_PRICE = 350, RENT_CO2 = 0.74; // extension: rented diesel generator, $/MWh all-in and t CO2/MWh
@@ -66,7 +69,7 @@
     const carbonOrder = GAS.slice().sort((a, b) => RES[a].co2_t_per_mwh - RES[b].co2_t_per_mwh);
     const budget = new Float64Array(10), used = new Float64Array(10);
     for (let y = 0; y < 10; y++) { let hrs = 0; for (let h = y * HPY; h < (y + 1) * HPY; h++) if (I.month[h] >= aB) hrs++; budget[y] = EMAX * 365 * hrs / HPY; }
-    const O = {}; ['grid', 'rel', 'cur', 'wind', 'solar', 'nuclear', 'ch', 'di', 'soc', 'unserved', 'fuel_cell', 'gas_engine', 'gas_turbine', 'curtailed', 'rental'].forEach(k => O[k] = new Float64Array(n));
+    const O = {}; ['grid', 'rel', 'cur', 'wind', 'solar', 'nuclear', 'ch', 'cch', 'di', 'soc', 'unserved', 'fuel_cell', 'gas_engine', 'gas_turbine', 'curtailed', 'rental'].forEach(k => O[k] = new Float64Array(n));
     let soc = 0;
     for (let t = 0; t < n; t++) {
       const m = I.month[t], s = I.st[t] === 1, G = I.G[t], price = I.price[t], y = I.year[t];
@@ -115,22 +118,30 @@
         if (left > 1e-9 && s && policy === 'never') { const x = Math.min(left, t2 - cur); cur += x; left -= x; uns += 0; O.curtailed[t] = 1; }
         if (left > 1e-9) { uns = left; left = 0; }
       }
-      let ch = 0;
+      let ch = 0, cch = 0;
       const gasOn = gas.fuel_cell + gas.gas_engine + gas.gas_turbine;
       if (di === 0 && gasOn === 0 && cur === 0 && uns === 0 && B && m >= aB && t < n - FLUSH && !off('battery_4h', t)) {
         const roomE = (EMAX - soc) / ETA;
-        ch = Math.max(0, Math.min(B, roomE, ac - clean, G - clean - grid));
-        if (ch < Math.min(B, roomE) && (I.nxt[t] <= HOLD || resv(t) || price < ARB / 2)) {
-          const red = Math.max(0, Math.min(B - ch, roomE - ch, clean, G - clean - grid - ch)); clean -= red; grid += red; ch += red;
+        // clean surplus that would otherwise be curtailed charges first (clean-sourced charging)
+        cch = Math.max(0, Math.min(B, roomE, ac - clean, G - clean - grid));
+        ch = cch;
+        // V2: the rest may come from the grid, inside the shared import cap, when power is cheap or an event is near
+        if (ch < Math.min(B, roomE) && (I.nxt[t] <= HOLD || resv(t) || price < CHARGE_PX)) {
+          const gc2 = Math.max(0, Math.min(B - ch, roomE - ch, G - clean - grid - ch)); grid += gc2; ch += gc2;
         }
       }
       soc = soc + ETA * ch - di / ETA; if (Math.abs(soc) < 1e-7) soc = 0;
       used[y] += di / ETA;
-      const gen = clean + ch;
-      O.grid[t] = grid; O.rel[t] = rel; O.cur[t] = cur; O.ch[t] = ch; O.di[t] = di; O.soc[t] = soc; O.unserved[t] = uns;
+      const gen = clean + cch;   // contract output: load served plus clean-sourced battery charging
+      O.grid[t] = grid; O.rel[t] = rel; O.cur[t] = cur; O.ch[t] = ch; O.cch[t] = cch; O.di[t] = di; O.soc[t] = soc; O.unserved[t] = uns;
       if (ac > 0) { O.wind[t] = gen * wa / ac; O.solar[t] = gen * sa / ac; O.nuclear[t] = gen * na / ac; }
       GAS.forEach(g => O[g][t] = gas[g]);
     }
+    // V2 clean credit per hour: -clean charge + discharge x (clean charge / total charge in that model year)
+    const chY = new Float64Array(10), cchY = new Float64Array(10);
+    for (let t = 0; t < n; t++) { chY[I.year[t]] += O.ch[t]; cchY[I.year[t]] += O.cch[t]; }
+    O.credit = new Float64Array(n);
+    for (let t = 0; t < n; t++) { const y = I.year[t]; O.credit[t] = -O.cch[t] + O.di[t] * (chY[y] > 0 ? cchY[y] / chY[y] : 0); }
     return O;
   }
 
@@ -173,7 +184,7 @@
       req += I.L[t]; rel += O.rel[t]; cur += O.cur[t]; uns += O.unserved[t];
       served += I.L[t] - O.rel[t] - O.cur[t] - O.unserved[t];
       cost += A.cost[t]; relC += A.relCost[t]; intC += A.intCost[t]; co2 += A.co2[t]; remote += O.rel[t] * 1.05;
-      clean += O.wind[t] + O.solar[t] + O.nuclear[t] - O.ch[t] + O.di[t];
+      clean += O.wind[t] + O.solar[t] + O.nuclear[t] + O.credit[t];
       gas += O.fuel_cell[t] + O.gas_engine[t] + O.gas_turbine[t] + (O.rental ? O.rental[t] : 0); grid += O.grid[t];
     }
     const total = cost + relC + intC;

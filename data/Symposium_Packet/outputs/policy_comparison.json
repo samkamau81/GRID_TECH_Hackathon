@@ -1,0 +1,1480 @@
+{
+  "initial_service_month": 20,
+  "full_demand_month": 30,
+  "grid_delay_months": 0,
+  "objective": "cost",
+  "method": "same demand, start date, grid assumptions, and limited candidate set for each policy",
+  "comparisons": [
+    {
+      "policy": "strict",
+      "label": "No relocation or interruption",
+      "status": "feasible",
+      "capacities_mw": {
+        "gas_turbine": 25.0,
+        "gas_engine": 5.0,
+        "wind": 100.0,
+        "utility_solar": 50.0
+      },
+      "initial_service_month": 20,
+      "full_demand_month": 30,
+      "total_decision_cost_usd": 283111303.00712323,
+      "combined_operational_co2_t": 754449.557804039,
+      "combined_electricity_co2_kg_per_mwh": 155.44592626478644,
+      "clean_energy_share": 0.626045028539032,
+      "relocated_local_equivalent_mwh": 0.0,
+      "interrupted_mwh": 0.0,
+      "candidate_count": 56,
+      "feasible_candidate_count": 28,
+      "candidate_assessment": [
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 4.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 4.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 4.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 19.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 19.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 19.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 14.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 14.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under No relocation or interruption: 14.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        }
+      ]
+    },
+    {
+      "policy": "relocate",
+      "label": "Relocation allowed; interruption prohibited",
+      "status": "feasible",
+      "capacities_mw": {
+        "gas_turbine": 25.0,
+        "gas_engine": 5.0,
+        "wind": 100.0,
+        "utility_solar": 50.0
+      },
+      "initial_service_month": 20,
+      "full_demand_month": 30,
+      "total_decision_cost_usd": 283111303.00712323,
+      "combined_operational_co2_t": 754449.557804039,
+      "combined_electricity_co2_kg_per_mwh": 155.44592626478644,
+      "clean_energy_share": 0.626045028539032,
+      "relocated_local_equivalent_mwh": 0.0,
+      "interrupted_mwh": 0.0,
+      "candidate_count": 56,
+      "feasible_candidate_count": 31,
+      "candidate_assessment": [
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation allowed; interruption prohibited: 9.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation allowed; interruption prohibited: 9.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation allowed; interruption prohibited: 9.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation allowed; interruption prohibited: 4.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation allowed; interruption prohibited: 4.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation allowed; interruption prohibited: 4.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        }
+      ]
+    },
+    {
+      "policy": "flexible",
+      "label": "Relocation and interruption allowed",
+      "status": "feasible",
+      "capacities_mw": {
+        "gas_turbine": 25.0,
+        "gas_engine": 5.0,
+        "wind": 100.0,
+        "utility_solar": 50.0
+      },
+      "initial_service_month": 20,
+      "full_demand_month": 30,
+      "total_decision_cost_usd": 283111303.00712323,
+      "combined_operational_co2_t": 754449.557804039,
+      "combined_electricity_co2_kg_per_mwh": 155.44592626478644,
+      "clean_energy_share": 0.626045028539032,
+      "relocated_local_equivalent_mwh": 0.0,
+      "interrupted_mwh": 0.0,
+      "candidate_count": 56,
+      "feasible_candidate_count": 31,
+      "candidate_assessment": [
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation and interruption allowed: 9.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation and interruption allowed: 9.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation and interruption allowed: 9.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 10.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation and interruption allowed: 4.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation and interruption allowed: 4.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Infeasible under Relocation and interruption allowed: 4.6054 MW unmet at model_hour 21760; the limited candidate lacks local/grid capacity or eligible response."
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 15.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 15.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 75.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "fuel_cell": 30.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "gas_engine": 5.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 25.0,
+            "fuel_cell": 5.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "wind": 100.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 30.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_engine": 30.0,
+            "wind": 150.0,
+            "utility_solar": 50.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 15.0
+          },
+          "status": "feasible"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 30.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        },
+        {
+          "capacities_mw": {
+            "gas_turbine": 50.0,
+            "nuclear": 25.0,
+            "battery_4h": 53.0
+          },
+          "status": "infeasible_in_limited_search",
+          "reason": "Land limit"
+        }
+      ]
+    }
+  ],
+  "fixed_portfolio_sensitivity": {
+    "label": "Fixed 20 MW gas-engine sensitivity (illustrates response-policy feasibility; not the recommended portfolio)",
+    "capacities_mw": {
+      "gas_engine": 20.0
+    },
+    "results": [
+      {
+        "policy": "strict",
+        "label": "No relocation or interruption",
+        "status": "infeasible",
+        "reason": "Infeasible under No relocation or interruption: 9.5167 MW unmet at model_hour 23296; the limited candidate lacks local/grid capacity or eligible response."
+      },
+      {
+        "policy": "relocate",
+        "label": "Relocation allowed; interruption prohibited",
+        "status": "feasible",
+        "total_decision_cost_usd": 389996987.3131562,
+        "combined_operational_co2_t": 1507530.088171162,
+        "relocated_local_equivalent_mwh": 2196.840219616,
+        "interrupted_mwh": 0.0,
+        "physical_checks_passed": true
+      },
+      {
+        "policy": "flexible",
+        "label": "Relocation and interruption allowed",
+        "status": "feasible",
+        "total_decision_cost_usd": 389996987.3131562,
+        "combined_operational_co2_t": 1507530.088171162,
+        "relocated_local_equivalent_mwh": 2196.840219616,
+        "interrupted_mwh": 0.0,
+        "physical_checks_passed": true
+      }
+    ]
+  }
+}

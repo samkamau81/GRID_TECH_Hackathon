@@ -62,7 +62,7 @@ function drawCostChart(o,at){const M=o.mo,p=plant,L=lim(),W=900,H=210,P={l:44,r:
 function envSeries(R){if(R._env)return R._env;const I=R.I,O=R.O,RX=resX(),n=120,E={s1:new Float64Array(n),s2:new Float64Array(n),s3:new Float64Array(n),clean:new Float64Array(n),served:new Float64Array(n),hm:Array.from({length:n},()=>[new Float64Array(24),new Float64Array(24)])};
   const ef=GASK.map(k=>[k,RX[k].co2_t_per_mwh]);
   for(let t=0;t<87600;t++){const m=Math.floor(t/730),L=I.L[t];if(L<=0)continue;let g=0;for(const [k,f] of ef)g+=O[k][t]*f;if(O.rental)g+=O.rental[t]*0.74;
-    E.s1[m]+=g;E.s2[m]+=O.grid[t]*I.co2[t];E.s3[m]+=O.rel[t]*1.05*I.co2[t];const cl=Math.max(0,O.wind[t]+O.solar[t]+O.nuclear[t]-O.ch[t]+O.di[t]),sv=L-O.rel[t]-O.cur[t]-O.unserved[t];
+    E.s1[m]+=g;E.s2[m]+=O.grid[t]*I.co2[t];E.s3[m]+=O.rel[t]*1.05*I.co2[t];const cl=Math.max(0,O.wind[t]+O.solar[t]+O.nuclear[t]+O.credit[t]),sv=L-O.rel[t]-O.cur[t]-O.unserved[t];
     E.clean[m]+=cl;E.served[m]+=sv;const h=REF.hour[t%8760];E.hm[m][0][h]+=Math.min(cl,sv);E.hm[m][1][h]+=sv;}
   R._env=E;return E;}
 function drawEnv(o,lo,at){const p=plant,E=envSeries(o.R),L=lim(),s=(a,m0,m1)=>sumM(a,m0,m1);

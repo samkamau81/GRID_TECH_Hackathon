@@ -1,7 +1,7 @@
 /* Step 3, Live Operations: the hour-by-hour live run. */
 // ---------------- STEP 3: live ----------------
 const SUP=[['gas','Onsite gas','--s-gas',''],['dsl','Backup generator','--s-dsl',''],['grid','Grid power','--s-grid',''],['wind','Wind','--s-wind',''],['solar','Solar','--s-solar','lt'],['nuclear','Nuclear','--s-nuc',''],['bat','Battery','--s-bat',''],['rel','Moved away','--s-rel',''],['cur','Batch paused','--s-int',''],['uns','Unserved','--s-uns','']];
-function hourSup(R,t){const O=R.O,cl=O.wind[t]+O.solar[t]+O.nuclear[t],sc=cl>0?(cl-O.ch[t])/cl:0;return {gas:O.fuel_cell[t]+O.gas_engine[t]+O.gas_turbine[t],dsl:O.rental?O.rental[t]:0,grid:O.grid[t],wind:O.wind[t]*sc,solar:O.solar[t]*sc,nuclear:O.nuclear[t]*sc,bat:O.di[t],rel:O.rel[t],cur:O.cur[t],uns:O.unserved[t]};}
+function hourSup(R,t){const O=R.O,cl=O.wind[t]+O.solar[t]+O.nuclear[t],sc=cl>0?(cl-O.cch[t])/cl:0;return {gas:O.fuel_cell[t]+O.gas_engine[t]+O.gas_turbine[t],dsl:O.rental?O.rental[t]:0,grid:O.grid[t]-(O.ch[t]-O.cch[t]),wind:O.wind[t]*sc,solar:O.solar[t]*sc,nuclear:O.nuclear[t]*sc,bat:O.di[t],rel:O.rel[t],cur:O.cur[t],uns:O.unserved[t]};}
 function buckets(R,lo,hi,b){const k=Math.ceil((hi-lo)/b),Z={k};[...SUP.map(x=>x[0]),'L','G','st'].forEach(x=>Z[x]=new Float64Array(k));
   for(let t=lo;t<hi;t++){const i=Math.floor((t-lo)/b),h=hourSup(R,t);for(const [key] of SUP)Z[key][i]+=h[key];Z.L[i]+=R.I.L[t];Z.G[i]+=R.I.G[t];Z.st[i]=Math.max(Z.st[i],R.I.st[t]);}
   for(let i=0;i<k;i++){const c=Math.min(b,hi-lo-i*b);for(const x of [...SUP.map(x=>x[0]),'L','G'])Z[x][i]/=c;}return Z;}
