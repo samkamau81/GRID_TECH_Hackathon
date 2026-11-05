@@ -16,7 +16,7 @@ Node 20 or newer.
 ## Browser tests (headless Chrome or Edge)
 
     node tests/e2e/climate-explorer.e2e.mjs
-    node tests/e2e/prototype-v2.e2e.mjs
+    node tests/e2e/prototype-portfolio.e2e.mjs      # about 2 minutes: the portfolio is simulated in the browser
 
 Node 22 or newer and Chrome or Edge (set `CHROME_PATH` if it is not found). The suites serve `peak-power/` on a free local
 port themselves. Open-Meteo is mocked, so these tests use none of the free allowance; map tiles need internet access.
@@ -25,9 +25,11 @@ port themselves. Open-Meteo is mocked, so these tests use none of the free allow
   geojson; US view and Texas filter counts; no weather request on load; a data center popup shows weather with correct units, one request
   per selection; map click and place search show weather; an API failure keeps facility information and shows a weather-unavailable
   message; no horizontal scroll and visible tabs at 390 px.
-- **prototype-v2**: the prototype on the symposium packet at 1400 and 390 px: the 384-plan library and V2 catalogue are loaded, every plan fits the 8-acre site,
-  steps 1 to 3 open and render, the chosen plan has a finite cost, and there are no JS errors. (`prototype-regression.e2e.mjs` compares against the original
-  single-file build, which has the previous packet's numbers, so it is kept for history but is no longer expected to pass.)
+- **prototype-portfolio**: the migrated Prototype: three-tab navigation; four project cards with all nine dimensions; the timeline; switching projects;
+  Find a site (254 Texas counties, 3,142 US counties, unique five-digit FIPS codes, layer recolouring, county detail, "Not graded" for energy outside
+  Texas, the source list); What changed and what to watch (first visit, stored snapshot, return visit); the four steps open on the V2 data (53 MW
+  battery limit, $45 wind); no JS errors at 1400 and 390 px.
+- **Archived** (`tests/archive/`): `prototype-v2.e2e.mjs` and `prototype-regression.e2e.mjs` test the previous prototype and are no longer expected to pass.
 
 ## Scripts that check the data
 

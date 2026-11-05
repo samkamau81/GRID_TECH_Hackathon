@@ -46,6 +46,7 @@ flowchart TD
 
 ## Software structure and run instructions
 
+- **Prototype:** `peak-power/prototype.html` is the supplied Claude Artifact split into `css/prototype.css`, `js/prototype.js` and `js/data/site-counties.js` (Portfolio, Find a site county map, Project plan, Run the plant, Live Operations). See `docs/PROTOTYPE_INTEGRATION.md` for what changed and `docs/DATA_GAPS.md` for missing data.
 - **Canonical frontend:** `peak-power/` (see `peak-power/README.md`; the original single file is kept in `backup/PeakPower.original.html`). The Python server returns the introduction page `peak-power/index.html` at `/` and `/index.html`, the prototype at `/prototype.html`, and serves its `/css/*` and `/js/*` files.
 - **Data Center Explorer:** `peak-power/data-centers.html`, an interactive world and United States map of data centers built from `data/data_centers.zip` (an OpenStreetMap-derived extract). `scripts/process_data_centers.py` validates it and writes `peak-power/data/processed/data-centers.geojson`; see `peak-power/README.md` for how to refresh it. The page has no power-capacity data because the dataset has none.
 - **Python backend:** `data/Symposium_Packet/team_app/server.py` exposes health, recommendation, policy-comparison, and grid-delay endpoints. `engine.py` provides the benchmark recommendation logic and command-line entry point. This service is available separately; the current HTML runs its embedded browser engine and does not call the Python API.

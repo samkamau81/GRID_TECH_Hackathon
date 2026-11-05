@@ -15,7 +15,7 @@
   function buildInputs(REF, open, sc) {
     sc = sc || {};
     const delay = sc.delay || 0, capFrac = sc.capFrac == null ? 0.6 : sc.capFrac;
-    const packetEvents = sc.packetEvents !== false;
+    const packetEvents = sc.packetEvents !== false; const fx = sc.flex == null ? 1 : sc.flex;   // extension: sc.flex scales how much work is movable or pausable
     const r = REF;
     const I = { open, n: N, month: new Int16Array(N), year: new Int8Array(N), L: new Float64Array(N), t1: new Float64Array(N), t2: new Float64Array(N),
       G: new Float64Array(N), Gord: new Float64Array(N), st: new Uint8Array(N), price: new Float64Array(N), gasP: new Float64Array(N), co2: new Float64Array(N),
@@ -28,7 +28,7 @@
       // extension (not in packet): demand grows sc.growth per year after full campus, compounded monthly
       if (sc.growth && k >= 10) f *= Math.pow(1 + sc.growth, (k - 10) / 12);
       I.refh[h] = ref; I.month[h] = m; I.year[h] = y;
-      I.L[h] = r.load[ref] * f; I.t1[h] = r.t1[ref] * f; I.t2[h] = r.t2[ref] * f;
+      I.L[h] = r.load[ref] * f; I.t1[h] = r.t1[ref] * f * fx; I.t2[h] = r.t2[ref] * f * fx;
       let g = 0; if (m >= 18 + delay) g = 25; if (m >= 24 + delay) g = 50; if (m >= 30 + delay) g = 75;
       I.Gord[h] = g;
       let s = packetEvents && r.stress[ref] === 1, fr = s ? capFrac : 1;
@@ -55,8 +55,10 @@
 
   const crf = (r, n) => r / (1 - Math.pow(1 + r, -n));
 
-  function dispatch(I, RES, caps, policy, mode, ival, rental, outages, ctl) {
+  function dispatch(I, RES, caps, policy0, mode, ival, rental, outages, ctl) {
     // extension: ctl.bat = {from,to}: operator reserves the battery for a window (charge before, no arbitrage, discharge inside)
+    // extension: ctl.keep = {from,to}: keep movable work on campus in that window; ctl.pol = {from,to,p}: batch-pause rule for that window
+    const kw = ctl && ctl.keep, pw = ctl && ctl.pol;
     const bw = ctl && ctl.bat, resv = t => bw && t >= bw.from - HOLD && t < bw.from, inBW = t => bw && t >= bw.from && t < bw.to;
     // extension: equipment outages [{id, from, to}] take that source fully offline in the window
     const off = (id, t) => { if (!outages) return false; for (const o of outages) if (o.id === id && t >= o.from && t < o.to) return true; return false; };
@@ -77,8 +79,10 @@
       const gc = {}; let gasTot = 0; GAS.forEach(g => { gc[g] = m >= gcap[g].from && !off(g, t) ? gcap[g].mw : 0; gasTot += gc[g]; });
       const gv = {}; GAS.forEach(g => gv[g] = RES[g].payment_usd_per_mwh + RES[g].heat_rate_mmbtu_per_mwh_hhv * I.gasP[t]);
       const t1 = I.t1[t], t2 = I.t2[t];
-      const rel = s ? Math.min(t1, REMOTE_LOCAL) : 0;
+      const policy = pw && t >= pw.from && t < pw.to ? pw.p : policy0;
+      const rel = s && !(kw && t >= kw.from && t < kw.to) ? Math.min(t1, REMOTE_LOCAL) : 0;
       let need = I.L[t] - rel, cur = 0;
+      if (s && policy === 'always') { cur = t2; need -= cur; }   // extension: operator pauses all batch work in the window
       if (s && policy === 'when_cheaper' && price > ival) {
         const c0 = Math.min(ac, G, need), r0 = need - c0, must0 = Math.max(r0 - (G - c0), 0), x = Math.min(t2, r0);
         const gmin = Math.min(gv.fuel_cell, gv.gas_engine, gv.gas_turbine);
