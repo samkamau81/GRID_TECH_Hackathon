@@ -42,10 +42,14 @@ try {
 
   // 4. changing an answer updates the comparison
   const before = await text('#alt-box');
-  await p.ev(`(() => { const s = document.getElementById('s-cap'); const o = [...s.options].find((x) => x.value && x.value !== '0'); s.value = o.value; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
+  await p.ev(`(() => { const s = document.getElementById('s-cap'); s.value = '200'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
   await sleep(500);
   ok(await p.waitFor(`!document.getElementById('alt-box').hidden && !!document.querySelector('#alt-box table.alt')`, 180000), 'comparison redraws after a carbon limit is set');
-  ok(p.errors.length === 0, 'no JavaScript errors ' + p.errors.slice(0, 2).join(' ; '));
+  await sleep(2500);
+  const altL = await text('#alt-box');
+  ok(/Without the carbon limit/.test(altL) && /per tonne/.test(altL), 'with a 200 kg/MWh limit the table shows what the limit costs (cheaper alternative, $ per tonne)');
+  ok(!/Cleaner alternative:/.test(altL), 'no cleaner alternative is offered once the cleanest plan is already recommended');
+ok(p.errors.length === 0, 'no JavaScript errors ' + p.errors.slice(0, 2).join(' ; '));
   await p.shotEl('alt-box', '#alt-box', 8).catch(() => {});
 } finally { b.close(); }
 console.log(bad ? `\n${bad} check(s) failed` : '\nAll checks passed');

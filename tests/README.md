@@ -29,7 +29,7 @@ port themselves. Open-Meteo is mocked, so these tests use none of the free allow
   Find a site (254 Texas counties, 3,142 US counties, unique five-digit FIPS codes, layer recolouring, county detail, "Not graded" for energy outside
   Texas, the source list); What changed and what to watch (first visit, stored snapshot, return visit); the four steps open on the V2 data (53 MW
   battery limit, $45 wind); no JS errors at 1400 and 390 px.
-- **demo-readiness** (`node tests/e2e/demo-readiness.e2e.mjs`, a few minutes): the status line shows progress then ready; a step clicked before the results are ready is queued and opens when they are; the Recommended plan and alternatives table shows cost, carbon, clean share, a cleaner (or faster) alternative with when to choose it, and keeps profit separate from power cost; the How it works page separates hard requirements, preferences and business assumptions; the table redraws after a carbon limit is set; no JavaScript errors.
+- **demo-readiness** (`node tests/e2e/demo-readiness.e2e.mjs`, a few minutes): the status line shows progress then ready; a step clicked before the results are ready is queued and opens when they are; the Recommended plan and alternatives table shows cost, carbon, clean share, a cleaner (or faster) alternative with when to choose it, and keeps profit separate from power cost; the How it works page separates hard requirements, preferences and business assumptions; the table redraws after a 200 kg/MWh limit is set and shows what the limit costs; no JavaScript errors.
 - **Archived** (`tests/archive/`): `prototype-v2.e2e.mjs` and `prototype-regression.e2e.mjs` test the previous prototype and are no longer expected to pass.
 
 ## Scripts that check the data

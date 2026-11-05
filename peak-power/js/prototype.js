@@ -1340,7 +1340,12 @@ function drawAlt(c){const box=$('alt-box');if(!box)return;
       const o=evalBase(s,false);if(feasible(o)&&o.capOk&&o.z.kg<c.z.kg-1){clean=o;break;}}
     const ok=rows.filter(r=>feasible(r.r)&&inDeadline(r.o));const first=ok.length?ok[0]:null;
     const fast=first&&first.o<c.open?first.r:null;
-    const cols=[['Recommended','best 10-year profit',c]];if(clean)cols.push(['Cleaner alternative','same opening, lowest carbon that passes',clean]);if(fast)cols.push(['Faster alternative','earliest credible opening',fast]);
+    // Cheaper alternative: what the hard carbon limit costs (plan without it), or else the lowest power-cost plan at this opening.
+    let cheap=null,cheapLab='',cheapSub='';
+    if(F.cap){const sv=F.cap;F.cap=0;try{const o=bestAt(c.open,false);if(o&&o.fits&&o.z.uns<0.5&&o.z.total<c.z.total-1e5&&o.z.kg>c.z.kg+1){cheap=o;cheapLab='Without the carbon limit';cheapSub='what the limit costs';}}finally{F.cap=sv;}}
+    else{const seen2=new Set();let n2=0;const byCost=S.filter(s=>s.open===c.open&&VSH[s.mix]<=F.vcap+1e-9&&landOf(s.caps)<=F.acres+1e-9&&s!==c.base).sort((a,b)=>a.total_decision_cost_usd-b.total_decision_cost_usd);
+      for(const s of byCost){if(s.total_decision_cost_usd>=c.z.total-1e5||++n2>3)break;const k=s.mix+s.battery+s.mode+s.policy;if(seen2.has(k))continue;seen2.add(k);const o=evalBase(s,false);if(feasible(o)&&o.z.total<c.z.total-1e5){cheap=o;cheapLab='Lower-cost alternative';cheapSub='same opening, lowest power cost that passes';break;}}}
+    const cols=[['Recommended','best 10-year profit',c]];if(cheap)cols.push([cheapLab,cheapSub,cheap]);if(clean)cols.push(['Cleaner alternative','same opening, lowest carbon that passes',clean]);if(fast)cols.push(['Faster alternative','earliest credible opening',fast]);
     const mixTxt=o=>`${MIXT[o.base.mix]||o.base.mix}${o.base.battery?` + ${o.base.battery} MW battery`:''}; ${fmt(gasOf(o.caps))} MW onsite gas`;
     const rel=o=>o.z.rel!=null?o.z.rel:(o.base.relocated_local_equivalent_mwh||0);
     const R=(lab,f,note)=>`<tr><th scope="row">${lab}${note?`<small>${note}</small>`:''}</th>${cols.map(k=>`<td>${f(k[2])}</td>`).join('')}</tr>`;
@@ -1359,6 +1364,8 @@ function drawAlt(c){const box=$('alt-box');if(!box)return;
     if(clean){const d=dl(clean);
       why+=`<div class="altnote"><b>Cleaner alternative:</b> power cost <b class="${d.dc>0?'down':'up'}">${sgn(d.dc)}</b> over 10 years for <b>${fmt(-d.dk,0)} kg/MWh</b> less carbon (${fmt(d.dt/1e3,0)}k tonnes CO₂ avoided${d.dc>0&&d.dt>0?`, about <b>$${fmt(d.dc/d.dt,0)} per tonne</b>`:''}). <b>Choose it when</b> the customer has a carbon target, or values avoided CO₂ above that price per tonne.</div>`;}
     else why+=`<div class="altnote">No cleaner plan passes the reliability test at month ${c.open} under the current limits, so the recommended plan is already the lowest-carbon option that fits.</div>`;
+    if(cheap){const d=dl(cheap),sv=-d.dc,dk=d.dk;
+      why+=`<div class="altnote"><b>${cheapLab}:</b> saves <b class="up">${money(sv)}</b> of power cost over 10 years but emits <b>${fmt(dk,0)} kg/MWh</b> more (${fmt(-d.dt/1e3,0)}k tonnes CO₂ more) and changes 10-year profit by ${sgn(cheap.e.profit-c.e.profit)}. ${F.cap?`That is what the carbon limit costs: about <b>$${fmt(sv/Math.max(1,-d.dt),0)} per tonne</b> avoided. <b>Choose it when</b> the customer can relax the limit.`:`<b>Choose it when</b> power cost matters more than carbon and the extra emissions are acceptable.`}</div>`;}
     if(fast){const d=dl(fast),n=c.open-fast.open;why+=`<div class="altnote"><b>Faster alternative:</b> opens ${n} month${n===1?'':'s'} earlier (month ${fast.open}) at <b>${sgn(d.dc)}</b> power cost and ${sgn(fast.e.profit-c.e.profit)} profit versus the recommendation. <b>Choose it when</b> speed to power is worth more than that.</div>`;}
     const html=`<div class="boxh"><p class="eyebrow" style="margin:0">Recommended plan and alternatives</p><button type="button" class="btn" data-how>How the answers become this result</button></div>${tbl}${why}<p class="muted sm" style="margin-top:6px">Every plan comes from the 384-plan library, each replayed through the packet's official checker${isDefault()?'':', then re-sized and re-simulated for the current settings'}. Screening estimates, not quotes.</p>`;
     ALTC.set(key,html);box.innerHTML=html;},30);}
