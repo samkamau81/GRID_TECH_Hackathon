@@ -55,7 +55,7 @@ function tierServed(R){let a=0,b=0,c=0;for(let t=0;t<87600;t++){const L=R.I.L[t]
 const cache=new Map();
 function run(open,caps,policy,mode,extra,rental,outages,ctl){const b0=scBase(),sc={...b0,...(extra||{})},RX=resX();if(extra){if(b0.wxWin&&extra.wxWin)sc.wxWin=b0.wxWin.concat(extra.wxWin);if(b0.hourEvents&&extra.hourEvents)sc.hourEvents=b0.hourEvents.concat(extra.hourEvents);}const key=[open,JSON.stringify(caps),policy,mode,JSON.stringify(sc),F.ren,F.leads,F.permit,JSON.stringify(rental||0),JSON.stringify(outages||0),JSON.stringify(ctl||0)].join('|');if(cache.has(key))return cache.get(key);
   const I=E.buildInputs(REF,open,sc);const O=E.dispatch(I,RX,caps,policy,mode,1000,rental,outages,ctl);const A=E.account(I,RX,caps,O);const R={I,O,A,caps,open,policy,mode};
-  if(cache.size>90)cache.delete(cache.keys().next().value);cache.set(key,R);return R;}
+  if(cache.size>48)cache.delete(cache.keys().next().value);cache.set(key,R);return R;}
 function annKg(R){const a=[];for(let y=0;y<10;y++){let co=0,d=0;for(let t=y*8760;t<(y+1)*8760;t++){co+=R.A.co2[t];d+=R.I.L[t]-R.O.cur[t]-R.O.unserved[t]+0.05*R.O.rel[t];}a.push(d>1?1000*co/d:0);}return a;}
 function zOf(R){const z=E.summarize(R.I,R.O,R.A);z.mt=tierServed(R);z.unmet=z.uns*UNMET;z.akg=annKg(R);z.akgMax=Math.max(...z.akg);{let w=0,so=0,l=0;for(let t=0;t<87600;t++){w+=R.O.wind[t];so+=R.O.solar[t];l+=R.I.L[t]-R.O.cur[t]-R.O.unserved[t];}z.vs=l>0?(w+so)/l:0;}return z;}
 const capKg=s=>F.capMode==='year'?Math.max(...(s.akg||[0])):s.combined_electricity_co2_kg_per_mwh;const zCap=z=>F.capMode==='year'?z.akgMax:z.kg;
@@ -333,7 +333,7 @@ const sumM=(a,m0,m1)=>{let s=0;for(let i=Math.max(0,m0);i<m1;i++)s+=a[i];return 
 function startPlant(o){const r=rows.find(x=>x.o===o).r;showStep(2);$('c-head').innerHTML=busy('Starting the plant…');['c-plant','c-alerts','c-cost','c-decs'].forEach(id=>$(id).innerHTML='');
   setTimeout(()=>{plant={open:o,mix:r.base.mix,battery:r.base.battery,cap:F.cap,at:Math.min(119,Math.max(o+13,30+F.delay+6))};const p0=planOf(plant.mix,plant.battery,plant.cap)||evalBase(r.base,true);
     if(!p0.attrs){p0.attrs={mix:r.base.mix,battery:r.base.battery,mode:r.base.mode,policy:r.base.policy};p0.mo=monthly(p0.R);}
-    plant.start=p0;setPlan(p0);drawRun();},20);}
+    plant.start=p0;setPlan(p0);drawRun();setStatus();if(afterPlant===3){afterPlant=null;showStep(3);}},20);}
 function setPlan(o){plant.cur=o;plant.attrs=o.attrs;plant.mix=o.attrs.mix;plant.battery=o.attrs.battery;}
 
 function drawRun(){const p=plant,o=p.cur,M=o.mo,at=p.at,WN=p.win||12,lo=Math.max(p.open,at-WN),L=lim();
@@ -922,7 +922,7 @@ let step=1;
 function showStep(n){if(n>1&&!plant&&n!==2)return;step=n;[0,1,2,3].forEach(k=>{$('v-'+k).hidden=k!==n;$('tab-'+k).setAttribute('aria-selected',k===n);$('tab-'+k).classList.toggle('done',k<n);});
   if(n===3){if(!plant)return showStep(1);if(!live.R||live.R.caps!==plant.cur.caps){Object.assign(ops,{pb:null,ev:'none',bat:null,gen:null,tech:false,svc:null,result:null,tp:null,day:null});ops.mode=null;initOps();selK='chillers';live.setRun(baseRun(),false);drawOpsAll();drawMode();}else live.start();$('l-play').textContent=live.playing?'❚❚ Pause':'▶ Play';}else clearInterval(live.timer);
   window.scrollTo({top:0});}
-document.querySelectorAll('nav.steps button').forEach(b=>b.onclick=()=>{const n=+b.dataset.s;if(n>1&&!plant){if(chosen!=null&&rows.every(r=>r.done))startPlant(chosen);return;}showStep(n);syncProj();});
+document.querySelectorAll('nav.steps button').forEach(b=>b.onclick=()=>{const n=+b.dataset.s;if(n>1&&!plant){if(chosen!=null&&rows.every(r=>r.done)){afterPlant=n===3?3:null;startPlant(chosen);}else{pendingGo=n;setStatus();}return;}showStep(n);syncProj();});
 
 // ================= Portfolio, US county map, reliability and realism limits, equipment timelines =================
 // Added after customer feedback. Everything below sits on top of the original engine and screens.
@@ -1245,9 +1245,9 @@ const failWords=q=>!q?'no contract mix fits within the wind and solar cap':q.why
 const failLbl=q=>!q?'no mix':q.why==='late'?'too early':q.why==='land'?'no land':q.why==='limit'?'no gas room':!q.capOk?'over cap':(q.z&&q.z.uns>=0.5)?'power short':'no fit';
 function afterCards(){const all=rows.length&&rows.every(r=>r.done);
   if(!all||chosen==null||recO==null){$('psum').innerHTML=`<p class="eyebrow">Project</p><h2>${curSite().nm}</h2>${busy('Testing every opening month against the reliability limit…')}`;
-    $('gate-body').innerHTML=busy('Running the reliability test…');$('gas-body').innerHTML=busy('Sizing onsite gas…');return;}
+    $('gate-body').innerHTML=busy('Running the reliability test…');$('gas-body').innerHTML=busy('Sizing onsite gas…');const ab=$('alt-box');if(ab)ab.hidden=true;return;}
   recordCurrent();
-  const c=rows.find(r=>r.o===chosen).r;drawSummary(c);drawGate(c);drawGas(c);whyNot();drawSens();}
+  const c=rows.find(r=>r.o===chosen).r;drawSummary(c);drawAlt(c);drawGate(c);drawGas(c);whyNot();drawSens();}
 function whyNot(){const rec=$('rec');const ok=rows.filter(r=>feasible(r.r)&&inDeadline(r.o));if(!ok.length||!rec.querySelector('.why'))return;
   const first=ok[0].o,prev=rows.slice().reverse().find(r=>r.o<first),after=rows.find(r=>r.o>recO&&feasible(r.r));let t;
   if(!prev)t=`Month ${first} is the earliest month tested, and it works.`;
@@ -1286,7 +1286,7 @@ function drawGas(c){const RX=resX(),R=c.R||run(c.open,c.caps,c.base.policy,c.bas
     <div class="tblwrap"><table class="tbl"><thead><tr><th>Equipment</th><th>MW in plan</th><th>Case packet delivery</th><th>Market check</th><th>Air permit</th><th>Install and commission</th><th>In service</th><th style="text-align:left">Versus opening at month ${c.open}</th></tr></thead><tbody>${tr}</tbody></table></div>
     <p class="muted sm">A unit cannot run before it is delivered, permitted and commissioned, so it enters service at the later of delivery and permit, plus install time. The case packet setting skips the install buffer. Large turbines: Wood Mackenzie reported an average of almost five years in 2025, so 45 months is not conservative (<a href="https://www.utilitydive.com/news/natural-gas-equipment-generation-bottleneck-data-centers/812931/" target="_blank" rel="noopener">Utility Dive</a>). Air permits for onsite gas run 6 to 18 months (<a href="https://www.datacentres.com/news/behind-the-meter-power-gas-turbines-and-fuel-cells-emerge-as-data-centres-escape-slot1-2026-08-19" target="_blank" rel="noopener">Datacentres.com Research</a>). Engines, fuel cells and batteries use case packet figures because no market figure is loaded yet.</p>`;}
 
-function drawCards(){drawCards0();afterCards();}
+function drawCards(){drawCards0();afterCards();setStatus();if(rows.length&&rows.every(r=>r.done)){if(pendingGo!=null)runPending();else prewarm();}}
 function initNew(){
   buildProj();
   syncs.push(syncReset);if($('reset-btn'))$('reset-btn').onclick=resetAll;
@@ -1302,6 +1302,7 @@ function initNew(){
     if((el=t.closest('[data-scope]'))){mapScope=el.dataset.scope;buildMap();return;}
     if((el=t.closest('[data-layer]'))){mapLayer=el.dataset.layer;recolor();drawMapChrome();return;}
     if((el=t.closest('[data-ptab]'))){showPtab(el.dataset.ptab);return;}
+    if(t.closest('[data-how]')){openHow();return;}
     if(t.closest('#op-close')){closeOnePager();return;}
     if(t.closest('#op-print')){try{window.print();}catch(e){}return;}
     if((el=t.closest('[data-export]'))){openOnePager(el.dataset.export);return;}
@@ -1315,6 +1316,88 @@ function initNew(){
     tipAt(mp,`<div class="h">${c.n} County, ${stOf(c).a}</div>${[['Location','loc'],['Energy','en'],['Policy','pol'],['Fiber','fib']].map(([n,k])=>row(n,GL[w[k][0]])).join('')}${row('Overall',ov===3?'No overall grade':GL[ov])}`,e);});
   mp.addEventListener('mouseleave',()=>hideTip(mp));
   showPtab('fin');buildMap();drawCounty();}
+
+// ================= Demo support: readiness status, cost-vs-carbon comparison, "How it works" page =================
+// Added before judging. Reads existing results only; no calculation rule is changed.
+let pendingGo=null,afterPlant=null;
+function setStatus(){const el=$('pp-status');if(!el)return;const n=rows.length,d=rows.filter(r=>r.done).length;
+  if(!n||d<n){el.innerHTML=busy(`Testing opening months: ${d} of ${n||OPENS.length}…${pendingGo?' Will open the next step when ready.':''}`);el.className='ppstat';return;}
+  if(plant){el.textContent='✓ Plant running';el.className='ppstat ok';return;}
+  el.textContent='✓ Ready: all opening months tested';el.className='ppstat ok';}
+function prewarm(){if(plant||chosen==null||!rows.length||!rows.every(r=>r.done))return;const r=rows.find(x=>x.o===chosen);if(!r||!r.r||!r.r.base)return;const tok=token,o=chosen,b=r.r.base;
+  setTimeout(()=>{if(tok!==token||plant||chosen!==o)return;const sv=plant;plant={open:o};try{planOf(b.mix,b.battery,F.cap);}catch(e){}plant=sv;},300);}
+function runPending(){if(pendingGo==null||plant||chosen==null||!rows.every(r=>r.done))return;const n=pendingGo;pendingGo=null;afterPlant=n===3?3:null;startPlant(chosen);}
+
+const ALTC=new Map();
+function drawAlt(c){const box=$('alt-box');if(!box)return;
+  const key=keyFor(curSite())+'|'+c.open+'|'+chosen;
+  if(ALTC.has(key)){box.innerHTML=ALTC.get(key);box.hidden=false;return;}
+  box.hidden=false;box.innerHTML=`<p class="eyebrow">Recommended plan and alternatives</p>${busy('Comparing a cleaner plan and a faster opening…')}`;const tok=token;
+  setTimeout(()=>{if(tok!==token||chosen==null)return;
+    const pool=S.filter(s=>s.open===c.open&&VSH[s.mix]<=F.vcap+1e-9&&landOf(s.caps)<=F.acres+1e-9&&s!==c.base).sort((a,b)=>capKg(a)-capKg(b));
+    let clean=null;const seen=new Set();let tried=0;
+    for(const s of pool){if(capKg(s)>=capKg(c.base)-1)break;const k=s.mix+s.battery+s.mode+s.policy;if(seen.has(k))continue;seen.add(k);if(++tried>3)break;
+      const o=evalBase(s,false);if(feasible(o)&&o.capOk&&o.z.kg<c.z.kg-1){clean=o;break;}}
+    const ok=rows.filter(r=>feasible(r.r)&&inDeadline(r.o));const first=ok.length?ok[0]:null;
+    const fast=first&&first.o<c.open?first.r:null;
+    const cols=[['Recommended','best 10-year profit',c]];if(clean)cols.push(['Cleaner alternative','same opening, lowest carbon that passes',clean]);if(fast)cols.push(['Faster alternative','earliest credible opening',fast]);
+    const mixTxt=o=>`${MIXT[o.base.mix]||o.base.mix}${o.base.battery?` + ${o.base.battery} MW battery`:''}; ${fmt(gasOf(o.caps))} MW onsite gas`;
+    const rel=o=>o.z.rel!=null?o.z.rel:(o.base.relocated_local_equivalent_mwh||0);
+    const R=(lab,f,note)=>`<tr><th scope="row">${lab}${note?`<small>${note}</small>`:''}</th>${cols.map(k=>`<td>${f(k[2])}</td>`).join('')}</tr>`;
+    const dl=o=>({dc:o.z.total-c.z.total,dk:o.z.kg-c.z.kg,dt:c.z.co2-o.z.co2});
+    const tbl=`<div class="tblwrap"><table class="tbl alt"><thead><tr><th></th>${cols.map(k=>`<th>${k[0]}<small>${k[1]}</small></th>`).join('')}</tr></thead><tbody>`+
+      R('Initial service / full demand',o=>`month ${o.open} / ${o.open+10}`)+
+      R('Portfolio',mixTxt)+
+      R('Power cost, 10 years',o=>money(o.z.total),'local energy + relocation + interruption')+
+      R('Cost per MWh',o=>'$'+fmt(o.z.usdPerMWh,1))+
+      R('CO₂ intensity',o=>fmt(o.z.kg,0)+' kg/MWh')+
+      R('Clean energy share',o=>fmt(100*o.z.cleanShare,0)+'%')+
+      R('Work moved / paused in grid stress',o=>`${fmt(rel(o),0)} MWh moved · ${fmt(o.z.cur,0)} MWh paused`,'protected load always served locally')+
+      R('Reliability test',o=>o.z.uns<0.5?'<span class="up">Passes</span>':'<span class="down">Fails</span>')+
+      R('10-year profit',o=>money(o.e.profit),'business assumption, kept apart from power cost')+`</tbody></table></div>`;
+    let why='';
+    if(clean){const d=dl(clean);
+      why+=`<div class="altnote"><b>Cleaner alternative:</b> power cost <b class="${d.dc>0?'down':'up'}">${sgn(d.dc)}</b> over 10 years for <b>${fmt(-d.dk,0)} kg/MWh</b> less carbon (${fmt(d.dt/1e3,0)}k tonnes CO₂ avoided${d.dc>0&&d.dt>0?`, about <b>$${fmt(d.dc/d.dt,0)} per tonne</b>`:''}). <b>Choose it when</b> the customer has a carbon target, or values avoided CO₂ above that price per tonne.</div>`;}
+    else why+=`<div class="altnote">No cleaner plan passes the reliability test at month ${c.open} under the current limits, so the recommended plan is already the lowest-carbon option that fits.</div>`;
+    if(fast){const d=dl(fast),n=c.open-fast.open;why+=`<div class="altnote"><b>Faster alternative:</b> opens ${n} month${n===1?'':'s'} earlier (month ${fast.open}) at <b>${sgn(d.dc)}</b> power cost and ${sgn(fast.e.profit-c.e.profit)} profit versus the recommendation. <b>Choose it when</b> speed to power is worth more than that.</div>`;}
+    const html=`<div class="boxh"><p class="eyebrow" style="margin:0">Recommended plan and alternatives</p><button type="button" class="btn" data-how>How the answers become this result</button></div>${tbl}${why}<p class="muted sm" style="margin-top:6px">Every plan comes from the 384-plan library, each replayed through the packet's official checker${isDefault()?'':', then re-sized and re-simulated for the current settings'}. Screening estimates, not quotes.</p>`;
+    ALTC.set(key,html);box.innerHTML=html;},30);}
+
+function howHTML(){
+  const c=chosen!=null&&rows.length&&rows.every(r=>r.done)?(rows.find(r=>r.o===chosen)||{}).r:null,st=curSite(),G=effGrid();
+  const H=()=>`<span class="rt b">hard requirement</span>`,P=()=>`<span class="rt m">preference</span>`,B=()=>`<span class="rt n">business assumption</span>`;
+  const A=[
+   ['Full campus by',F.dead?`month ${F.dead}`:'not set',H(),'Plans whose full demand (opening + 10 months) comes later are removed.'],
+   ['Carbon limit',F.cap?`${F.cap} kg/MWh, ${F.capMode==='year'?'every year':'10-year average'}`:'none',H(),'Plans above the limit are removed, not just ranked lower.'],
+   ['Wind and solar share cap',F.vcap<1?Math.round(F.vcap*100)+'%':'none',H(),'Keeps the plan realistic for a real grid.'],
+   ['Onsite land',F.acres+' acres',H(),'Gas, fuel cells and battery must fit (packet land per MW).'],
+   ['Stress and drought tests',F.hard?'on':'off',H(),`Plan must serve every MWh in: ${STRESS_TXT[G]}, plus a 5 day wind and solar drought.`],
+   ['Grid connection delay',F.delay?F.delay+' months late':'on schedule',P(),'Shifts the whole import schedule.'],
+   ['Work flexibility',{1:'packet (64 / 24 / 12)',0.5:'half',0:'firm'}[F.flex]||F.flex,P(),'How much work can move or pause in a stress event.'],
+   ['Opening month','chosen for highest 10-year profit',P(),'Earlier is not forced; each month is tested and shown.'],
+   ['Revenue model',RM.model,B(),'Affects profit only. Never mixed into power cost.']];
+  const rowsA=A.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+  const res=c?`<div class="op-risk"><b>Worked example for ${st.nm}, with the answers above:</b> open at <b>month ${c.open}</b> (full demand month ${c.open+10}); ${MIXT[c.base.mix]||c.base.mix}${c.base.battery?` + ${c.base.battery} MW battery`:''} and ${fmt(gasOf(c.caps))} MW onsite gas. Power cost <b>${money(c.z.total)}</b> ($${fmt(c.z.usdPerMWh,1)}/MWh), <b>${fmt(c.z.kg,0)} kg CO₂/MWh</b>, ${fmt(100*c.z.cleanShare,0)}% clean. Change an answer and reopen this page to see it update.</div>`:`<div class="op-risk">Results are still being computed. Close this page and reopen it when the status line shows Ready.</div>`;
+  return `<div class="op-page"><div class="op-top"><span>Peak Power · Method</span><span>Screening tool, not a quote</span></div>
+   <h1>How customer answers become a recommendation</h1><p class="op-sub">Five steps. Every step uses the packet's rules and data; nothing needs an internet connection.</p>
+   <table class="op-t"><thead><tr><th>Step</th><th>What happens</th></tr></thead><tbody>
+   <tr><td><b>1. Answers</b></td><td>The customer states hard requirements (must hold) and preferences (rank by). Both are listed below and kept apart.</td></tr>
+   <tr><td><b>2. Screen</b></td><td>Library of 384 plans (contract mix × battery × stress policy × cost or carbon operating mode × opening month). Hard requirements remove plans. Gas only counts once delivered and permitted.</td></tr>
+   <tr><td><b>3. Simulate</b></td><td>Each surviving plan is replayed hour by hour for 87,600 hours: contracts and merchant power share the grid limit; the battery charges and discharges; in stress events imports drop to 60%, protected load stays local, movable work relocates, batch work pauses.</td></tr>
+   <tr><td><b>4. Account</b></td><td>Power cost (capacity, contract, fuel, merchant), relocation cost and interruption cost are totalled, then CO₂ and clean share. Business revenue is added separately.</td></tr>
+   <tr><td><b>5. Recommend</b></td><td>Highest 10-year profit among plans that meet every hard requirement, shown next to a cleaner and a faster alternative with what each costs and when it wins.</td></tr></tbody></table>
+   <p class="op-b" style="margin:10px 0 3px"><b>THE ANSWERS RIGHT NOW</b></p>
+   <table class="op-t"><thead><tr><th>Answer</th><th>Value</th><th>Treated as</th><th>Effect</th></tr></thead><tbody>${rowsA}</tbody></table>${res}
+   <p class="op-b" style="margin:10px 0 3px"><b>ASSUMPTIONS YOU CAN CHALLENGE</b></p>
+   <table class="op-t"><thead><tr><th>Energy</th><th>Finance</th><th>Carbon</th></tr></thead><tbody><tr>
+    <td style="width:33%">Campus 75 MW peak, 69 MW average. Grid import 0 → 25 → 50 → 75 MW at months 18 / 24 / 30 (plus any delay). Seven stress events a year, 3–7 hours, imports cut to 60%. Battery: 4 hours, 85% round trip, up to 53 MW, no export. ERCOT 2023 hourly shapes repeated for 10 years.</td>
+    <td style="width:34%">Constant 2023 dollars; capital annualized at 8%. Contracts pay for all available output, even if curtailed. Merchant power at hourly price + $20/MWh. Relocation $123.50/MWh; interruption $1,000/MWh. Wind $45/MWh; battery $1,220/kW. Revenue models are team assumptions and stay separate from power cost.</td>
+    <td style="width:33%">kg CO₂/MWh = onsite + remote emissions ÷ MWh served (the remote site uses 1.05× the relocated electricity). Clean share counts wind, solar, nuclear and battery discharge in proportion to the clean share of its charging; grid-charged energy earns no credit.</td></tr></tbody></table>
+   <p class="op-foot">Limits: dispatch is rule-based, not an optimizer; the plan library is finite; the hourly model covers ERCOT (Texas) only; equipment outages and startup limits are simplified. Source: symposium packet v6.0.1 (V2) data and rules; see README and docs/DATA_GAPS.md.</p></div>`;}
+function openHow(){let o=$('onepager');if(!o){o=document.createElement('div');o.id='onepager';document.body.appendChild(o);}
+  o.innerHTML=`<div class="op-bar"><button type="button" class="btn" id="op-print">Print or save as PDF</button><button type="button" class="btn" id="op-close">Close</button></div>`+howHTML();
+  o.hidden=false;document.body.classList.add('pp-open');o.scrollTop=0;}
+
 
 initNew();drawModels();step1();showStep(0);
 })();

@@ -16,7 +16,8 @@
   <header class="top">
     <h1>Peak Power</h1>
     <div class="site" id="hdr-site"></div>
-    <div class="projsel"><label for="proj" class="muted sm">Project</label><select id="proj" aria-label="Project"></select><button type="button" class="btn" id="reset-btn" disabled title="Put every setting back to its starting value. Your project stays selected.">Reset settings</button></div>
+    <div class="ppstat" id="pp-status" role="status" aria-live="polite"></div>
+    <div class="projsel"><label for="proj" class="muted sm">Project</label><select id="proj" aria-label="Project"></select><button type="button" class="btn" data-how title="One page: how the customer's answers become a recommendation">How it works</button><button type="button" class="btn" id="reset-btn" disabled title="Put every setting back to its starting value. Your project stays selected.">Reset settings</button></div>
   </header>
   <nav class="steps" role="tablist">
     <button role="tab" id="tab-0" data-s="0"><span class="n">1</span><span style="min-width:0"><b>Portfolio</b><small>Projects, timeline, map</small></span></button>
@@ -64,6 +65,7 @@
   <!-- ============ STEP 1 ============ -->
   <section class="view" id="v-1" role="tabpanel" aria-labelledby="tab-1">
     <div class="box" id="psum"></div>
+    <div class="box" id="alt-box" hidden></div>
     <nav class="jump" aria-label="Project sections" id="ptabs"><a href="#p-fin">Finance</a><a href="#p-energy">Energy</a></nav>
     <section class="view psec" id="p-fin">
       <div class="secintro"><p class="eyebrow" style="margin:0">Section 1</p><h2>Finance</h2><p class="sub">Revenue model, profit by opening month and the opening date. It takes the plan from the Energy section below as its cost input.</p></div>
