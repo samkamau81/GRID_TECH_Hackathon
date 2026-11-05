@@ -14,6 +14,8 @@ Node 20 or newer.
 | `site-brief.test.js` | county lookup on real outlines, every county has grades and facts, nearby-plant sums and ranking, zero-carbon share, factor facts, the delay scenario, the cooling-climate summary and its Mild/Moderate/Demanding rule, Stull wet-bulb, climate history request shape, caching and errors |
 | `climate-weather.test.js` | request parameters and units, response mapping, missing values stay null, weather codes, 10-minute cache and expiry, de-duplication, invalid coordinates, HTTP/429/network/format errors, the client-side throttle, place search |
 
+**Moved:** `climate-weather.test.js`, `site-brief.test.js`, `climate-explorer.e2e.mjs` and `site-overlay.e2e.mjs` test the retired Climate Explorer and now live in `tests/archive/climate-explorer/` (they need the files in `peak-power/archive/climate-explorer/` and are not run). New: `unit/appendix-rules.test.js` (grading rules vs shipped data, statistics reproduction), `e2e/appendix.e2e.mjs`, and `e2e/perf.mjs` (load and interaction timings, writes `tests/perf-<label>.json`).
+
 ## Browser tests (headless Chrome or Edge)
 
     node tests/e2e/climate-explorer.e2e.mjs

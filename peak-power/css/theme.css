@@ -1,127 +1,106 @@
-/* Peak Power theme: "energy + optimisation".
-   Loaded LAST on every page (after tokens.css / prototype.css), so it only re-skins the brand layer. To revert, remove the
-   <link rel="stylesheet" href="css/theme.css"> line from the three pages.
+/* Peak Power theme: premium gold on warm white and dark charcoal.
+   Loaded LAST on every page (after tokens.css / prototype.css / appendix.css), so it only re-skins the brand layer.
+   All colour decisions live in the variables below; change them here and all three tabs follow.
 
-   Idea: deep navy ink and cool, slightly teal surfaces; BLUE stands for the grid and the engineering, GREEN for clean energy
-   and the "optimised" answer. One signature gradient (blue -> green) is the only decoration and is reserved for the things
-   that mean "go / recommended / current step": primary buttons, the logo bolt, the active step, the recommendation card.
-   Data colours (--s-* generation sources, --t0..t2 demand tiers, --cost, --rev, --bad, warn) are NOT changed, so charts and
-   grades keep their meaning. "Good" is aligned with the brand green so the whole system reads as one palette.
-
-   Contrast (WCAG): white on #1456b8 6.9:1, white on #0a8250 4.9:1, accent #0b6f86 on white 5.8:1, ink-3 #5c7483 on white 4.9:1.
-   Dark mode swaps to bright ends of the gradient with near-black text (>= 5.6:1). */
+   Palette: primary gold #D4AF37, deep gold #B8860B, charcoal #171717, warm white #FAF9F6, light gold #F3E5AB, neutral gray #6B7280.
+   Gold is for primary actions, the selected state and key highlights. Gold on a light page cannot carry small text, so text and
+   outlines use --accent (a darker gold, #8a6508, 5.1:1 on warm white); the bright gold is used as a fill with charcoal text on it
+   (#171717 on #D4AF37 is 8.6:1). Dark mode flips --accent to the bright gold (8.6:1 on charcoal).
+   Data colours (--s-* generation sources, --cost, --rev, --bad, --good, warn) are NOT changed, so charts and grades keep their meaning;
+   the three demand tiers (--t0..t2) use a gold ramp from tokens.css. */
 
 :root{
-  --bg:#f1f7f8; --panel:#ffffff; --ink:#0b2230; --ink-2:#3b5362; --ink-3:#5c7483; --rule:#d3e2e6; --rule-2:#e8f1f3;
-  --accent:#0b6f86; --accent-ink:#ffffff; --accent-soft:#def0f2;
-  --good:#0a8250; --good-bg:#e0f3e9;
-  --brand-blue:#1456b8; --brand-green:#0a8250;
-  --grad:linear-gradient(100deg,var(--brand-blue),var(--brand-green));
-  --grad-soft:linear-gradient(100deg,color-mix(in srgb,var(--brand-blue) 9%,transparent),color-mix(in srgb,var(--brand-green) 11%,transparent));
-  --shadow:0 1px 2px rgb(11 34 48 / .06),0 12px 26px -16px rgb(11 34 48 / .22);
+  --gold:#D4AF37; --gold-deep:#B8860B; --gold-light:#F3E5AB; --charcoal:#171717; --warm-white:#FAF9F6; --gray:#6B7280;
+  --bg:#FAF9F6; --panel:#ffffff; --ink:#171717; --ink-2:#44403a; --ink-3:#6B7280; --rule:#e6e1d3; --rule-2:#f1ede1;
+  --accent:#8a6508; --accent-ink:#171717; --accent-soft:#f8f0d2; --warn-bg:#fff4dc; --warn-ink:#6b4a00; --bad-bg:#fde8e6;
+  --bad:#b3261e; --good:#0b7a0b; --good-bg:#e5f4e5;
+  --t0:#6b4f06; --t1:#B8860B; --t2:#ecd689;
+  --brand-blue:var(--gold-deep); --brand-green:var(--gold);   /* legacy names kept so older rules and the logo gradient follow the theme */
+  --grad:linear-gradient(100deg,var(--gold),#c79a1c);
+  --grad-text:linear-gradient(100deg,#8a6508,#b8860b);
+  --grad-soft:linear-gradient(100deg,color-mix(in srgb,var(--gold) 14%,transparent),color-mix(in srgb,var(--gold-light) 40%,transparent));
+  --shadow:0 1px 2px rgb(23 23 23 / .06),0 12px 26px -16px rgb(23 23 23 / .25);
+  --ring:0 0 0 3px color-mix(in srgb,var(--gold) 55%,transparent);
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#07131b; --panel:#0e1f2b; --ink:#e7f3f5; --ink-2:#a8c1ca; --ink-3:#7c99a5; --rule:#1d3442; --rule-2:#152a36;
-  --accent:#46c6dd; --accent-ink:#031219; --accent-soft:#12303b;
-  --good:#3ddc97; --good-bg:#0f2f22;
-  --brand-blue:#3b8dff; --brand-green:#34d399;
-  --shadow:0 1px 2px rgb(0 0 0 / .4),0 14px 30px -16px rgb(0 0 0 / .7);
+  --bg:#171717; --panel:#201f1c; --ink:#FAF9F6; --ink-2:#d2cdc0; --ink-3:#9ca3af; --rule:#38342b; --rule-2:#2a2823;
+  --accent:#D4AF37; --accent-ink:#171717; --accent-soft:#2f2914; --warn-bg:#3a2f12; --warn-ink:#f3d48c; --bad-bg:#3d1d1a;
+  --bad:#e66767; --good:#4cc34c; --good-bg:#1b3220; --t0:#f3e5ab; --t1:#D4AF37; --t2:#6b5410; color-scheme:dark;
+  --grad-text:linear-gradient(100deg,#F3E5AB,#D4AF37);
+  --shadow:0 1px 2px rgb(0 0 0 / .45),0 14px 30px -16px rgb(0 0 0 / .75);
 }}
 :root[data-theme="dark"]{
-  --bg:#07131b; --panel:#0e1f2b; --ink:#e7f3f5; --ink-2:#a8c1ca; --ink-3:#7c99a5; --rule:#1d3442; --rule-2:#152a36;
-  --accent:#46c6dd; --accent-ink:#031219; --accent-soft:#12303b;
-  --good:#3ddc97; --good-bg:#0f2f22;
-  --brand-blue:#3b8dff; --brand-green:#34d399;
-  --shadow:0 1px 2px rgb(0 0 0 / .4),0 14px 30px -16px rgb(0 0 0 / .7);
+  --bg:#171717; --panel:#201f1c; --ink:#FAF9F6; --ink-2:#d2cdc0; --ink-3:#9ca3af; --rule:#38342b; --rule-2:#2a2823;
+  --accent:#D4AF37; --accent-ink:#171717; --accent-soft:#2f2914; --warn-bg:#3a2f12; --warn-ink:#f3d48c; --bad-bg:#3d1d1a;
+  --bad:#e66767; --good:#4cc34c; --good-bg:#1b3220; --t0:#f3e5ab; --t1:#D4AF37; --t2:#6b5410; color-scheme:dark;
+  --grad-text:linear-gradient(100deg,#F3E5AB,#D4AF37);
+  --shadow:0 1px 2px rgb(0 0 0 / .45),0 14px 30px -16px rgb(0 0 0 / .75);
 }
 
 /* ---------- every page ---------- */
-body{background:linear-gradient(180deg,color-mix(in srgb,var(--brand-blue) 8%,var(--bg)) 0,var(--bg) 360px) top/100% 360px no-repeat,var(--bg)}
-::selection{background:color-mix(in srgb,var(--brand-green) 30%,transparent)}
-html{scrollbar-color:color-mix(in srgb,var(--accent) 50%,var(--rule)) transparent}
+body{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 9%,var(--bg)) 0,var(--bg) 360px) top/100% 360px no-repeat,var(--bg)}
+::selection{background:color-mix(in srgb,var(--gold) 38%,transparent)}
+html{scrollbar-color:color-mix(in srgb,var(--gold-deep) 55%,var(--rule)) transparent}
+:focus-visible{outline:3px solid var(--gold-deep);outline-offset:3px;border-radius:4px}
+:root[data-theme="dark"] :focus-visible{outline-color:var(--gold)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) :focus-visible{outline-color:var(--gold)}}
 
-/* the "current" line: a slow blue-green flow across the top edge of every page */
-body::before{content:"";position:fixed;inset:0 0 auto 0;height:3px;z-index:200;pointer-events:none;
-  background:linear-gradient(90deg,var(--brand-blue),var(--accent),var(--brand-green),var(--accent),var(--brand-blue));background-size:200% 100%;animation:ppflow 10s linear infinite}
-@keyframes ppflow{to{background-position:-200% 0}}
-@media (prefers-reduced-motion:reduce){body::before{animation:none}}
+/* a thin gold rule across the top edge of every page */
+body::before{content:"";position:fixed;inset:0 0 auto 0;height:3px;z-index:200;pointer-events:none;background:linear-gradient(90deg,var(--gold-deep),var(--gold),var(--gold-light),var(--gold),var(--gold-deep))}
 @media print{body::before{display:none}}
 
-/* primary actions carry the gradient */
-.btn-primary,.btn.pri,.nav nav .nav-cta{background:var(--grad);border-color:transparent;color:var(--accent-ink)}
-.btn-primary{box-shadow:0 8px 20px -6px color-mix(in srgb,var(--brand-blue) 55%,transparent)}
-.btn-primary:hover{box-shadow:0 12px 28px -6px color-mix(in srgb,var(--brand-green) 60%,transparent)}
-.btn.pri{box-shadow:0 4px 12px -4px color-mix(in srgb,var(--brand-blue) 55%,transparent)}
-.btn.pri:hover,.nav nav .nav-cta:hover{background:var(--grad);filter:brightness(1.08);color:var(--accent-ink)}
+/* primary actions: gold fill, charcoal text */
+.btn-primary,.btn.pri,.nav nav .nav-cta{background:var(--grad);border-color:transparent;color:var(--charcoal);font-weight:600}
+.btn-primary{box-shadow:0 8px 20px -8px color-mix(in srgb,var(--gold-deep) 70%,transparent)}
+.btn-primary:hover{box-shadow:0 12px 26px -8px color-mix(in srgb,var(--gold-deep) 80%,transparent)}
+.btn.pri{box-shadow:0 4px 12px -6px color-mix(in srgb,var(--gold-deep) 70%,transparent)}
+.btn.pri:hover,.nav nav .nav-cta:hover,.btn-primary:hover{background:var(--grad);filter:brightness(1.06);color:var(--charcoal)}
+.btn.pri:disabled{filter:grayscale(.6) opacity(.55)}
 .btn-ghost:hover{background:var(--accent-soft)}
-:focus-visible{outline-color:var(--accent)}
 
-/* ---------- Introduction + Explorer (main.css / landing.css) ---------- */
-.nav.scrolled{border-bottom-color:transparent;box-shadow:0 1px 0 var(--rule),0 10px 24px -18px rgb(11 34 48 / .35)}
+/* ---------- Introduction (main.css / landing.css) ---------- */
+.nav.scrolled{border-bottom-color:transparent;box-shadow:0 1px 0 var(--rule),0 10px 24px -18px rgb(23 23 23 / .35)}
 .mark{background:var(--grad)}
 .nav nav a:hover{background:var(--accent-soft)}
+.nav nav a[aria-current="page"]{color:var(--ink);box-shadow:inset 0 -2px 0 var(--gold)}
 .hero .eyebrow::before,.section .eyebrow::before{content:"";display:inline-block;width:22px;height:3px;border-radius:2px;margin-right:10px;vertical-align:middle;background:var(--grad)}
-
 .hero{background:
-  radial-gradient(900px 520px at 88% 4%,color-mix(in srgb,var(--brand-blue) 17%,transparent),transparent 70%),
-  radial-gradient(780px 460px at 0% 100%,color-mix(in srgb,var(--brand-green) 17%,transparent),transparent 70%)}
-.hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;   /* engineering grid that fades out */
+  radial-gradient(900px 520px at 88% 4%,color-mix(in srgb,var(--gold) 20%,transparent),transparent 70%),
+  radial-gradient(780px 460px at 0% 100%,color-mix(in srgb,var(--gold-light) 45%,transparent),transparent 70%)}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
   background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);background-size:48px 48px;
   -webkit-mask-image:radial-gradient(ellipse 70% 75% at 72% 38%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse 70% 75% at 72% 38%,#000 15%,transparent 75%)}
 .hero-in{position:relative;z-index:1}
-h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.stats{border-top-color:color-mix(in srgb,var(--accent) 35%,var(--rule))}
-.stats dd{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-
+h1 span{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stats{border-top-color:color-mix(in srgb,var(--gold-deep) 40%,var(--rule))}
+.stats dd{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
 .viz-campus rect{fill:url(#vgrad)}
-.viz-campus{filter:drop-shadow(0 12px 22px color-mix(in srgb,var(--brand-blue) 38%,transparent))}
-.viz-nodes rect{stroke:color-mix(in srgb,var(--accent) 22%,var(--rule))}
-
-.section .card{position:relative;box-shadow:var(--shadow)}   /* no overflow:hidden: the step badges sit above the card edge */
+.viz-campus{filter:drop-shadow(0 12px 22px color-mix(in srgb,var(--gold-deep) 35%,transparent))}
+.viz-nodes rect{stroke:color-mix(in srgb,var(--gold-deep) 28%,var(--rule))}
+.section .card{position:relative;box-shadow:var(--shadow)}
 .section .card::before{content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:4px;border-radius:14px 14px 0 0;background:var(--grad);opacity:0;transition:opacity .25s ease}
 .section .card:hover::before{opacity:1}
-.section .card:hover{box-shadow:0 18px 38px -18px color-mix(in srgb,var(--brand-blue) 45%,transparent)}
-.icon{background:var(--grad-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 18%,transparent)}
-.ticks li::before{border-color:var(--brand-green)}
-.step-n{background:var(--grad)}
+.section .card:hover{box-shadow:0 18px 38px -18px color-mix(in srgb,var(--gold-deep) 55%,transparent)}
+.icon{background:var(--grad-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold-deep) 25%,transparent)}
+.ticks li::before{border-color:var(--gold-deep)}
+.step-n{background:var(--grad);color:var(--charcoal)}
 .expect{position:relative;overflow:hidden;border-left:0;padding-left:33px;background:var(--grad-soft)}
-.expect::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--brand-blue),var(--brand-green))}
-.avatar{background:var(--grad)}
-img.avatar{box-shadow:0 0 0 3px var(--panel),0 0 0 5px color-mix(in srgb,var(--accent) 55%,transparent)}
-.cta{background:radial-gradient(820px 380px at 50% 0%,color-mix(in srgb,var(--brand-green) 16%,transparent),transparent 70%),
-            radial-gradient(700px 320px at 20% 100%,color-mix(in srgb,var(--brand-blue) 12%,transparent),transparent 70%)}
+.expect::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--gold-deep),var(--gold))}
+.avatar{background:var(--grad);color:var(--charcoal)}
+img.avatar{box-shadow:0 0 0 3px var(--panel),0 0 0 5px color-mix(in srgb,var(--gold-deep) 60%,transparent)}
+.cta{background:radial-gradient(820px 380px at 50% 0%,color-mix(in srgb,var(--gold) 18%,transparent),transparent 70%),
+            radial-gradient(700px 320px at 20% 100%,color-mix(in srgb,var(--gold-light) 40%,transparent),transparent 70%)}
 .foot{position:relative;border-top-color:transparent}
 .foot::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--grad);opacity:.7}
-
-/* Explorer */
-.panel{box-shadow:var(--shadow)}
-.stat{border-top-color:transparent;background:var(--grad) 0 0/100% 3px no-repeat border-box,var(--panel);box-shadow:var(--shadow)}
-.seg button[aria-pressed="true"]{background:var(--grad);color:var(--accent-ink)}   /* the chosen option = gradient, same as every "current" state */
+.seg button[aria-pressed="true"]{background:var(--grad);color:var(--charcoal)}
 
 /* ---------- Prototype ---------- */
-header.top h1{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;width:max-content}
+header.top h1{background:linear-gradient(100deg,#F3E5AB,#D4AF37);-webkit-background-clip:text;background-clip:text;color:transparent;width:max-content}
 .sitelinks a{border-radius:999px}
-.sitelinks a:hover,.sitelinks a[aria-current="page"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.sitelinks a:hover,.sitelinks a[aria-current="page"]{background:var(--accent-soft);border-color:var(--gold-deep);color:var(--accent)}
 .sitelinks a[aria-current="page"]{font-weight:600}
-
-nav.steps{border-radius:10px;box-shadow:var(--shadow)}
-nav.steps button[aria-selected=true]{background:var(--grad) bottom left/100% 3px no-repeat,linear-gradient(180deg,var(--panel),var(--accent-soft))}
-nav.steps button[aria-selected=true] .n{background:var(--grad);border-color:transparent;color:var(--accent-ink)}
-nav.steps button.done .n{background:var(--brand-green);border-color:var(--brand-green);color:var(--accent-ink)}
-nav.steps button:hover:not([aria-selected=true]){background:var(--accent-soft)}
-
-.box,details.settings{border-radius:10px}
-.box{box-shadow:var(--shadow)}
-.btn{border-radius:6px;transition:background .15s,border-color .15s,color .15s,filter .15s}
-.btn:hover:not(.pri):not([disabled]){background:var(--accent-soft)}
-.eyebrow .k{background:var(--grad);color:var(--accent-ink)}
-
-/* the recommendation is the "optimised" answer: it gets the green/blue treatment */
-.reclbl,.pill.rec{background:var(--grad);border-color:transparent;color:var(--accent-ink)}
-.mrec2{border-color:color-mix(in srgb,var(--accent) 40%,var(--rule));border-left:5px solid var(--brand-green);background:var(--grad-soft)}
-.altnote{background:var(--grad-soft);border-left-color:var(--brand-green)}
-.status{background:var(--accent-soft);color:var(--accent)}
-.chip:hover{background:var(--accent-soft)}
-
-select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
-input[type=range],input[type=radio]{accent-color:var(--brand-green)}
+/* the step bar sits on the dark charcoal band defined in prototype.css */
+nav.steps button[aria-selected=true]{background:#262a30;box-shadow:inset 0 -3px 0 var(--gold)}
+nav.steps button[aria-selected=true] .n{background:var(--grad);border-color:transparent;color:var(--charcoal)}
+nav.steps button.done .n{background:var(--gold-deep);border-color:var(--gold-deep);color:var(--charcoal)}
+nav.steps button:hover:not([aria-selected=true]){background:#23262b}

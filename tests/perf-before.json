@@ -1,0 +1,121 @@
+{
+ "label": "before",
+ "when": "2026-11-05T22:55:37.204Z",
+ "runs": 3,
+ "pages": {
+  "index.html": {
+   "load_ms_median": 504,
+   "load_ms_all": [
+    562,
+    504,
+    297
+   ],
+   "heap_mb_median": 0.8,
+   "requests": 8,
+   "same_origin_bytes": 504215,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/assets/images/Mridul.jpeg",
+     "b": 267553,
+     "ms": 77
+    },
+    {
+     "u": "/assets/images/md_joy.jpeg",
+     "b": 190589,
+     "ms": 65
+    },
+    {
+     "u": "/assets/images/samwel.jpg",
+     "b": 19609,
+     "ms": 71
+    },
+    {
+     "u": "/css/theme.css",
+     "b": 9568,
+     "ms": 57
+    }
+   ],
+   "errors": [],
+   "failed": []
+  },
+  "prototype.html": {
+   "load_ms_median": 1945,
+   "load_ms_all": [
+    1945,
+    1866,
+    2155
+   ],
+   "heap_mb_median": 205,
+   "requests": 7,
+   "same_origin_bytes": 2373011,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/js/data/site-counties.js",
+     "b": 1025429,
+     "ms": 508
+    },
+    {
+     "u": "/js/data/reference-data.js",
+     "b": 744745,
+     "ms": 450
+    },
+    {
+     "u": "/js/data/scenarios.js",
+     "b": 262029,
+     "ms": 154
+    },
+    {
+     "u": "/js/prototype.js",
+     "b": 251889,
+     "ms": 272
+    }
+   ],
+   "errors": [],
+   "failed": []
+  },
+  "data-centers.html": {
+   "load_ms_median": 645,
+   "load_ms_all": [
+    654,
+    645,
+    627
+   ],
+   "heap_mb_median": 34.1,
+   "requests": 10,
+   "same_origin_bytes": 1760613,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/data/processed/data-centers.geojson",
+     "b": 1629234,
+     "ms": 56
+    },
+    {
+     "u": "/js/data-centers.js",
+     "b": 33174,
+     "ms": 99
+    },
+    {
+     "u": "/js/site-panel.js",
+     "b": 30187,
+     "ms": 100
+    },
+    {
+     "u": "/js/climate-weather.js",
+     "b": 20156,
+     "ms": 91
+    }
+   ],
+   "errors": [],
+   "failed": []
+  }
+ },
+ "prototype_interactions_ms": {
+  "portfolio_to_plan": 748,
+  "plan_to_portfolio": 720,
+  "find_site_first_view": 613
+ },
+ "prototype_heap_after_mb": 352.8
+}

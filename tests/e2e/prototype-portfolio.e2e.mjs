@@ -18,7 +18,7 @@ try {
 
   // navigation and structure
   const nav = JSON.parse(await p.ev(`JSON.stringify([...document.querySelectorAll('nav.sitelinks a')].map(a => a.getAttribute('href')))`));
-  ok(nav.join() === 'index.html,prototype.html,data-centers.html', 'site navigation has exactly three tabs');
+  ok(nav.join() === 'index.html,prototype.html,appendix.html', 'site navigation has exactly three tabs');
   ok((await p.ev(`document.querySelectorAll('.steps button').length`)) === 4, 'prototype has its four steps (Portfolio, Project plan, Run the plant, Live Operations)');
   ok(!/investment intelligence/i.test(await p.ev('document.body.innerText')), 'no Investment Intelligence tab or text');
 

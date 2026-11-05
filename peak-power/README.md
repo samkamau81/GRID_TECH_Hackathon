@@ -1,19 +1,20 @@
 # Peak Power
 
 A data-center development tool for a 75 MW campus: an introduction page, a Prototype (a portfolio of projects, a US county site finder,
-energy and finance planning, board review and live operations), and a Data Center Climate Explorer (a map of data centers worldwide
-with current local weather).
+energy and finance planning, board review and live operations), and an Appendix (model and methodology, data sources and integrity, correlations, limitations).
 It is a static site: plain HTML, CSS and JavaScript, no build step and no framework.
 
 | Page | File | What it is |
 | --- | --- | --- |
 | Introduction | `index.html` | Welcome page. Its **Next →** button opens the prototype. |
 | Prototype | `prototype.html` | Four steps: Portfolio (projects, timeline, Find a site county map), Project plan (finance, energy), Run the plant, Live Operations. Runs entirely in the browser. Details: [`../docs/PROTOTYPE_INTEGRATION.md`](../docs/PROTOTYPE_INTEGRATION.md). |
-| Data Center Climate Explorer | `data-centers.html` | Interactive map of data centers worldwide, with a United States view and current local weather from Open-Meteo. |
+| Appendix | `appendix.html` | Four sections: model and methodology, data inventory and integrity, correlations and insights (statistics from `js/data/appendix-stats.js`, built by `../scripts/build_appendix_stats.mjs`), limitations. |
 
-The app has exactly these three tabs, and all three link to each other. The Prototype was supplied as a Claude Artifact
+The Data Center Climate Explorer was retired from the navigation; its files are kept in `archive/climate-explorer/` (tests in `../tests/archive/climate-explorer/`). The app has exactly these three tabs, and all three link to each other. The Prototype was supplied as a Claude Artifact
 (`Peak Power (Copy).html`, kept unchanged as the reference) and split into files by `../scripts/split_prototype_artifact.py`. The previous
 prototype is in `archive/prototype-v1/`, and the original single-file build in [`../backup/PeakPower.original.html`](../backup/PeakPower.original.html).
+
+> **Note:** sections below that describe the Data Center Climate Explorer (site brief, overlays, weather) document the retired tab, now in `archive/climate-explorer/`. Its datasets in `data/processed/` and `js/data/` are unchanged.
 
 ## Structure
 
@@ -23,19 +24,16 @@ peak-power/
 ├── prototype.html          The prototype: markup, with the three-tab site navigation, plus script/style links
 ├── Peak Power (Copy).html  The supplied Claude Artifact the prototype was split from (reference, not served as a page)
 ├── archive/prototype-v1/   The previous prototype (HTML, js/app, css), kept for reference
-├── data-centers.html       Data Center Climate Explorer
+├── appendix.html           Appendix (model, data, correlations, limitations)
 ├── css/
 │   ├── tokens.css          Colours, fonts, light/dark theme variables (shared by all pages)
 │   ├── main.css            Shared by the introduction and explorer: base, navigation, buttons, footer
 │   ├── landing.css         Introduction page
-│   ├── data-centers.css    Explorer page
+│   ├── appendix.css        Appendix page
 │   ├── prototype.css       Prototype page
-│   ├── site-brief.css      Site brief panel and overlay controls (Explorer)
 │   ├── theme.css           Brand theme (blue-green "energy + optimisation"), loaded last on every page; remove its <link> to revert
 ├── js/
 │   ├── landing.js          Introduction page: scroll reveals, nav state
-│   ├── data-centers.js     Explorer: data loading, filters, statistics, map layers
-│   ├── climate-weather.js  Explorer: Open-Meteo current weather and place search (cache, de-duplication, rate-limit guard)
 │   ├── prototype.js        Prototype app (portfolio, Find a site, planning, board review, live operations)
 │   ├── engine.js           Prototype: hour-by-hour dispatch and accounting engine (V2 battery rules)
 │   └── data/               reference-data.js and scenarios.js (symposium packet V2; generated), site-counties.js (3,142 US counties for Find a site)
@@ -54,7 +52,7 @@ The introduction and prototype also work when opened straight from disk. The exp
 
     python -m http.server 8000      # from inside peak-power/
 
-then visit http://localhost:8000 (introduction), `/prototype.html` or `/data-centers.html`.
+then visit http://localhost:8000 (introduction), `/prototype.html` or `/appendix.html`.
 
 From the repository root, `python data/Symposium_Packet/team_app/server.py` serves the same folder (and the
 separate Python API). To share it publicly, serve only this folder, for example `ngrok http 8000` after the command

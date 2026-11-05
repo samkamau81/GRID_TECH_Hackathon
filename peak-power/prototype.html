@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Prototype – Peak Power</title>
 <meta name="description" content="Plan a 75 MW data center campus: portfolio of sites, county site finder, energy plan, board review and live operations.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231456b8'/%3E%3Cstop offset='1' stop-color='%230a8250'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon fill='url(%23g)' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23D4AF37'/%3E%3Cstop offset='1' stop-color='%23B8860B'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon fill='url(%23g)' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="css/prototype.css">
@@ -13,7 +13,7 @@
 </head>
 <body>
 <div class="wrap">
-  <nav class="sitelinks" aria-label="Peak Power pages"><a href="index.html">Introduction</a><a href="prototype.html" aria-current="page">Prototype</a><a href="data-centers.html">Data Center Climate Explorer</a></nav>
+  <nav class="sitelinks" aria-label="Peak Power pages"><a href="index.html">Introduction</a><a href="prototype.html" aria-current="page">Prototype</a><a href="appendix.html">Appendix</a></nav>
   <header class="top">
     <h1>Peak Power</h1>
     <div class="site" id="hdr-site"></div>
@@ -22,9 +22,9 @@
   </header>
   <nav class="steps" role="tablist">
     <button role="tab" id="tab-0" data-s="0"><span class="n">1</span><span style="min-width:0"><b>Portfolio</b><small>Projects, timeline, map</small></span></button>
-    <button role="tab" id="tab-1" data-s="1"><span class="n">2</span><span style="min-width:0"><b>Project plan</b><small>Energy and finance</small></span></button>
-    <button role="tab" id="tab-2" data-s="2"><span class="n">3</span><span style="min-width:0"><b>Run the plant</b><small>Board review: cost, alerts, big decisions</small></span></button>
-    <button role="tab" id="tab-3" data-s="3"><span class="n">4</span><span style="min-width:0"><b>Live Operations</b><small>Site, forecast, alerts, equipment</small></span></button>
+    <button role="tab" id="tab-1" data-s="1"><span class="n">2</span><span style="min-width:0"><b>Project plan</b><small>Finance and energy</small></span></button>
+    <button role="tab" id="tab-2" data-s="2"><span class="n">3</span><span style="min-width:0"><b>Run the plant</b><small>Cost, carbon, decisions</small></span></button>
+    <button role="tab" id="tab-3" data-s="3"><span class="n">4</span><span style="min-width:0"><b>Live operations</b><small>Hour by hour dispatch</small></span></button>
   </nav>
 
   <!-- ============ PORTFOLIO ============ -->
@@ -32,29 +32,30 @@
     <div class="box" id="pf-head">
       <div id="pf-hl"></div>
       <nav class="jump" aria-label="Jump to"><a href="#pf-proj">Projects</a><a href="#pf-cmp">Timeline</a><a href="#pf-mapv">Find a site</a></nav>
+      <aside class="pfkey" id="pf-key" aria-label="Grade key"></aside>
     </div>
     <div id="pf-proj">
       <div id="scr-alert"></div>
       <div class="cards4" id="pf-cards"></div>
       <div class="box" id="scr">
         <div id="pf-why"></div>
-        <details class="fold" id="scr-path" style="margin-top:8px"><summary><span class="sm" style="font-weight:600">Path to power · expert support</span><span class="muted sm" id="scr-pathsum"></span></summary><div id="scr-steps" style="margin-top:6px"></div></details>
+        <details class="fold" id="scr-path" style="margin-top:8px"><summary><span class="sm" style="font-weight:600">Path to power</span><span class="muted sm" id="scr-pathsum"></span></summary><div id="scr-steps" style="margin-top:6px"></div></details>
       </div>
     </div>
     <div id="pf-cmp" class="secgap">
-      <div class="secintro"><h2>When each could open</h2><p class="sub">Opening month and 10 year profit for each project.</p></div>
+      <div class="secintro"><h2>Opening dates</h2><p class="sub">Earliest month and 10 year profit, by project</p></div>
       <div class="box" style="margin-top:8px"><div class="chart" id="pf-gantt"></div></div>
     </div>
     <div id="pf-mapv" class="secgap">
-      <div class="secintro"><h2>Find a site</h2><p class="sub">Where to build next. Click a county for its grades and the reason behind each. Switch between Texas and the whole country.</p></div>
+      <div class="secintro"><h2>Find a site</h2><p class="sub">Grades by county. Click a county for the reasons.</p></div>
       <div class="pf2" style="margin-top:8px">
         <div class="box">
-          <div class="mapctl"><div class="seg" role="group" aria-label="Map area" id="map-scope"></div><div class="seg" role="group" aria-label="Map layer" id="map-layers"></div></div>
+          <div class="mapctl"><div class="seg" role="group" aria-label="Map area" id="map-scope"></div><div class="lgs" role="group" aria-label="Map layer" id="map-layers"></div></div>
           <div id="map-layers2"></div>
           <div class="chart mapbox" id="map"></div>
           <div class="legend" id="map-leg" style="margin-top:6px"></div>
           <p class="muted sm" id="map-note"></p>
-          <details class="fold"><summary><span class="sm" style="font-weight:600">Where these grades come from</span></summary><ul class="gl2"><li>Geography: county boundaries from US Census data (us-atlas), distances to 57 metro anchors, computed here.</li><li>Fiber: distance to the nearest colocation or network facility, from the <a href="https://www.caida.org/catalog/datasets/ixps/" target="_blank" rel="noopener">CAIDA IXP dataset</a> (built on PeeringDB), Oct 2026 release. Facility locations only, not fiber routes.</li><li>Carbon reference: the US grid averages about 384 kg CO₂e per MWh (<a href="https://greencalculus.com/factors/united-states-emission-factors/" target="_blank" rel="noopener">Ember 2025</a>). There is no industry standard cap, so the caps here are examples. Tenants usually set clean energy goals instead.</li><li>Policy: state actions found in public sources in Nov 2026. <a href="https://www.electricchoice.com/datacenters/moratoriums/" target="_blank" rel="noopener">Moratorium tracker</a>, <a href="https://www.afslaw.com/perspectives/alerts/state-regulation-data-centers-2026-shifting-landscape" target="_blank" rel="noopener">ArentFox Schiff</a>, <a href="https://www.venable.com/insights/publications/2026/06/data-center-tax-incentives-under-pressure" target="_blank" rel="noopener">Venable</a>, <a href="https://www.ncsl.org/resources/details/does-your-state-offer-data-center-tax-incentives" target="_blank" rel="noopener">NCSL</a>. Verify before relying on any state.</li><li>Energy: the hourly model covers ERCOT only, from the case packet. Outside Texas the Overall grade uses the regional grid queue wait as a stand in, until hourly prices for those regions are added.</li><li>Water: <a href="https://www.wri.org/data/aqueduct-global-maps-40-data" target="_blank" rel="noopener">WRI Aqueduct 4.0</a> baseline water stress, matched to counties here.</li><li>Time to power: <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener">LBNL Queued Up</a> (data through 2025), by grid operator area.</li><li>Wind and solar cap: EIA Hourly Electric Grid Monitor, 2025 net generation by grid operator (via Catalyst Cooperative's PUDL).</li><li>Hazard: <a href="https://hazards.fema.gov/nri/data-resources" target="_blank" rel="noopener">FEMA National Risk Index</a> v1.20 (Dec 2025), expected building loss per dollar of buildings.</li></ul></details>
+          <details class="fold"><summary><span class="sm" style="font-weight:600">Data sources</span></summary><ul class="gl2"><li>Geography: county boundaries from US Census data (us-atlas), distances to 57 metro anchors, computed here.</li><li>Fiber: distance to the nearest colocation or network facility, from the <a href="https://www.caida.org/catalog/datasets/ixps/" target="_blank" rel="noopener">CAIDA IXP dataset</a> (built on PeeringDB), Oct 2026 release. Facility locations only, not fiber routes.</li><li>Carbon reference: the US grid averages about 384 kg CO₂e per MWh (<a href="https://greencalculus.com/factors/united-states-emission-factors/" target="_blank" rel="noopener">Ember 2025</a>). There is no industry standard cap, so the caps here are examples. Tenants usually set clean energy goals instead.</li><li>Policy: state actions found in public sources in Nov 2026. <a href="https://www.electricchoice.com/datacenters/moratoriums/" target="_blank" rel="noopener">Moratorium tracker</a>, <a href="https://www.afslaw.com/perspectives/alerts/state-regulation-data-centers-2026-shifting-landscape" target="_blank" rel="noopener">ArentFox Schiff</a>, <a href="https://www.venable.com/insights/publications/2026/06/data-center-tax-incentives-under-pressure" target="_blank" rel="noopener">Venable</a>, <a href="https://www.ncsl.org/resources/details/does-your-state-offer-data-center-tax-incentives" target="_blank" rel="noopener">NCSL</a>. Verify before relying on any state.</li><li>Energy: the hourly model covers ERCOT only, from the case packet. Outside Texas the Overall grade uses the regional grid queue wait as a stand in, until hourly prices for those regions are added.</li><li>Water: <a href="https://www.wri.org/data/aqueduct-global-maps-40-data" target="_blank" rel="noopener">WRI Aqueduct 4.0</a> baseline water stress, matched to counties here.</li><li>Time to power: <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener">LBNL Queued Up</a> (data through 2025), by grid operator area.</li><li>Wind and solar cap: EIA Hourly Electric Grid Monitor, 2025 net generation by grid operator (via Catalyst Cooperative's PUDL).</li><li>Hazard: <a href="https://hazards.fema.gov/nri/data-resources" target="_blank" rel="noopener">FEMA National Risk Index</a> v1.20 (Dec 2025), expected building loss per dollar of buildings.</li></ul></details>
         </div>
         <div class="box" id="cdet"></div>
       </div>
@@ -67,35 +68,36 @@
   <section class="view" id="v-1" role="tabpanel" aria-labelledby="tab-1">
     <div class="box" id="psum"></div>
     <div class="box" id="alt-box" hidden></div>
-    <nav class="jump" aria-label="Project sections" id="ptabs"><a href="#p-fin">Finance</a><a href="#p-energy">Energy</a></nav>
+    <div class="subtabs" role="group" aria-label="Project sections" id="ptabs"><button type="button" data-ptab="fin" aria-pressed="true">Finance</button><button type="button" data-ptab="energy" aria-pressed="false">Energy</button></div>
     <section class="view psec" id="p-fin">
-      <div class="secintro"><p class="eyebrow" style="margin:0">Section 1</p><h2>Finance</h2><p class="sub">Revenue model, profit by opening month and the opening date. It takes the plan from the Energy section below as its cost input.</p></div>
       <div class="box">
-      <p class="eyebrow"><span class="k">1</span>Revenue · how this site earns money <span class="tag">team valuation</span></p>
+      <p class="eyebrow"><span class="k">1</span>Revenue model · how this site earns money</p>
       <div id="mrec"></div>
-      <div class="models" id="models"></div>
-      <div class="mparams" id="mparams"></div>
+      <div class="revgrid"><div class="models" id="models"></div>
+      <div class="mparams" id="mparams"></div></div>
     </div>
 
     <div class="box">
-      <p class="eyebrow"><span class="k">2</span>When to open · the month with the highest 10-year profit wins</p>
+      <p class="eyebrow"><span class="k">2</span>When to open · profit by opening month</p>
       <div class="legend"><span><i style="background:var(--good)"></i>Profit</span><span><i style="background:var(--cost)"></i>Power cost</span><span><i style="height:0;border-top:3px solid var(--rev)"></i>Revenue (label above)</span><span class="muted">10 years, constant 2023 dollars</span></div>
       <div class="chart" id="starts"></div>
       <div id="rec" style="margin-top:10px"></div>
       <div id="o-why"></div>
     </div>
 
+    
     </section>
-    <section class="view psec" id="p-energy">
-      <div class="secintro"><p class="eyebrow" style="margin:0">Section 2</p><h2>Energy</h2><p class="sub">Power sources, onsite gas, equipment timelines, land and grid reliability. Everything that decides whether the site can run.</p></div>
+    <section class="view psec" id="p-energy" hidden>
       <div class="box" id="gate">
-      <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">1</span>Reliability and realism checks</p><label class="chk"><input type="checkbox" id="g-hard"> Enforce stress and drought tests</label></div>
-      <div class="qrow"><div class="in"><label for="g-vcap">Most energy allowed from wind and solar</label><select id="g-vcap"></select></div><div class="in"><label for="g-flex">How much work can move or pause</label><select id="g-flex"></select></div></div>
-      <div id="flex-sens"></div>
-      <div id="gate-body" style="margin-top:8px"></div>
+      <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">1</span>Reliability · how far the plan can be pushed</p></div>
+      <div class="subtabs" role="group" aria-label="Reliability views" id="gtabs"><button type="button" data-gtab="ten" aria-pressed="true">Over 10 years</button><button type="button" data-gtab="hour" aria-pressed="false">One bad hour</button></div>
+      <div id="g-ten"><div id="gate-body" style="margin-top:12px"></div><div class="gategrid"><div id="gate-lad"></div><div id="gate-ctl"></div></div><div id="gate-tl"></div><div id="flex-sens"></div></div>
+      <div id="g-hour" hidden><div id="hour-body"></div></div>
+      <details class="fold" id="gate-rules"><summary><span class="sm" style="font-weight:600" id="gate-rules-sum">Plan rules</span></summary><div id="gate-rules-body"></div></details>
+      <details class="fold" id="gate-why"><summary><span class="sm" style="font-weight:600">Why we cap wind and solar</span></summary><p class="muted sm" style="margin-top:6px">A plan that gets 80% or 90% of its energy from wind and solar looks cheap on paper, but real systems do not run that way without very large storage or firm backup. For scale, EIA hourly data for 2025 shows ERCOT, SPP and CAISO each got 37% of their energy from wind and solar. Among the 31 US grid operators above 15 TWh, the highest was Colorado's Xcel area at 45%, and the only one above that was a small New Mexico utility (PNM, 71%), which leans on its neighbors. Plans above the cap are removed before anything is ranked, and a plan within the cap still has to ride through a 5 day drought and the site's own grid stress case without leaving load unserved. The stress case can be made harsher but not softer than the site's own.</p></details>
     </div>
     <div class="box">
-      <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">2</span>Site analysis · power sources and infrastructure</p></div>
+      <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">2</span>Site analysis · power and grid infrastructure</p></div>
       <div class="qrow" aria-label="Site options">
         <div class="in"><label for="q-delay">Grid connection</label><select id="q-delay"></select></div>
         <div class="in"><label for="q-cap">Carbon cap</label><select id="q-cap"></select></div>
@@ -142,18 +144,18 @@
   <section class="view" id="v-2" role="tabpanel" aria-labelledby="tab-2" hidden>
     <div class="box" id="c-head"></div>
     <div class="run2">
-      <div class="box"><div class="boxh"><p class="eyebrow" style="margin:0">The plant · where energy and money went</p><div class="seg" role="group" aria-label="Period" id="c-win"></div></div><p class="muted sm" id="c-wlab" style="margin:2px 0 6px"></p><div class="chart" id="c-plant"></div></div>
+      <div class="box"><div class="boxh"><p class="eyebrow" style="margin:0">Power flows · where energy and money went</p><div class="seg" role="group" aria-label="Period" id="c-win"></div></div><p class="muted sm" id="c-wlab" style="margin:2px 0 6px"></p><div class="chart" id="c-plant"></div></div>
       <div class="box"><p class="eyebrow">Alerts</p><div class="alerts" id="c-alerts"></div></div>
     </div>
-    <div class="box"><p class="eyebrow">Power cost per MWh, month by month</p><div class="legend" id="c-costleg"></div><div class="chart" id="c-cost"></div></div>
-    <div class="box"><p class="eyebrow">Environmental report · carbon and clean energy</p>
+    <div class="box"><p class="eyebrow">Power cost per MWh · by month</p><div class="legend" id="c-costleg"></div><div class="chart" id="c-cost"></div></div>
+    <div class="box"><p class="eyebrow">Environmental report · emissions and clean energy share</p>
       <div class="kpis" id="env-kpi"></div>
       <div class="env2"><div><p class="muted sm" style="margin:8px 0 2px">CO₂ by year, tonnes · label = kg/MWh · faded = projection</p><div class="legend"><span><i style="background:var(--s-gas)"></i>Onsite gas (scope 1)</span><span><i style="background:var(--s-grid)"></i>Grid power (scope 2)</span><span><i style="background:var(--s-rel)"></i>Work moved to remote site</span></div><div class="chart" id="env-yr"></div></div>
         <div><p class="muted sm" style="margin:8px 0 2px">Clean energy share by hour of day and month · darker = cleaner</p><div class="legend"><span><i style="background:var(--s-wind);opacity:.1"></i>0%</span><span><i style="background:var(--s-wind);opacity:.55"></i>50%</span><span><i style="background:var(--s-wind)"></i>100%</span><span class="muted">line = now</span></div><div class="chart" id="env-hm"></div></div></div>
       <details class="fold" style="margin-top:10px"><summary><span class="sm" style="font-weight:600">Projected impacts by plan</span><span class="muted sm">CO₂ to month 120, cost per tonne avoided · from month <span class="atm"></span></span></summary><div id="env-imp" style="margin-top:6px"></div></details>
       <p class="muted sm">Emission factors are the packet's: gas units by heat rate, grid power at the packet's hourly-average grid intensity falling 3% a year, and moved work at the remote site's grid intensity. The packet does not count grid power as clean, so the hourly clean share is wind, solar, nuclear and battery used on site.</p>
     </div>
-    <div class="box"><p class="eyebrow">Board decisions · operations runs gas and batch work for you</p><div class="decs" id="c-decs"></div><p class="vs" id="c-vs"></p></div>
+    <div class="box"><p class="eyebrow">Decisions · contracts and equipment you control. Gas and batch work run automatically.</p><div class="decs" id="c-decs"></div><p class="vs" id="c-vs"></p></div>
     <div class="next"><button class="btn" type="button" id="back-1">← Change start month</button><button class="btn pri" type="button" id="go-3">Go to Live Operations →</button></div>
   </section>
 
@@ -174,17 +176,17 @@
       <div class="tot" id="l-tot"></div>
     </div>
     <section class="box" id="rt" aria-label="Demand routing">
-      <div class="boxh"><p class="eyebrow" style="margin:0">Demand routing · where each tier goes this hour</p><div class="rtnext" id="rt-next"></div></div>
+      <div class="boxh"><p class="eyebrow" style="margin:0">Demand routing · how each tier is served this hour</p><div class="rtnext" id="rt-next"></div></div>
       <div class="rt2"><div class="chart" id="rt-sk"></div><div><div id="rt-pb"></div></div></div>
       <div class="tot" id="rt-tot"></div>
       <p class="muted sm" style="margin:6px 0 0">Tiers, the 60% stress import cap, the 12 MW remote site (11.4 MW of campus work at 1.05×), $123.50/MWh to move work and $1,000/MWh to pause it are the packet's rules. Moving and pausing are allowed only inside declared stress windows. The order of on-campus supply is our dispatch rule, not an optimizer.</p>
     </section>
     <div class="op2">
       <div class="col">
-        <section class="box" aria-label="Site"><div class="boxh"><p class="eyebrow" style="margin:0">The site, live · click any equipment</p><div class="lmode" id="l-mode" style="margin:0"></div></div><div class="chart site" id="site"></div>
+        <section class="box" aria-label="Site"><div class="boxh"><p class="eyebrow" style="margin:0">The site, live · select equipment for details</p><div class="lmode" id="l-mode" style="margin:0"></div></div><div class="chart site" id="site"></div>
           <div class="keys" style="margin-top:2px"><span><i style="background:var(--good)"></i>running</span><span><i style="background:var(--ink-3)"></i>standby</span><span><i style="background:#c98500"></i>warning or service</span><span><i style="background:var(--bad)"></i>offline</span><span class="muted">line width = MW flowing</span></div></section>
         <section class="box" aria-label="How demand was met">
-          <p class="eyebrow">Last 7 days · demand (line) and how it was met</p>
+          <p class="eyebrow">Last 7 days · demand and supply</p>
           <div class="chart" id="l-week"></div>
           <div class="chart" id="l-over" style="cursor:pointer;margin-top:2px" title="Click to jump"></div>
           <div class="jumps"><span class="muted" style="font-size:12px">Jump to</span><button class="btn" type="button" data-j="open">First power</button><button class="btn" type="button" data-j="grid">Grid arrives</button><button class="btn" type="button" data-j="stress">Next grid stress</button><button class="btn" type="button" data-j="full">Full campus</button><button class="btn" type="button" data-j="y6">Year 6</button></div>
@@ -192,7 +194,7 @@
       </div>
       <div class="col">
         <section class="box" id="eq-panel" aria-label="Selected equipment"></section>
-        <section class="box" aria-label="Forecast"><p class="eyebrow">Forecast · next 72 hours</p>
+        <section class="box" aria-label="Forecast"><p class="eyebrow">72 hour forecast</p>
           <div class="legend"><span><i style="background:var(--s-wind)"></i>Wind</span><span><i style="background:var(--s-solar)"></i>Solar</span><span><i style="background:var(--ink-3);opacity:.4"></i>uncertainty <span class="tag">ext.</span></span><span><i style="height:0;border-top:2px solid var(--ink)"></i>Demand</span><span><i style="height:0;border-top:2px dashed var(--s-grid)"></i>Grid limit</span><span><i style="height:0;border-top:2px dotted var(--ink-3)"></i>Grid + onsite</span></div>
           <div class="chart" id="fc"></div><div class="flags" id="fc-flags"></div></section>
         <section class="box" aria-label="Alerts"><p class="eyebrow">Alerts and actions</p><div class="alerts" id="al"></div>
