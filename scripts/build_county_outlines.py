@@ -21,7 +21,7 @@ import os
 import re
 import sys
 
-SRC = "peak-power/js/data/site-counties.js"
+SRC = "peak-power/data/source/site-counties.full.js"
 OUT = "peak-power/data/processed/county-outlines.json"
 SCALE = 100            # hundredths of a degree (~1 km)
 SKIP_STATES = {"02", "15"}   # Alaska, Hawaii: inset projections

@@ -1133,8 +1133,14 @@ const LAYTXT={all:'Overall is a weighted average of the scored factors, with ene
   pwr:'LBNL Queued Up, by grid operator area, not by county. Median years from interconnection request to operation for power plants that came online in 2021 to 2025: Good under 4 years, Moderate 4 to 6, Bad over 6. It measures generation queues as a sign of congestion, not a data center load wait.'};
 
 // ---- map: built once per scope, recolored per layer ----
-function buildMap(){const tx=mapScope==='tx',cs=tx?MAPD.c.filter(c=>c.s==='48'):MAPD.c,vb=tx?MAPD.txbox:[0,0,MAPD.vb[0],MAPD.vb[1]];
-  $('map').innerHTML=`<svg class="${tx?'tx':'us'}" viewBox="${vb.join(' ')}" role="img" aria-label="${tx?'Texas':'United States'} counties graded by factor"><g id="cg">${cs.map(c=>`<path class="cty" data-f="${c.f}" d="${c.d}"/>`).join('')}</g>${tx?'':`<path class="sbd" d="${MAPD.sb}"/>`}<g id="pins"></g></svg>`;
+// Outline paths load on demand: Texas first (the map opens on Texas), the rest of the US only when that view is chosen. Each file is requested once.
+const SHP={};function loadShapes(k){return SHP[k]||(SHP[k]=new Promise((ok,no)=>{const e=document.createElement('script');e.src='js/data/site-shapes-'+k+'.js';e.onload=()=>ok();e.onerror=()=>{delete SHP[k];no(new Error('Could not load map shapes ('+k+')'));};document.head.appendChild(e);}));}
+let mapSeq=0;
+function buildMap(){const my=++mapSeq,tx=mapScope==='tx';$('map').innerHTML='<p class="muted sm" style="padding:12px">Loading the county map…</p>';
+  const need=tx?loadShapes('tx'):Promise.all([loadShapes('tx'),loadShapes('us')]);
+  need.then(()=>{if(my===mapSeq)drawMapSvg();},e=>{if(my===mapSeq)$('map').innerHTML='<p class="note bad">'+esc(e.message)+'. Reload the page to try again.</p>';});}
+function drawMapSvg(){const SH=window.PEAKPOWER_SITE_SHAPES,tx=mapScope==='tx',cs=tx?MAPD.c.filter(c=>c.s==='48'):MAPD.c,vb=tx?MAPD.txbox:[0,0,MAPD.vb[0],MAPD.vb[1]];
+  $('map').innerHTML=`<svg class="${tx?'tx':'us'}" viewBox="${vb.join(' ')}" role="img" aria-label="${tx?'Texas':'United States'} counties graded by factor"><g id="cg">${cs.map(c=>`<path class="cty" data-f="${c.f}" d="${SH.d[c.f]}"/>`).join('')}</g>${tx?'':`<path class="sbd" d="${SH.sb}"/>`}<g id="pins"></g></svg>`;
   mapBuilt=true;recolor();drawPins();selMark();drawMapChrome();}
 function recolor(){const L=mapLayer;document.querySelectorAll('#cg .cty').forEach(p=>{const c=CMAP.get(p.dataset.f),v=L==='all'?cOverall(c):c.r[LIDX[L]];p.setAttribute('fill',GCOL[v]);p.setAttribute('fill-opacity',v===3?'.5':v===4?'.9':'.62');});}
 function drawPins(){const g=$('pins');if(!g)return;const tx=mapScope==='tx',r=tx?4.6:6.5,fs=tx?6.2:8.5;
