@@ -93,11 +93,16 @@ export async function openPage(b, { width = 1400, height = 900, dark, mocks = []
 }
 
 // Canned Open-Meteo responses shaped like the live API (forecast current conditions and place search), so tests never use the free allowance.
-export function openMeteoMocks({ onCurrent, onGeocode, failCurrent } = {}) {
+export function openMeteoMocks({ onCurrent, onGeocode, failCurrent, onArchive, failArchive } = {}) {
   const current = { latitude: 39.05, longitude: -77.53, timezone: 'America/New_York', timezone_abbreviation: 'EST',
     current_units: { time: 'iso8601', temperature_2m: '\u00b0F', apparent_temperature: '\u00b0F', relative_humidity_2m: '%', weather_code: 'wmo code', wind_speed_10m: 'mp/h', precipitation: 'inch', is_day: '' },
     current: { time: '2026-11-01T14:30', interval: 900, temperature_2m: 53.4, apparent_temperature: 51.3, relative_humidity_2m: 61, weather_code: 3, wind_speed_10m: 7.2, precipitation: 0, is_day: 1 } };
+  // three years of hourly temperature (seasonal and daily swing) and a constant 60% humidity: a Moderate cooling climate
+  const archive = () => { const time = [], t = [], h = []; for (let i = 0; i < 24 * 1095; i++) { const d = new Date(Date.UTC(2023, 0, 1, i)), doy = i / 24, hr = i % 24;
+    time.push(d.toISOString().slice(0, 13) + ':00'); t.push(Math.round((58 + 24 * Math.sin(2 * Math.PI * ((doy % 365.25) - 110) / 365.25) - 8 * Math.cos(2 * Math.PI * hr / 24)) * 10) / 10); h.push(60); }
+    return { latitude: 39.05, longitude: -77.53, timezone: 'America/New_York', hourly_units: { time: 'iso8601', temperature_2m: '°F', relative_humidity_2m: '%' }, hourly: { time, temperature_2m: t, relative_humidity_2m: h } }; };
   return [
+    { re: /archive-api\.open-meteo\.com/, pattern: '*archive-api.open-meteo.com*', handler: async (u) => { onArchive && onArchive(u); return failArchive ? { status: 500, body: { error: true } } : { body: archive() }; } },
     { re: /api\.open-meteo\.com\/v1\/forecast/, pattern: '*api.open-meteo.com/v1/forecast*', handler: async (u) => { onCurrent && onCurrent(u); return failCurrent ? { status: 500, body: { error: true } } : { body: current }; } },
     { re: /geocoding-api\.open-meteo\.com/, pattern: '*geocoding-api.open-meteo.com*', handler: async (u) => { onGeocode && onGeocode(u); return { body: { results: [{ name: 'Ashburn', admin1: 'Virginia', country: 'United States', country_code: 'US', latitude: 39.04372, longitude: -77.48749 }] } }; } }
   ];

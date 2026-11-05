@@ -247,8 +247,8 @@
       }
     });
     map.addControl(new ResetControl());
-    // Clicking empty map shows the weather there. Markers do not bubble clicks, so this never fires for a data center.
-    map.on('click', function (e) { showPlaceWeather(e.latlng.wrap(), 'Selected location'); });
+    // Clicking empty map opens the site brief for that point. Markers do not bubble clicks, so this never fires for a data center.
+    map.on('click', function (e) { var ll = e.latlng.wrap(); site({ lat: ll.lat, lon: ll.lng, title: 'Selected location' }); });
 
     // Top-right keeps the legend off the busiest areas; it collapses so it never has to hide the data.
     legendControl = L.control({ position: 'topright' });
@@ -260,7 +260,10 @@
       return legendBox;
     };
     legendControl.addTo(map);
+    if (window.ExplorerSite) window.ExplorerSite.init({ map: map, L: L, el: el, clear: clear, num: num, weatherNode: weatherNode, legend: renderLegend });
   }
+  // Open the site brief (grades, plan impact, nearby power, cooling climate, weather) for a point.
+  function site(s) { if (window.ExplorerSite) window.ExplorerSite.select(s); }
 
   // ------------------------------------------------------------------ current weather panel
   var W = window.ClimateWeather;
@@ -295,13 +298,6 @@
     return box;
   }
 
-  // A popup for a point that is not a data center: a clicked spot or a searched place.
-  function showPlaceWeather(latlng, title, subtitle) {
-    var node = el('div', { class: 'pop' }, [el('h3', { text: title }), subtitle ? el('p', { class: 'pop-en', text: subtitle }) : null,
-      el('p', { class: 'pop-en', text: 'Coordinates: ' + latlng.lat.toFixed(4) + ', ' + latlng.lng.toFixed(4) }), weatherNode(latlng.lat, latlng.lng)]);
-    L.popup({ maxWidth: 320 }).setLatLng(latlng).setContent(node).openOn(map);
-  }
-
   function popupNode(p, lat, lon) {
     var rows = [];
     var add = function (k, v) { if (v) rows.push([k, v]); };
@@ -318,7 +314,8 @@
     if (site) links.appendChild(el('a', { href: site, target: '_blank', rel: 'noopener noreferrer', text: 'Website' }));
     links.appendChild(el('a', { href: 'https://www.openstreetmap.org/' + p.id, target: '_blank', rel: 'noopener noreferrer', text: 'View on OpenStreetMap' }));
     var title = p.name || 'Unnamed data center';
-    return el('div', { class: 'pop' }, [el('h3', { text: title }), p.nameEn && p.nameEn !== p.name ? el('p', { class: 'pop-en', text: p.nameEn }) : null, dl, lat === undefined ? null : weatherNode(lat, lon), links]);
+    return el('div', { class: 'pop' }, [el('h3', { text: title }), p.nameEn && p.nameEn !== p.name ? el('p', { class: 'pop-en', text: p.nameEn }) : null, dl,
+      lat === undefined ? null : el('p', { class: 'pop-more', text: 'Grades, grid, cooling climate and weather are in the site brief beside the map.' }), links]);
   }
   function tipText(p) {
     var loc = [p.city, p.state ? p.state : '', countryName(p)].filter(Boolean).join(', ');
@@ -331,6 +328,9 @@
       var m = L.circleMarker([r.lat, r.lon], { radius: 6, color: '#ffffff', weight: 1, fillColor: k.color, fillOpacity: 0.9, bubblingMouseEvents: false });
       m.bindTooltip(function () { return el('span', { text: tipText(r.p) }); }, { direction: 'top', offset: [0, -4] });   // an element: a string would be parsed as HTML
       m.bindPopup(function () { return popupNode(r.p, r.lat, r.lon); }, { maxWidth: 320 });
+      m.on('click', function () {
+        site({ lat: r.lat, lon: r.lon, title: r.p.name || 'Unnamed data center', subtitle: [(KIND_BY_KEY[r.p.kind] || KIND_BY_KEY.unclassified).label, r.p.city, r.p.state ? stateName(r.p.state) : '', countryName(r.p)].filter(Boolean).join(' · ') });
+      });
       r.marker = m;
     });
   }
@@ -354,6 +354,13 @@
   function renderLegend() {
     if (!legendBody) return;
     clear(legendBody);
+    legendBody.className = 'legend-body';
+    var extra = window.ExplorerSite ? window.ExplorerSite.legendNodes() : [];
+    if (extra.length) { var ex = el('div', { class: 'legend-extra' }, extra); }
+    renderLegendMain();
+    if (extra.length) legendBody.appendChild(ex);
+  }
+  function renderLegendMain() {
     if (st.mode === 'heat') {
       legendBody.appendChild(el('strong', { text: 'Density of mapped locations' }));
       legendBody.appendChild(el('div', { class: 'ramp', 'aria-hidden': 'true' }));
@@ -437,7 +444,7 @@
             clear(list);
             var ll = L.latLng(pl.lat, pl.lng);
             map.flyTo(ll, Math.max(map.getZoom(), 9), { animate: !REDUCED_MOTION, duration: 0.8 });
-            showPlaceWeather(ll, pl.name, [pl.admin1, pl.country].filter(Boolean).join(', '));
+            site({ lat: pl.lat, lon: pl.lng, title: pl.name, subtitle: [pl.admin1, pl.country].filter(Boolean).join(', ') });
           });
           list.appendChild(el('li', {}, [b]));
         });

@@ -30,6 +30,8 @@ peak-power/
 │   ├── landing.css         Introduction page
 │   ├── data-centers.css    Explorer page
 │   ├── prototype.css       Prototype page
+│   ├── site-brief.css      Site brief panel and overlay controls (Explorer)
+│   ├── theme.css           Brand theme (blue-green "energy + optimisation"), loaded last on every page; remove its <link> to revert
 ├── js/
 │   ├── landing.js          Introduction page: scroll reveals, nav state
 │   ├── data-centers.js     Explorer: data loading, filters, statistics, map layers
@@ -73,6 +75,41 @@ every request times out after 10 seconds. If weather fails, the data center info
 "Weather data by Open-Meteo.com" attribution. Commercial deployment needs a paid plan, and a paid key must never be put
 in browser code. There are no weather map overlays: Open-Meteo has no continuous weather tiles, and interpolating a few
 point observations into a nationwide heatmap would not be valid, so weather is point-based.
+
+## Site brief, county grades and power plants (Explorer)
+
+Click the map, a data center or a search result and the **site brief** opens beside the map (a drawer over its right edge on mid-size screens,
+under it on phones). It answers an investor's questions in this order:
+
+1. **Verdict.** The Prototype's *Find a site* overall grade for the county, plus Time to power, Natural hazard, Policy and Cooling climate.
+2. **What this means for a 75 MW plan.** The county's Time-to-power grade picks a grid-delay case (screening assumption: Good = on time, Moderate = 6
+   months late, Bad = 12 months late; not graded = no case). The numbers are the **Prototype's own engine** for the packet case with that delay
+   (`delayCase()` in `js/prototype.js`). Finding: a late grid mostly costs time and revenue (about 6 months of service and about $48M of 10-year profit per
+   6 months late), not power price (under $0.50/MWh) or carbon (about +3 kg/MWh). Profit is labelled a business assumption. These are ERCOT (Texas) packet-case
+   results: they show how much timing matters, not a county's electricity price or grid emissions, which are not modelled outside Texas.
+3. **Power around here.** EIA-860 (2024) plants within 50 miles: operating capacity by fuel, zero-carbon share of nameplate, planned capacity and the five
+   largest plants. Nameplate is supply, not headroom, and a wind or solar MW makes far fewer MWh than a gas MW, so read the share as grid carbon context only.
+4. **Cooling climate.** Three full years of hourly temperature and humidity (Open-Meteo archive, ERA5): cooling degree days (base 65 F), 95th-percentile
+   temperature, hours at 95 F or more, humid hours (wet-bulb at least 75 F, from Stull 2011), share of hours below 65 F, hours by cooling need and degree days by month.
+   Graded Mild / Moderate / Demanding by `CLIMATE_RULES` in `js/climate-weather.js` (a team screening assumption, shown in the panel). Works worldwide.
+5. **All eight Prototype factors** with a one-line reason each, and the weather now (fetched only when opened).
+
+Two map overlays: **County grades** (3,106 contiguous-US counties coloured by any Prototype grade) and **Power plants** (14,518 EIA-860 plants, sized by MW, small
+ones appear as you zoom). Their data loads only when first needed (about 0.1 MB of outlines and 0.2 MB of grades gzipped, plus 0.3 MB of plants).
+
+**Data files and how to rebuild them**
+
+| File | Built by | Source |
+|---|---|---|
+| `js/data/site-grades.js` | `node scripts/build_site_grades.mjs` (headless Chrome, about a minute) | Reads grades, facts and the delay cases from the Prototype's own code through a read-only hook (`window.PEAKPOWER_PROTOTYPE_API`), so the pages cannot disagree. |
+| `data/processed/county-outlines.json` | `python -I scripts/build_county_outlines.py` | The Prototype's county map, converted back to latitude/longitude (it is a standard Albers layout; round trip checked). |
+| `data/processed/eia860-plants.json` | `python -I scripts/build_eia860.py <zip>` (see the script header) | EIA-860 2024. |
+
+Re-run `build_site_grades.mjs` after any change to the grading code or engine inputs; `tests/e2e/site-overlay.e2e.mjs` fails if the file is stale.
+
+**Limits.** County outlines are generalised (about 5 km), so a point within a few km of a county line may land in the neighbour (the brief says when it is
+near a line). Alaska and Hawaii have no county layer (their plants and climate still work). Climate is a model grid (about 10 km), not a site measurement, and
+describes the climate, not a cooling design. Open-Meteo's free API is non-commercial only; keep the attribution.
 
 ## Data Center Climate Explorer (map and data)
 

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Data Center Climate Explorer – Peak Power</title>
-<meta name="description" content="Explore data center infrastructure and local weather conditions across the United States and around the world.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='%230d6672' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
+<meta name="description" content="Screen a data center site: the Prototype's county grade, what a late grid connection does to a 75 MW plan, nearby power plants and the cooling climate.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%231456b8'/%3E%3Cstop offset='1' stop-color='%230a8250'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon fill='url(%23g)' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" integrity="sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb" crossorigin="anonymous">
@@ -14,6 +14,8 @@
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="css/data-centers.css">
+<link rel="stylesheet" href="css/site-brief.css">
+<link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
 <a class="skip" href="#explorer">Skip to the map</a>
@@ -31,9 +33,9 @@
 
 <main>
   <section class="page-head wrap" aria-labelledby="page-title">
-    <p class="eyebrow">Energy infrastructure · Weather</p>
+    <p class="eyebrow">Energy infrastructure · Site screening</p>
     <h1 id="page-title">Data Center Climate Explorer</h1>
-    <p class="lede">Explore data center infrastructure and local weather conditions across the United States and around the world. Select a data center, click the map, or search for a place to see its current weather. The data comes from an OpenStreetMap-derived dataset, so it shows facilities that have been mapped, not a complete census, and it contains no power-capacity figures.</p>
+    <p class="lede">Screen a site in three clicks. Click anywhere in the United States, pick a data center, or search a place to open its <strong>site brief</strong>: the Prototype&rsquo;s county grade, what a late grid connection does to a 75&nbsp;MW plan, the power plants nearby, and how hard the climate is to cool. Turn on <strong>County grades</strong> or <strong>Power plants</strong> to see them across the map. The data centers are OpenStreetMap-mapped facilities, not a complete census, with no power-capacity figures.</p>
   </section>
 
   <section class="wrap" aria-label="Summary statistics">
@@ -64,8 +66,15 @@
         <button type="button" id="mode-markers" aria-pressed="false">Markers</button>
         <button type="button" id="mode-heat" aria-pressed="false">Density heatmap</button>
       </div>
+      <div class="seg" role="group" aria-label="Map overlays">
+        <button type="button" id="ov-counties" aria-pressed="false" title="Colour US counties by the Prototype's site grades">County grades</button>
+        <button type="button" id="ov-plants" aria-pressed="false" title="Show US power plants from the EIA-860 survey">Power plants</button>
+      </div>
+      <label class="ov-layer" id="ov-layer-wrap" hidden>Grade by <select id="ov-layer" aria-label="Which grade to colour counties by"></select></label>
       <p class="status" id="status" role="status" aria-live="polite">Loading data…</p>
     </div>
+    <p class="ov-status" id="ov-status" role="status" aria-live="polite"></p>
+    <p class="brief-hint" id="brief-hint">Click the map, a data center or a county to open its site brief. Overlays and the brief cover the contiguous US; the cooling climate works anywhere.</p>
     <p class="mode-note" id="mode-note" hidden>The heatmap shows where mapped data centers are concentrated. It does not represent electricity consumption or power demand.</p>
 
     <div class="explorer-grid">
@@ -104,11 +113,26 @@
         </div>
       </details>
 
-      <div class="map-wrap">
-        <div id="map" role="region" aria-label="Interactive map of data centers" tabindex="-1"></div>
-        <div class="map-overlay" id="map-overlay" role="status">
-          <div class="spinner" aria-hidden="true"></div><p>Loading data centers…</p>
+      <div class="map-stage" id="map-stage">
+        <div class="map-wrap">
+          <div id="map" role="region" aria-label="Interactive map of data centers" tabindex="-1"></div>
+          <div class="map-overlay" id="map-overlay" role="status">
+            <div class="spinner" aria-hidden="true"></div><p>Loading data centers…</p>
+          </div>
         </div>
+        <aside class="brief panel" id="brief" aria-label="Site brief" hidden>
+          <header class="brief-head">
+            <div class="brief-titles">
+              <p class="eyebrow">Site brief</p>
+              <h2 id="brief-title" tabindex="-1">Selected location</h2>
+              <p class="brief-sub" id="brief-sub"></p>
+              <p class="brief-coords" id="brief-coords"></p>
+            </div>
+            <button type="button" class="brief-close" id="brief-close" aria-label="Close the site brief">&times;</button>
+          </header>
+          <div class="brief-body" id="brief-body" aria-live="polite"></div>
+          <p class="brief-foot"><a href="prototype.html">Open the Prototype</a> to plan finance and energy for a project.</p>
+        </aside>
       </div>
     </div>
   </section>
@@ -121,7 +145,7 @@
 
 <footer class="foot">
   <div class="wrap">
-    <p><strong>PEAK POWER</strong> · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Basemap tiles by OpenStreetMap. Weather data by <a href="https://open-meteo.com/">Open-Meteo.com</a> (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; free API, non-commercial use).</p>
+    <p><strong>PEAK POWER</strong> · Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Basemap tiles by OpenStreetMap. Weather and climate data by <a href="https://open-meteo.com/">Open-Meteo.com</a> (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; free API, non-commercial use). Power plants: <a href="https://www.eia.gov/electricity/data/eia860/">U.S. EIA-860</a> survey.</p>
   </div>
 </footer>
 
@@ -129,6 +153,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.js" integrity="sha384-eXVCORTRlv4FUUgS/xmOyr66XBVraen8ATNLMESp92FKXLAMiKkerixTiBvXriZr" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js" integrity="sha384-mFKkGiGvT5vo1fEyGCD3hshDdKmW3wzXW/x+fWriYJArD0R3gawT6lMvLboM22c0" crossorigin="anonymous"></script>
 <script src="js/climate-weather.js"></script>
+<script src="js/site-brief.js"></script>
+<script src="js/site-panel.js"></script>
 <script src="js/data-centers.js"></script>
 </body>
 </html>

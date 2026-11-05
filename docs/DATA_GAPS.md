@@ -53,7 +53,7 @@ Recommended order if more data is added: (1) EIA-861 industrial prices and relia
 
 ## 4. Weather
 
-The Data Center Climate Explorer fetches current weather on demand from Open-Meteo. The Prototype does **not** use live or historical weather: its "weather year" setting scales the packet's 2023 wind and solar profiles (an extension labelled in the interface). Connecting the two is deferred; if done it should reuse the Explorer's cached, on-demand module and stay separate from the dispatch calculations.
+The Data Center Climate Explorer fetches current weather and a three-year cooling-climate summary (ERA5 via Open-Meteo) on demand. The Prototype does **not** use live or historical weather: its "weather year" setting scales the packet's 2023 wind and solar profiles (an extension labelled in the interface). Connecting the two is deferred; if done it should reuse the Explorer's cached, on-demand module and stay separate from the dispatch calculations.
 
 ## 5. Source vintages shown in the Prototype
 

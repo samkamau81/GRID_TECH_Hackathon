@@ -1406,5 +1406,12 @@ function openHow(){let o=$('onepager');if(!o){o=document.createElement('div');o.
   o.hidden=false;document.body.classList.add('pp-open');o.scrollTop=0;}
 
 
+// Read-only hook for scripts/build_site_grades.mjs: the Data Center Climate Explorer's site grades and delay costs are read from this code, never a second copy.
+window.PEAKPOWER_PROTOTYPE_API={cOverall,GL,LAYTXT,STP,MAPD,
+  // The engine's best plan for the packet case (8 acres, packet stress events) with the grid connection `months` late, chosen the way a project card is.
+  delayCase(months){return withSite({id:'sens-'+months,delay:months,acres:8,stress:'packet'},()=>{
+    const ok=OPENS.map(o=>({o,r:bestAt(o,false)})).filter(x=>x.r&&feasible(x.r)&&inDeadline(x.o));if(!ok.length)return null;
+    const best=ok.reduce((a,c)=>c.r.e.profit>a.r.e.profit?c:a),z=best.r.z;
+    return {open:best.o,first:ok[0].o,total:z.total,perMWh:z.usdPerMWh,kg:z.kg,clean:z.cleanShare,profit:best.r.e.profit,co2t:z.co2};});}};
 initNew();drawModels();step1();showStep(0);
 })();
