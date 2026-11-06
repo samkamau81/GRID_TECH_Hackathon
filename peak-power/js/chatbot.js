@@ -1,6 +1,6 @@
 /* Peak Power FAQ assistant.
    What it is: a small, offline helper that matches a question against the curated, verified answers in js/data/faq.js (keyword and phrase
-   matching with light stemming). No network requests, no API keys, no AI model.
+   matching with light stemming). Runs entirely in the browser: no network requests, no API keys.
    Structure for the future: the whole thing goes through one function, assistant.retrieve(query) -> ranked [{entry, score}]. To add a
    retrieval-augmented assistant later, call PeakPowerAssistant.setRetriever(async (query, k) => [...ranked entries]) (for example one that
    embeds the query and searches the same FAQ records plus the Appendix text); the chat window, links and fallbacks stay as they are, and the
