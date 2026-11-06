@@ -27,7 +27,7 @@ const hideTip=box=>{const t=box.querySelector('.tip');if(t)t.hidden=true;};
 const row=(n,v,c)=>`<div class="r"><span>${c?`<i style="background:var(${c})"></i>`:''}${n}</span><span>${v}</span></div>`;
 
 // ---------------- settings & revenue model ----------------
-const F={capMode:'avg',dead:0,cap:0,delay:0,ren:'0,0',growth:0,weather:'typical',grid:'packet',acres:8,leads:'market',permit:12,hard:true,vcap:0.5,flex:1};
+const F={capMode:'avg',dead:0,cap:0,delay:0,ren:'0,0',growth:0,weather:'typical',grid:'packet',acres:8,leads:'market',permit:12,hard:true,vcap:0.5,flex:1,bess:'auto',mix:'auto'};
 const RM={model:'lease',tier:'mid',mk:0.10,rate:275};
 const RPRE={low:[140,110,60],mid:[180,150,100],high:[230,190,120]};
 const rates=()=>RPRE[RM.tier];
@@ -79,9 +79,10 @@ function evalBase(b,deep){const zero={gas_engine:0,gas_turbine:0};let o;
   else{const r=sizeUp(b.open,b);o={open:b.open,base:b,R:r.R,caps:r.caps,added:r.added,fits:r.fits,why:r.why,det:r.det,z:zOf(r.R)};}
   if(landOf(o.caps)>F.acres+1e-9)o.fits=false;o.capOk=!F.cap||zCap(o.z)<=F.cap;o.e=econ(o.z);return o;}
 const quick=s=>econ(lightZ(s)).profit;
-function bestAt(open,deep){let pool=S.filter(s=>s.open===open&&VSH[s.mix]<=F.vcap+1e-9);if(!pool.length)return null;
+function bestAt(open,deep){let pool=S.filter(s=>s.open===open&&VSH[s.mix]<=F.vcap+1e-9&&(F.mix==='auto'||s.mix===F.mix)&&(F.bess==='auto'||(F.bess==='on'?s.battery>0:!s.battery)));if(!pool.length)return null;
   if(isDefault()){const ok=pool.filter(s=>(!F.cap||capKg(s)<=F.cap)&&landOf(s.caps)<=F.acres+1e-9);if(!ok.length)return null;return evalBase(ok.reduce((a,c)=>quick(c)>quick(a)?c:a),deep);}
   pool=pool.filter(s=>landOf(s.caps)<=F.acres+1e-9);if(!pool.length)return null;pool.sort((a,c)=>quick(c)-quick(a));const cand=[];const seen=new Set();for(const s of pool){const k=s.mix+s.battery+s.mode+s.policy;if(seen.has(k))continue;seen.add(k);cand.push(s);if(cand.length>=(deep?3:1))break;}
+  {const bt=pool.find(s=>s.battery>0&&!cand.includes(s));if(bt)cand.push(bt);}
   if(F.cap){const c2=pool.filter(s=>capKg(s)<=F.cap*0.8&&!cand.includes(s));if(c2.length)cand.push(c2[0]);}
   let best=null;for(const b of cand){const o=evalBase(b,true);const sc=(o.fits?0:-1e12)+(o.capOk?0:-1e11)+o.e.profit;if(!best||sc>best.sc)best={...o,sc};}return best;}
 const feasible=r=>r&&r.fits&&r.capOk&&r.z.uns<0.5;
@@ -89,39 +90,48 @@ const inDeadline=o=>!F.dead||o+10<=F.dead;
 
 // ---------------- STEP 1 ----------------
 const syncs=[];
+function psel(id,opts,get,set,short){const el=$(id);el.innerHTML=opts.map(o=>`<button type="button" data-v="${o.v}" aria-pressed="false">${(short&&short[o.v])||o.l}</button>`).join('');el.onclick=e=>{const b=e.target.closest('button');if(!b)return;const o=opts.find(x=>String(x.v)===b.dataset.v);if(o)set(o.v);};syncs.push(()=>{el.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(String(get())===b.dataset.v)));});}
 function sel(id,opts,get,set){const el=$(id);el.innerHTML=opts.map(o=>`<option value="${o.v}">${o.l}</option>`).join('');el.onchange=()=>{const o=opts.find(x=>String(x.v)===el.value);set(o.v);};syncs.push(()=>{el.value=String(get());});}
-sel('s-dead',[{v:0,l:'No deadline'},...OPENS.map(o=>({v:o+10,l:'Month '+(o+10)+(o===20?' (packet target)':'')}))],()=>F.dead,v=>{F.dead=v;step1();});
+sel('s-dead',[{v:0,l:'No deadline'},...OPENS.map(o=>({v:o+10,l:'Month '+(o+10)+(o===20?' (target)':'')}))],()=>F.dead,v=>{F.dead=v;step1();});
 sel('s-cap',[{v:0,l:'No limit'},{v:384,l:'Below 384 kg/MWh (US grid average)'},{v:300,l:'Below 300 kg/MWh'},{v:250,l:'Below 250 kg/MWh'},{v:200,l:'Below 200 kg/MWh'}],()=>F.cap,v=>{F.cap=v;step1();});
-sel('s-delay',[{v:0,l:'On time (packet)'},{v:3,l:'3 months late'},{v:6,l:'6 months late (packet example 5)'},{v:12,l:'12 months late'}],()=>F.delay,v=>{F.delay=v;step1();});
-sel('s-ren',[{v:'0,0',l:'Packet dates (wind 12, solar 24)'},{v:'12,0',l:'Wind 12 months late'},{v:'24,0',l:'Wind 24 months late'},{v:'12,12',l:'Wind and solar 12 months late'}],()=>F.ren,v=>{F.ren=v;step1();});
-sel('s-growth',[{v:0,l:'Flat (packet)'},{v:0.03,l:'+3% a year'},{v:0.05,l:'+5% a year'},{v:0.1,l:'+10% a year'}],()=>F.growth,v=>{F.growth=v;step1();});
-sel('s-weather',[{v:'typical',l:'Typical (packet 2023 profiles)'},{v:'windy',l:'Windier: wind +15%'},{v:'calmw',l:'Low wind: wind −20%'},{v:'sunny',l:'Sunnier: solar +10%'},{v:'cloudy',l:'Cloudier: solar −15%'},{v:'poor',l:'Poor renewables'}],()=>F.weather,v=>{F.weather=v;step1();});
-sel('s-grid',[{v:'packet',l:'Packet: 7 events a year at 60%'},{v:'calm',l:'Calm: no stress events'},{v:'tight',l:'Tighter: events at 40%'},{v:'wave',l:'Plus a 2-week August heat wave'}],()=>effGrid(),v=>{F.grid=v;step1();});
-sel('q-capmode',[{v:'avg',l:'10-year average (packet)'},{v:'year',l:'Every year (stricter)'}],()=>F.capMode,v=>{F.capMode=v;step1();});
-sel('q-cap',[{v:0,l:'No limit'},{v:384,l:'Below 384 kg/MWh (US grid average)'},{v:300,l:'Below 300 kg/MWh'},{v:250,l:'Below 250 kg/MWh'},{v:200,l:'Below 200 kg/MWh'}],()=>F.cap,v=>{F.cap=v;step1();});
-sel('q-acres',[{v:5,l:'5 acres'},{v:8,l:'8 acres (packet)'},{v:12,l:'12 acres'},{v:20,l:'20 acres'}],()=>F.acres,v=>{F.acres=v;step1();});
-sel('q-delay',[{v:0,l:'On time: month 18 (packet)'},{v:3,l:'3 months late'},{v:6,l:'6 months late'},{v:12,l:'12 months late'}],()=>F.delay,v=>{F.delay=v;step1();});
-function setSummary(){const G=effGrid(),p=[F.dead?`full campus by month ${F.dead}`:'',F.cap?`carbon < ${F.cap} kg ${F.capMode==='year'?'every year':'10-yr avg'}`:'',F.delay?`grid ${F.delay} mo late`:'',F.ren!=='0,0'?'contracts late':'',F.growth?`demand +${F.growth*100}%/yr`:'',F.weather!=='typical'?'weather: '+F.weather.replace('calmw','low wind'):'',G!=='packet'?{calm:'calm grid',tight:'tighter events',wave:'heat wave'}[G]:'',F.leads==='packet'?'packet equipment timelines':'',F.permit!==12?`air permit ${F.permit} mo`:'',F.hard?'':'stress and drought tests off',F.vcap!==0.5?(F.vcap<1?`wind and solar cap ${Math.round(F.vcap*100)}%`:'no wind and solar cap'):''].filter(Boolean);
+sel('s-delay',[{v:0,l:'On time'},{v:3,l:'3 months late'},{v:6,l:'6 months late'},{v:12,l:'12 months late'}],()=>F.delay,v=>{F.delay=v;step1();});
+sel('s-ren',[{v:'0,0',l:'Contract dates (wind 12, solar 24)'},{v:'12,0',l:'Wind 12 months late'},{v:'24,0',l:'Wind 24 months late'},{v:'12,12',l:'Wind and solar 12 months late'}],()=>F.ren,v=>{F.ren=v;step1();});
+sel('s-growth',[{v:0,l:'Flat'},{v:0.03,l:'+3% a year'},{v:0.05,l:'+5% a year'},{v:0.1,l:'+10% a year'}],()=>F.growth,v=>{F.growth=v;step1();});
+sel('s-weather',[{v:'typical',l:'Typical (2023 profiles)'},{v:'windy',l:'Windier: wind +15%'},{v:'calmw',l:'Low wind: wind −20%'},{v:'sunny',l:'Sunnier: solar +10%'},{v:'cloudy',l:'Cloudier: solar −15%'},{v:'poor',l:'Poor renewables'}],()=>F.weather,v=>{F.weather=v;step1();});
+sel('s-grid',[{v:'packet',l:'Standard: 7 events a year at 60%'},{v:'calm',l:'Calm: no stress events'},{v:'tight',l:'Tighter: events at 40%'},{v:'wave',l:'Plus a 2-week August heat wave'}],()=>effGrid(),v=>{F.grid=v;step1();});
+psel('q-capmode',[{v:'avg',l:'10 year average'},{v:'year',l:'Every year (stricter)'}],()=>F.capMode,v=>{F.capMode=v;step1();},{avg:'10 year average',year:'Every year'});
+syncs.push(()=>{const e=$('q-capmode');if(e&&e.parentElement)e.parentElement.style.display=F.cap?'':'none';});
+psel('q-cap',[{v:0,l:'No limit'},{v:384,l:'Below 384 kg/MWh (US grid average)'},{v:300,l:'Below 300 kg/MWh'},{v:250,l:'Below 250 kg/MWh'},{v:200,l:'Below 200 kg/MWh'}],()=>F.cap,v=>{F.cap=v;step1();},{0:'No limit',384:'384',300:'300',250:'250',200:'200'});
+sel('q-acres',[{v:5,l:'5 acres'},{v:8,l:'8 acres'},{v:12,l:'12 acres'},{v:20,l:'20 acres'}],()=>F.acres,v=>{F.acres=v;step1();});
+psel('q-delay',[{v:0,l:'On time: month 18'},{v:3,l:'3 months late'},{v:6,l:'6 months late'},{v:12,l:'12 months late'}],()=>F.delay,v=>{F.delay=v;step1();},{0:'On time',3:'3 mo late',6:'6 mo late',12:'12 mo late'});
+function setSummary(){const G=effGrid(),p=[F.dead?`full campus by month ${F.dead}`:'',F.cap?`carbon < ${F.cap} kg ${F.capMode==='year'?'every year':'10-yr avg'}`:'',F.delay?`grid ${F.delay} mo late`:'',F.ren!=='0,0'?'contracts late':'',F.growth?`demand +${F.growth*100}%/yr`:'',F.weather!=='typical'?'weather: '+F.weather.replace('calmw','low wind'):'',G!=='packet'?{calm:'calm grid',tight:'tighter events',wave:'heat wave'}[G]:'',F.leads==='packet'?'supplier quoted equipment timelines':'',F.permit!==12?`air permit ${F.permit} mo`:'',F.hard?'':'stress and drought tests off',F.vcap!==0.5?(F.vcap<1?`wind and solar cap ${Math.round(F.vcap*100)}%`:'no wind and solar cap'):'',F.bess==='on'?'battery included':F.bess==='off'?'no battery':'',F.mix!=='auto'?MIXT[F.mix]:''].filter(Boolean);
   $('set-sum').textContent=p.length?p.join(' · '):'Market equipment timing, 12 month air permit, reliability tests on, wind and solar capped at 50%, no carbon limit';}
 
 // pipeline chart
 function crf(r,n){return r/(1-Math.pow(1+r,-n));}
-function drawPipe(open){const RX=resX(),box=$('pipe'),W=1100,rowsH=30,P={l:150,r:300,t:24,b:24},M=72,iw=W-P.l-P.r,x=m=>P.l+iw*Math.min(m,M)/M;
-  const items=[['wind','Wind contract','--s-wind','c'],['utility_solar','Solar contract','--s-solar','c'],['nuclear','Nuclear contract','--s-nuc','c'],['battery_4h','Battery (4 h)','--s-bat','o'],['fuel_cell','Gas fuel cell','--s-gas','o'],['gas_engine','Gas engine','--s-gas','o'],['gas_turbine','Gas turbine','--s-gas','o']];
-  const gH=46,H=P.t+gH+items.length*rowsH+P.b+8;let s='';
+function drawPipe(open){const RX=resX(),box=$('pipe'),W=1100,rowH=38,gh=28,P={l:172,r:330,t:24,b:28},M=72,iw=W-P.l-P.r,x=m=>P.l+iw*Math.min(m,M)/M;
+  const cur=(rows.find(r=>r.o===open)||{}).r,known=!!(cur&&cur.caps),cp=known?cur.caps:{};
+  const groups=[['Delivered over the grid. You pay per MWh they could produce.',[['wind','Wind contract','--s-wind','c'],['utility_solar','Solar contract','--s-solar','c'],['nuclear','Nuclear contract','--s-nuc','c']]],
+    ['Onsite. You pay a yearly charge per kW, plus fuel.',[['battery_4h','Battery, 4 hour','--s-bat','o'],['fuel_cell','Gas fuel cell','--s-gas','o'],['gas_engine','Gas engine','--s-gas','o'],['gas_turbine','Gas turbine','--s-gas','o']]]];
+  const gH=46,FB='font-family:var(--f-body);';const H=P.t+gH+10+groups.length*gh+7*rowH+P.b;let s='';
   for(let m=0;m<=M;m+=6)s+=`<line class="gl" x1="${x(m)}" x2="${x(m)}" y1="${P.t-6}" y2="${H-P.b}"/><text x="${x(m)}" y="${P.t-10}" text-anchor="middle">m${m}</text>`;
-  // grid row
-  const steps=[[0,0],[18+F.delay,25],[24+F.delay,50],[30+F.delay,75]];s+=`<text class="lbl" x="${P.l-10}" y="${P.t+gH/2+4}" text-anchor="end">Grid import limit</text>`;
-  for(let i=0;i<steps.length;i++){const [m0,v]=steps[i],m1=i<steps.length-1?steps[i+1][0]:M;if(!v){s+=`<text x="${(x(m0)+x(m1))/2}" y="${P.t+gH-6}" text-anchor="middle">no grid</text>`;continue;}const h=(gH-6)*v/75;s+=`<rect x="${x(m0)}" y="${P.t+gH-h}" width="${x(m1)-x(m0)}" height="${h}" fill="var(--s-grid)" opacity=".35"/><text x="${x(m0)+4}" y="${P.t+gH-h-3}" class="ink">${v} MW</text>`;}
-  s+=`<text x="${W-P.r+8}" y="${P.t+gH/2+4}">shared by contracts</text><text x="${W-P.r+8}" y="${P.t+gH/2+18}">and grid power</text>`;
-  items.forEach(([k,n,c,typ],i)=>{const r=RX[k],y0=P.t+gH+8+i*rowsH,av=r.available_month,usable=typ==='c'?Math.max(av,18+F.delay):av;
-    const fixed=(r.capex_usd_per_kw*crf(0.08,r.life_years)+r.fom_usd_per_kw_year);const maxMW={wind:200,utility_solar:150,nuclear:25,battery_4h:r.max_mw,fuel_cell:30,gas_engine:60,gas_turbine:75}[k];
-    const costTxt=typ==='c'?`$${fmt(r.payment_usd_per_mwh)}/MWh available · up to ${maxMW} MW`:k==='battery_4h'?`$${fmt(fixed)}/kW-yr · up to ${maxMW} MW`:`$${fmt(fixed)}/kW-yr + ~$${fmt(r.payment_usd_per_mwh+r.heat_rate_mmbtu_per_mwh_hhv*3.5)}/MWh fuel · ${maxMW} MW`;
-    s+=`<text class="lbl" x="${P.l-10}" y="${y0+rowsH/2}" text-anchor="end">${n}</text>`;
-    if(typ==='c'&&usable>av)s+=`<rect x="${x(av)}" y="${y0+6}" width="${x(usable)-x(av)}" height="${rowsH-14}" rx="3" fill="var(${c})" opacity=".25"/><text x="${(x(av)+x(usable))/2}" y="${y0+rowsH/2+1}" text-anchor="middle" style="font-size:10px">waits for grid</text>`;
-    if(av<M)s+=`<rect x="${x(usable)}" y="${y0+6}" width="${x(M)-x(usable)}" height="${rowsH-14}" rx="3" fill="var(${c})" opacity=".85"/><text x="${x(usable)+6}" y="${y0+rowsH/2+1}" style="fill:#fff;font-size:10.5px">from month ${av}${typ==='c'&&usable>av?`, usable ${usable}`:''}</text>`;
-    s+=`<text x="${W-P.r+8}" y="${y0+rowsH/2}" style="font-size:10.5px">${costTxt}</text>`;});
-  if(open!=null)s+=`<line x1="${x(open)}" x2="${x(open)}" y1="${P.t-4}" y2="${H-P.b+4}" stroke="var(--ink)" stroke-width="2"/><text x="${x(open)}" y="${H-6}" text-anchor="middle" class="ink" style="font-weight:600">start ${open}</text>`;
+  const steps=[[0,0],[18+F.delay,25],[24+F.delay,50],[30+F.delay,75]];s+=`<text class="lbl" x="${P.l-12}" y="${P.t+gH/2+4}" text-anchor="end" style="font-weight:700">Grid import limit</text>`;
+  for(let i=0;i<steps.length;i++){const [m0,v]=steps[i],m1=i<steps.length-1?steps[i+1][0]:M;if(!v){s+=`<text x="${(x(m0)+x(m1))/2}" y="${P.t+gH-6}" text-anchor="middle" style="${FB}">no grid</text>`;continue;}const hh=(gH-6)*v/75;s+=`<rect x="${x(m0)}" y="${P.t+gH-hh}" width="${x(m1)-x(m0)}" height="${hh}" fill="var(--s-grid)" opacity=".35"/><text x="${x(m0)+4}" y="${P.t+gH-hh-3}" class="ink" style="${FB}">${v} MW</text>`;}
+  s+=`<text x="${W-P.r+12}" y="${P.t+gH/2+4}" style="${FB}font-size:11.5px">Contracts and grid power share this limit</text>`;
+  let y=P.t+gH+10;
+  groups.forEach(([gt,its])=>{
+    s+=`<line x1="12" x2="${W-12}" y1="${y+gh-4}" y2="${y+gh-4}" stroke="var(--rule)"/><text x="12" y="${y+gh-10}" style="${FB}font-size:12px;font-weight:700;fill:var(--ink-2)">${gt}</text>`;y+=gh;
+    its.forEach(([k,nm,c,typ])=>{const r=RX[k],av=r.available_month,usable=typ==='c'?Math.max(av,18+F.delay):av,inP=known&&(cp[k]||0)>0;
+      const fixed=r.capex_usd_per_kw*crf(0.08,r.life_years)+r.fom_usd_per_kw_year,maxMW={wind:200,utility_solar:150,nuclear:25,battery_4h:r.max_mw,fuel_cell:30,gas_engine:60,gas_turbine:75}[k];
+      const l1=typ==='c'?`$${fmt(r.payment_usd_per_mwh)} per MWh`:k==='battery_4h'?`$${fmt(fixed)} per kW-yr`:`$${fmt(fixed)} per kW-yr + $${fmt(r.payment_usd_per_mwh+r.heat_rate_mmbtu_per_mwh_hhv*3.5)} per MWh fuel`;
+      const l2=`up to ${maxMW} MW · from month ${av}${typ==='c'&&usable>av?`, usable ${usable}`:''}`,op=known?(inP?.92:.26):.7,dim=known&&!inP;
+      s+=`<text class="lbl" x="${P.l-12}" y="${y+rowH/2+(inP?-2:4)}" text-anchor="end" style="${inP?'font-weight:700':dim?'fill:var(--ink-3)':''}">${nm}</text>`;
+      if(inP)s+=`<text x="${P.l-12}" y="${y+rowH/2+12}" text-anchor="end" style="${FB}font-size:11.5px;font-weight:600;fill:var(--ink)">${fmt(cp[k])} MW in your plan</text>`;
+      if(typ==='c'&&usable>av)s+=`<rect x="${x(av)}" y="${y+8}" width="${x(usable)-x(av)}" height="${rowH-16}" rx="3" fill="var(${c})" opacity="${op*.4}"/>`;
+      if(av<M)s+=`<rect x="${x(usable)}" y="${y+8}" width="${x(M)-x(usable)}" height="${rowH-16}" rx="3" fill="var(${c})" opacity="${op}"${inP?' stroke="var(--ink)" stroke-width="1.5"':''}/>`;
+      s+=`<text x="${W-P.r+12}" y="${y+rowH/2-1}" style="${FB}font-size:12px;${inP?'font-weight:700;fill:var(--ink)':''}">${l1}</text><text x="${W-P.r+12}" y="${y+rowH/2+13}" style="${FB}font-size:11px">${l2}</text>`;
+      y+=rowH;});});
+  if(open!=null)s+=`<line x1="${x(open)}" x2="${x(open)}" y1="${P.t-4}" y2="${H-P.b+4}" stroke="var(--ink)" stroke-width="2"/><text x="${x(open)}" y="${H-8}" text-anchor="middle" class="ink" style="${FB}font-weight:700">start month ${open}</text>`;
   box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="When each power source becomes available">${s}</svg>`;}
 
 function drawModels(){const M=[['lease','Capacity lease','Rent per kW. You pay the power bill.','Hyperscale leases'],
@@ -155,14 +165,14 @@ if($('q-model'))$('q-model').onchange=e=>{RM.model=e.target.value;drawModels();s
 if($('q-tier'))$('q-tier').onchange=e=>{if(RM.model==='bundled')RM.rate=+e.target.value;else RM.tier=e.target.value;drawModels();step1(true);};
 // ---------------- site screening (team; sample sites + cited Texas policy outside the packet) ----------------
 const SITES=[
- {id:'wc',nm:'Williamson County campus',src:'Packet site · ERCOT, Central Texas',tag:'packet',delay:0,acres:8,perm:60,
-  f:['Grid 25 MW at month 18, full 75 MW at month 30','8 acres for onsite power: about 75 MW of turbines fit','Packet prices, wind, solar and stress events'],ix:'Packet grid schedule; it already stands in for permitting and utility upgrades.'},
- {id:'bf',nm:'Brownfield by a substation',src:'Sample site · team assumption',tag:'sample',delay:0,acres:5,perm:70,
-  f:['Existing substation: grid on the packet schedule','Only 5 acres: about 50 MW of turbines fit','Former industrial land: fewer new permits (assumed)'],ix:'Existing substation, so less new utility build-out (assumed).'},
- {id:'gf',nm:'Greenfield with room to grow',src:'Sample site · team assumption',tag:'sample',delay:12,acres:20,perm:35,
+ {id:'wc',nm:'Williamson County campus',src:'Reference site · ERCOT, Central Texas',tag:'packet',delay:0,acres:8,perm:60,
+  f:['Grid 25 MW at month 18, full 75 MW at month 30','8 acres for onsite power: about 75 MW of turbines fit','Reference prices, wind, solar and stress events'],ix:'Reference grid schedule; it already stands in for permitting and utility upgrades.'},
+ {id:'bf',nm:'Brownfield by a substation',src:'Sample site · our assumption',tag:'sample',delay:0,acres:5,perm:70,
+  f:['Existing substation: grid on the reference schedule','Only 5 acres: about 50 MW of turbines fit','Former industrial land: fewer new permits (assumed)'],ix:'Existing substation, so less new utility build-out (assumed).'},
+ {id:'gf',nm:'Greenfield with room to grow',src:'Sample site · our assumption',tag:'sample',delay:12,acres:20,perm:35,
   f:['New substation and line: grid 12 months later','20 acres: room for a full onsite gas bridge','New easements and site permits (assumed)'],ix:'New line and substation: highest direct connection cost, paid 100% by the customer under SB 6.'},
- {id:'ww',nm:'West Texas wind corridor',src:'Sample site · team assumption',tag:'sample',delay:6,acres:12,perm:45,
-  f:['Congested transmission: grid 6 months later','12 acres for onsite power','Uses packet prices and profiles; local wind not modelled'],ix:'Transmission constraints in the area slow the upgrade (assumed).'}];
+ {id:'ww',nm:'West Texas wind corridor',src:'Sample site · our assumption',tag:'sample',delay:6,acres:12,perm:45,
+  f:['Congested transmission: grid 6 months later','12 acres for onsite power','Uses reference prices and profiles; local wind not modelled'],ix:'Transmission constraints in the area slow the upgrade (assumed).'}];
 const DIMS=[['power','Speed to power','--s-grid'],['land','Land for onsite power','--s-wind'],['perm','Permits & interconnection','--s-rel'],['policy','Policy risk','--s-gas']];
 const SW={power:3,land:2,perm:3,policy:2};let siteId='wc',alertOff=false,popK=null;const PROF={},EXR={};
 const dimScore=(st,k)=>k==='power'?({0:85,3:70,6:55,12:25}[st.delay]??40):k==='land'?({5:40,8:65,12:80,20:95}[st.acres]??60):k==='perm'?st.perm:30;
@@ -196,8 +206,8 @@ function drawCards0(){const all=rows.every(r=>r.done);if(all){pickRec();}drawSta
     <p class="muted sm" style="margin:6px 0 0">${pv?`Opening at month ${pv.o} adds ${money(pv.r.e.rev-c.e.rev)} of revenue but ${money(pv.r.z.total-c.z.total)} of power cost, because ${pv.o<18+F.delay?'the grid is not there yet and gas carries the load':'the grid is still small then and gas fills the gap'}.`:''}${nx?` Waiting to month ${nx.o} saves ${money(c.z.total-nx.r.z.total)} of power but loses ${money(c.e.rev-nx.r.e.rev)} of rent.`:''}</p>
     <p class="eyebrow" style="margin:12px 0 4px">How the campus runs if it opens at month ${chosen}</p><div class="chart" id="ramp"></div>
     <div class="kpis" style="margin-top:8px">
-      <div class="kpi hi"><div class="k">Profit, 10 years <span class="tag">team</span></div><div class="v">${money(e.profit)}</div><div class="s">${fmt(100*e.profit/Math.max(e.rev,1),0)}% margin</div></div>
-      <div class="kpi"><div class="k">Revenue <span class="tag">team</span></div><div class="v">${money(e.rev)}</div><div class="s">${mtxt}</div></div>
+      <div class="kpi hi"><div class="k">Profit, 10 years <span class="tag">assumed</span></div><div class="v">${money(e.profit)}</div><div class="s">${fmt(100*e.profit/Math.max(e.rev,1),0)}% margin</div></div>
+      <div class="kpi"><div class="k">Revenue <span class="tag">assumed</span></div><div class="v">${money(e.rev)}</div><div class="s">${mtxt}</div></div>
       <div class="kpi"><div class="k">Power cost</div><div class="v">${money(z.total)}</div><div class="s">$${fmt(z.usdPerMWh,1)}/MWh</div></div>
       <div class="kpi ${F.cap&&zCap(z)>F.cap?'bad':''}"><div class="k">Carbon, 10-yr average</div><div class="v">${fmt(z.kg,0)}<small> kg/MWh</small></div><div class="s">${z.akgMax?`worst year ${fmt(z.akgMax,0)}`:''}${F.cap?` · cap ${F.cap} ${F.capMode==='year'?'every year':'avg'}`:''}</div></div>
       <div class="kpi"><div class="k">Upfront equipment</div><div class="v">${money(capex.up)}</div><div class="s">onsite power</div></div>
@@ -228,7 +238,7 @@ function drawInfra(c){const cx=capexOf(c),RX=resX(),A=F.acres,W=900,H=46;let x0=
     <table class="tbl"><thead><tr><th>Contracts, over the grid</th><th>MW</th><th>$/MWh</th><th>From month</th><th>Payment / yr</th></tr></thead><tbody>
      ${con.map(q=>`<tr><td>${RN[q.k][0].toUpperCase()+RN[q.k].slice(1)}</td><td>${fmt(q.mw)}</td><td>$${fmt(q.price)}</td><td>${q.from}</td><td>${money(q.yr)}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">No contracts</td></tr>'}
      <tr><td>Grid connection</td><td>${18+F.delay<30+F.delay?`25→75`:''}</td><td>wholesale</td><td>${18+F.delay}</td><td class="muted">pay as used</td></tr></tbody></table></div>
-   <p class="muted sm">Fixed cost = packet capex annualized at 8% plus upkeep. Contracts pay for average available output.</p>`;}
+   <p class="muted sm">Fixed cost = the purchase price spread over its life at 8%, plus upkeep. Contracts pay for average available output.</p>`;}
 function drawStarts(){const box=$('starts'),W=900,H=230,P={l:56,r:10,t:16,b:40},iw=W-P.l-P.r,ih=H-P.t-P.b,n=rows.length,bw=iw/n;
   const vals=rows.filter(r=>r.done&&r.r).flatMap(r=>[r.r.e.rev,r.r.z.total,r.r.e.profit]);const ym=Math.max(1,...vals,1)*1.08,mn=Math.min(0,...vals);const y=v=>P.t+ih*(1-(v-mn)/(ym-mn));
   let s='';const tk=[0,ym/2,ym].map(v=>Math.round(v/1e8)*1e8);for(const v of [...new Set(tk)])s+=`<line class="gl" x1="${P.l}" x2="${W-P.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${P.l-6}" y="${y(v)+4}" text-anchor="end">${money(v)}</text>`;
@@ -241,7 +251,7 @@ function drawStarts(){const box=$('starts'),W=900,H=230,P={l:56,r:10,t:16,b:40},
       if(ok&&w>40){const pm=(y(z.total)+y(z.total+pr))/2,cm=(y(0)+y(z.total))/2;s+=`<text x="${cx}" y="${pm+5}" text-anchor="middle" style="fill:#fff;font-size:${sel?15:13}px;font-weight:${sel?700:500}">${money(e.profit)}</text><text x="${cx}" y="${cm+4}" text-anchor="middle" style="fill:#fff;font-size:${sel?13:11.5}px;font-weight:${sel?700:500}">${money(z.total)}</text>`;}
       s+=`<text x="${cx}" y="${y(Math.max(e.rev,0))-7}" text-anchor="middle" class="${sel?'ink':''}" style="font-weight:${sel?600:400}">${ok?money(e.rev):!inDeadline(r.o)?'Late':failLbl(r.r)}</text>`;}
     else s+=`<text x="${cx}" y="${y(0)-8}" text-anchor="middle">no fit</text>`;
-    s+=`<text x="${cx}" y="${H-22}" text-anchor="middle" class="${sel?'ink':''}" style="font-weight:${sel?600:400}">Month ${r.o}</text>${r.o===recO?`<rect x="${cx-46}" y="${H-15}" width="92" height="14" rx="7" fill="var(--accent)"/><text x="${cx}" y="${H-6}" text-anchor="middle" style="fill:var(--accent-ink);font-size:10px">Highest profit</text>`:r.o===20?`<text x="${cx}" y="${H-6}" text-anchor="middle" style="font-size:10px">Packet target</text>`:''}`;
+    s+=`<text x="${cx}" y="${H-22}" text-anchor="middle" class="${sel?'ink':''}" style="font-weight:${sel?600:400}">Month ${r.o}</text>${r.o===recO?`<rect x="${cx-46}" y="${H-15}" width="92" height="14" rx="7" fill="var(--accent)"/><text x="${cx}" y="${H-6}" text-anchor="middle" style="fill:var(--accent-ink);font-size:10px">Highest profit</text>`:r.o===20?`<text x="${cx}" y="${H-6}" text-anchor="middle" style="font-size:10px">Target</text>`:''}`;
     if(sel)s+=`<rect x="${x+2}" y="${P.t-8}" width="${bw-4}" height="${ih+30}" rx="5" fill="none" stroke="var(--accent)" stroke-width="1.5"/>`;
     s+=`<rect class="col" data-o="${r.o}" x="${x}" y="0" width="${bw}" height="${H}" fill="transparent" style="cursor:pointer"/>`;});
   s+=`<line class="ax" x1="${P.l}" x2="${W-P.r}" y1="${y(0)}" y2="${y(0)}"/>`;
@@ -251,7 +261,7 @@ function drawStarts(){const box=$('starts'),W=900,H=230,P={l:56,r:10,t:16,b:40},
 // ---------------- site layout planner (interactive) ----------------
 // Power yard: each square is 0.05 acre (packet land use: gas 0.05-0.1 acre/MW, battery 0.15 acre/MW); 20 squares = 1 acre per row.
 // Campus zone: data center buildings, illustrative footprints only (team extension, not costed).
-const TOK={gas_turbine:{n:'Gas turbine',mw:25,w:10,h:5,max:75,c:'--s-gas',z:'p'},battery_4h:{n:'Battery',mw:12,w:6,h:6,max:(RES.battery_4h.max_mw||12),c:'--s-bat',z:'p'},gas_engine:{n:'Gas engine',mw:5,w:5,h:1,max:60,c:'--s-gas',z:'p'},fuel_cell:{n:'Fuel cell',mw:5,w:5,h:1,max:30,c:'--s-gas',z:'p'},
+const TOK={gas_turbine:{n:'Gas turbine',mw:25,w:10,h:5,max:75,c:'--s-gas',z:'p'},battery_4h:{n:'Battery',mw:5,w:5,h:3,max:(RES.battery_4h.max_mw||53),c:'--s-bat',z:'p'},gas_engine:{n:'Gas engine',mw:5,w:5,h:1,max:60,c:'--s-gas',z:'p'},fuel_cell:{n:'Fuel cell',mw:5,w:5,h:1,max:30,c:'--s-gas',z:'p'},
   hall:{n:'Data hall',sub:'25 MW IT',w:8,h:4,max:3,c:'--t0',z:'c',cnt:true},chill:{n:'Chiller yard',w:6,h:3,max:2,c:'--t1',z:'c',cnt:true},subst:{n:'Substation',w:4,h:4,max:1,c:'--s-grid',z:'c',cnt:true},office:{n:'Office & security',w:4,h:2,max:1,c:'--ink-3',z:'c',cnt:true},park:{n:'Parking',w:6,h:2,max:2,c:'--rule',z:'c',cnt:true}};
 const LP={items:[],tool:'gas_engine',sel:null,seq:0,res:null,forO:null};
 const LPC=20,CR=8;const zr=z=>z==='c'?CR:F.acres;
@@ -268,7 +278,7 @@ function drawLP(){if(chosen==null||!rows.length||!rows.every(r=>r.done)){return;
   $('lp-tools').innerHTML=`<div class="tg"><span class="tgl">Campus</span>${Object.entries(TOK).filter(([,T])=>T.z==='c').map(([k,T])=>tb(k,T)).join('')}</div><div class="tg"><span class="tgl">Power yard</span>${Object.entries(TOK).filter(([,T])=>T.z==='p').map(([k,T])=>tb(k,T)).join('')}</div>`;
   $('lp-tools').querySelectorAll('.tool').forEach(b=>b.onclick=()=>{LP.tool=b.dataset.k;drawLP();});
   const W=900,cw=W/LPC,ch=24,HD=26,offC=HD,offP=HD+CR*ch+HD+8,H=offP+F.acres*ch;const oy=z=>z==='c'?offC:offP;let g='';
-  g+=`<text x="0" y="${offC-8}" class="sec">CAMPUS BUILDINGS · illustrative footprints, not part of the land limit</text><text x="0" y="${offP-8}" class="sec">ONSITE POWER YARD · ${F.acres} acres, the packet's land limit</text>`;
+  g+=`<text x="0" y="${offC-8}" class="sec">CAMPUS BUILDINGS · illustrative footprints, not part of the land limit</text><text x="0" y="${offP-8}" class="sec">ONSITE POWER YARD · ${F.acres} acres, the site's land limit</text>`;
   for(const z of ['c','p'])for(let y=0;y<zr(z);y++)for(let x=0;x<LPC;x++)g+=`<rect class="cell ${z}" x="${x*cw+0.5}" y="${oy(z)+y*ch+0.5}" width="${cw-1}" height="${ch-1}" rx="2"/>`;
   for(let y=0;y<F.acres;y++)g+=`<text x="${W-4}" y="${offP+y*ch+ch-7}" text-anchor="end" style="font-size:9px;opacity:.6">acre ${y+1}</text>`;
   for(const it of LP.items){const T=TOK[it.k],X=it.x*cw,Y=oy(it.z)+it.y*ch,dark=it.k!=='park';
@@ -339,7 +349,7 @@ function startPlant(o){const r=rows.find(x=>x.o===o).r;showStep(2);$('c-head').i
     plant.start=p0;setPlan(p0);drawRun();setStatus();if(afterPlant===3){afterPlant=null;showStep(3);}},20);}
 function setPlan(o){plant.cur=o;plant.attrs=o.attrs;plant.mix=o.attrs.mix;plant.battery=o.attrs.battery;}
 
-function drawRun(){const p=plant,o=p.cur,M=o.mo,at=p.at,WN=p.win||12,lo=Math.max(p.open,at-WN),L=lim();
+function drawRun(){const p=plant,o=p.cur,M=o.mo,at=p.at,WN=p.win==='all'?Math.max(1,at-p.open):(p.win||12),lo=Math.max(p.open,at-WN),L=lim();
   const w12=win(o,lo,at),wPrev=at-WN>p.open?win(o,Math.max(p.open,at-2*WN),at-WN):null,co5=sumM(M.co2,Math.max(p.open,at-12),at),de5=sumM(M.den,Math.max(p.open,at-12),at),kg5=de5?1000*co5/de5:0;
   const months=[];for(let m=Math.max(p.open,at-12);m<at;m++)months.push(m);const over=months.filter(m=>M.kg[m]>L);
   const opts=[];for(let m=p.open+3;m<=119;m+=1)opts.push(m);
@@ -347,17 +357,17 @@ function drawRun(){const p=plant,o=p.cur,M=o.mo,at=p.at,WN=p.win||12,lo=Math.max
   $('c-head').innerHTML=`<div class="rhead"><div><p class="eyebrow">Plant running · opened month ${p.open} · full campus month ${p.open+10}</p>
      <h2>Board review, month ${at} <span class="muted" style="font-size:16px;font-weight:500">(year ${Math.floor(at/12)+1})</span></h2>
      <p class="sub">Plan: ${buildText(o.caps)}. Figures cover the last ${at-lo} months unless marked.</p></div>
-     <div class="in" style="width:200px"><label for="c-at">Review at</label><select id="c-at">${opts.map(m=>`<option value="${m}" ${m===at?'selected':''}>Month ${m} · year ${Math.floor(m/12)+1}</option>`).join('')}</select></div></div>
+     <div class="revat"><label for="c-at">Review at</label><div class="revrow"><button type="button" class="btn" id="c-prev" ${at<=p.open+3?'disabled':''} aria-label="Back one year" title="Back one year">◀ 1 yr</button><select id="c-at">${opts.map(m=>`<option value="${m}" ${m===at?'selected':''}>Month ${m} · year ${Math.floor(m/12)+1}</option>`).join('')}</select><button type="button" class="btn" id="c-next" ${at>=119?'disabled':''} aria-label="Forward one year" title="Forward one year">1 yr ▶</button></div></div></div>
    <div class="kpis" style="margin-top:10px">
     <div class="kpi hi"><div class="k">Power cost per MWh</div><div class="v">$${fmt(w12.usdPerMWh,1)}</div><div class="s">${wPrev?dd(w12.usdPerMWh,wPrev.usdPerMWh,true):'first period'}</div></div>
     <div class="kpi"><div class="k">Power bill, per year (annualized)</div><div class="v">${money(w12.total/w12.yrs)}</div><div class="s">all energy, contracts, equipment</div></div>
-    <div class="kpi"><div class="k">Profit, per year <span class="tag">team</span></div><div class="v">${money(w12.e.profit/w12.yrs)}</div><div class="s">revenue ${money(w12.e.rev/w12.yrs)}</div></div>
+    <div class="kpi"><div class="k">Profit, per year <span class="tag">assumed</span></div><div class="v">${money(w12.e.profit/w12.yrs)}</div><div class="s">revenue ${money(w12.e.rev/w12.yrs)}</div></div>
     <div class="kpi ${o.z.kg>L?'bad':''}"><div class="k">Carbon, 10-year average</div><div class="v">${fmt(o.z.kg,0)}<small> kg/MWh</small> ${o.z.kg<=L?'<span class="up" style="font-size:14px">✓</span>':''}</div><div class="s">${p.cap?`cap ${L}`:'US grid average 384'} · last 12 months ${fmt(kg5,0)}${kg5>L&&at<=30+F.delay+3?' (grid ramp-up)':''}</div></div>
     <div class="kpi ${w12.uns>1?'bad':''}"><div class="k">Demand met</div><div class="v">${fmt(100*(1-w12.uns/Math.max(w12.req,1)),2)}<small>%</small></div><div class="s">${w12.cur>1?fmt(w12.cur,0)+' MWh batch paused':'no batch work paused'}</div></div>
    </div>`;
-  $('c-at').onchange=e=>{plant.at=+e.target.value;drawRun();};
-  $('c-win').innerHTML=[3,6,12,24].map(v=>`<button type="button" data-v="${v}" aria-pressed="${v===WN}">${v} mo</button>`).join('');
-  $('c-win').querySelectorAll('button').forEach(b=>b.onclick=()=>{p.win=+b.dataset.v;drawRun();});$('c-wlab').textContent=`last ${at-lo} months, to month ${at}`;
+  $('c-at').onchange=e=>{plant.at=+e.target.value;drawRun();};const rvStep=d=>{const v=Math.min(119,Math.max(p.open+3,plant.at+d));if(v!==plant.at){plant.at=v;drawRun();}};if($('c-prev'))$('c-prev').onclick=()=>rvStep(-12);if($('c-next'))$('c-next').onclick=()=>rvStep(12);
+  $('c-win').innerHTML=[[3,'3 mo'],[6,'6 mo'],[12,'12 mo'],[24,'24 mo'],['all','Since opening'],['ten','Full 10 years']].map(([v,l])=>{const on=v==='ten'?(p.win==='all'&&at===119):v==='all'?(p.win==='all'&&at!==119):(p.win||12)===v;return `<button type="button" data-v="${v}" aria-pressed="${on}">${l}</button>`;}).join('');
+  $('c-win').querySelectorAll('button').forEach(b=>b.onclick=()=>{const v=b.dataset.v;p.win=(v==='all'||v==='ten')?'all':+v;if(v==='ten')p.at=119;drawRun();});$('c-wlab').textContent=p.win==='all'?`since opening, months ${lo} to ${at}`:`last ${at-lo} months, to month ${at}`;
   drawPlantPic(o,lo,at);drawCostChart(o,at);drawEnv(o,lo,at);$('env-imp').innerHTML=busy('Projecting impacts…');
   $('c-alerts').innerHTML=busy('Checking the plant…');$('c-decs').innerHTML=busy('Costing board decisions…');
   setTimeout(()=>drawAlertsDecs(over,months,kg5),20);}
@@ -425,7 +435,7 @@ function drawCostChart(o,at){const M=o.mo,p=plant,L=lim(),W=900,H=210,P={l:44,r:
 function envSeries(R){if(R._env)return R._env;const I=R.I,O=R.O,RX=resX(),n=120,E={s1:new Float64Array(n),s2:new Float64Array(n),s3:new Float64Array(n),clean:new Float64Array(n),served:new Float64Array(n),hm:Array.from({length:n},()=>[new Float64Array(24),new Float64Array(24)])};
   const ef=GASK.map(k=>[k,RX[k].co2_t_per_mwh]);
   for(let t=0;t<87600;t++){const m=Math.floor(t/730),L=I.L[t];if(L<=0)continue;let g=0;for(const [k,f] of ef)g+=O[k][t]*f;if(O.rental)g+=O.rental[t]*0.74;
-    E.s1[m]+=g;E.s2[m]+=O.grid[t]*I.co2[t];E.s3[m]+=O.rel[t]*1.05*I.co2[t];const cl=Math.max(0,O.wind[t]+O.solar[t]+O.nuclear[t]-O.ch[t]+O.di[t]),sv=L-O.rel[t]-O.cur[t]-O.unserved[t];
+    E.s1[m]+=g;E.s2[m]+=O.grid[t]*I.co2[t];E.s3[m]+=O.rel[t]*1.05*I.co2[t];const cl=Math.max(0,O.wind[t]+O.solar[t]+O.nuclear[t]+O.credit[t]),sv=L-O.rel[t]-O.cur[t]-O.unserved[t];
     E.clean[m]+=cl;E.served[m]+=sv;const h=REF.hour[t%8760];E.hm[m][0][h]+=Math.min(cl,sv);E.hm[m][1][h]+=sv;}
   R._env=E;return E;}
 function drawEnv(o,lo,at){const p=plant,E=envSeries(o.R),L=lim(),s=(a,m0,m1)=>sumM(a,m0,m1);
@@ -435,7 +445,7 @@ function drawEnv(o,lo,at){const p=plant,E=envSeries(o.R),L=lim(),s=(a,m0,m1)=>su
   const sh=v=>co?fmt(100*v/co,0)+'%':'–';
   $('env-kpi').innerHTML=`<div class="kpi"><div class="k">CO₂ per year, last ${at-lo} mo</div><div class="v">${fmt(co/yrs/1e3,1)}<small>k t</small></div><div class="s">annualized</div></div>
    <div class="kpi ${sv&&1000*co/sv>L&&!(p.cap&&F.capMode==='avg'&&o.z.kg<=p.cap)?'bad':''}"><div class="k">Carbon intensity, this period</div><div class="v">${sv?fmt(1000*co/sv,0):'–'}<small> kg/MWh</small></div><div class="s">limit ${L}${p.cap?'':' (US grid average)'}</div></div>
-   <div class="kpi"><div class="k">Clean energy, hour by hour</div><div class="v">${fmt(100*hm0/Math.max(hm1,1),0)}<small>%</small></div><div class="s">wind, solar, nuclear, battery used on site</div></div>
+   <div class="kpi"><div class="k">Clean energy, hour by hour</div><div class="v">${fmt(100*hm0/Math.max(hm1,1),0)}<small>%</small></div><div class="s">wind, solar, nuclear, and battery energy charged from them</div></div>
    <div class="kpi"><div class="k">Where CO₂ came from</div><div class="v" style="font-size:15px;white-space:normal">gas ${sh(s(E.s1,lo,at))} · grid ${sh(s(E.s2,lo,at))}</div><div class="s">remote site ${sh(s(E.s3,lo,at))}</div></div>
    <div class="kpi"><div class="k">Projected to month 120</div><div class="v">${fmt(tot10/1e3,0)}<small>k t total</small></div><div class="s">${fmt(rest/1e3,0)}k t still ahead · ${fmt(o.z.kg,0)} kg/MWh 10-yr${p.cap?(o.z.kg<=p.cap?' ✓ under cap':' ✗ over cap'):''}</div></div>`;
   // annual stacked bars
@@ -463,14 +473,14 @@ function drawMarket(o){const el=$('mkt');if(!el)return;const R=o.R,RX=resX(),c=o
   const W=680,H=150,P={l:34,r:84,t:10,b:18},iw=W-P.l-P.r,ih=H-P.t-P.b,ym=90,x=y=>P.l+iw*y/9,yy=v=>P.t+ih*(1-v/ym);
   let g='';for(const v of [0,30,60,90])g+=`<line class="gl" x1="${P.l}" x2="${P.l+iw}" y1="${yy(v)}" y2="${yy(v)}"/><text x="${P.l-4}" y="${yy(v)+4}" text-anchor="end">$${v}</text>`;
   const ln=(f,col,dash,lab,dy=0)=>{let p='';for(let y=0;y<10;y++)p+=(y?'L':'M')+x(y)+','+yy(f(y));return `<path d="${p}" fill="none" stroke="${col}" stroke-width="2" ${dash?`stroke-dasharray="${dash}"`:''}/><text x="${P.l+iw+4}" y="${yy(f(9))+4+dy}" style="font-size:10px;fill:${col}">${lab}</text>`;};
-  g+=ln(wp,'var(--s-grid)','','grid avg');g+=ln(()=>RX.wind.payment_usd_per_mwh,'var(--s-wind)','','wind offer',6);g+=ln(()=>MKT.wind.p25,'var(--s-wind)','4 3','wind market',-2);
-  g+=ln(()=>RX.utility_solar.payment_usd_per_mwh,'var(--s-solar)','','solar offer',-4);g+=ln(()=>MKT.utility_solar.p25,'var(--s-solar)','4 3','solar market',3);
+  g+=ln(wp,'var(--s-grid)','','grid avg');g+=ln(()=>RX.wind.payment_usd_per_mwh,'var(--s-wind)','','wind offer',0);g+=ln(()=>MKT.wind.p25,'var(--s-wind)','4 3','wind market',0);
+  g+=ln(()=>RX.utility_solar.payment_usd_per_mwh,'var(--s-solar)','','solar offer',6);g+=ln(()=>MKT.utility_solar.p25,'var(--s-solar)','4 3','solar market',0);
   for(const y of [0,3,6,9])g+=`<text x="${x(y)}" y="${H-4}" text-anchor="middle">Y${y+1}</text>`;
   const row=(n,k)=>`<tr><td>${n}</td><td>$${fmt(RX[k].payment_usd_per_mwh)}</td><td>$${fmt(MKT[k].p25)}</td><td>$${fmt(MKT[k].avg)}</td></tr>`;
-  el.innerHTML=`<div class="mkt"><div class="sm" style="font-weight:600;margin:0 0 4px">Packet offers vs today's market, $/MWh</div>
-    <table class="tbl"><thead><tr><th></th><th>Packet offer</th><th>Market low (P25)</th><th>Market average</th></tr></thead><tbody>${row('Wind','wind')}${row('Solar','utility_solar')}<tr><td>Grid power, year 1 → 10</td><td colspan="3" style="text-align:right">$${fmt(wp(0))} → $${fmt(wp(9))} (packet price path)</td></tr></tbody></table>
+  {const se=$('mktsum');if(se){const r1=1-RX.wind.payment_usd_per_mwh/MKT.wind.p25,r2=1-RX.utility_solar.payment_usd_per_mwh/MKT.utility_solar.p25;se.textContent='Offers are about '+fmt(100*Math.min(r1,r2))+' to '+fmt(100*Math.max(r1,r2))+'% below the market low';}}el.innerHTML=`<div class="mkt"><div class="sm" style="font-weight:600;margin:0 0 4px">Prices in $/MWh</div>
+    <table class="tbl"><thead><tr><th></th><th>Offered</th><th>Market low (P25)</th><th>Market average</th></tr></thead><tbody>${row('Wind','wind')}${row('Solar','utility_solar')}<tr><td>Grid power, year 1 → 10</td><td colspan="3" style="text-align:right">$${fmt(wp(0))} → $${fmt(wp(9))} </td></tr></tbody></table>
     <div class="chart" style="margin-top:4px"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Contract prices against grid power price forecast">${g}</svg></div>
-    <p class="sm" style="margin:2px 0 0">${(c.wind||c.utility_solar)?`At market-low prices, this plan's contracts would cost <b class="down">${sgn(d/yrs)}/yr</b> more from month ${at}. The packet offers are 35–45% below market, so lock them in early.`:'This plan has no wind or solar contracts.'}</p>
+    <p class="sm" style="margin:2px 0 0">${(c.wind||c.utility_solar)?`At market-low prices, this plan's contracts would cost <b class="down">${sgn(d/yrs)}/yr</b> more from month ${at}. The offers are about ${fmt(100*(1-Math.max(RX.wind.payment_usd_per_mwh/MKT.wind.p25,RX.utility_solar.payment_usd_per_mwh/MKT.utility_solar.p25)))} to ${fmt(100*(1-Math.min(RX.wind.payment_usd_per_mwh/MKT.wind.p25,RX.utility_solar.payment_usd_per_mwh/MKT.utility_solar.p25)))}% below market, so lock them in early.`:'This plan has no wind or solar contracts.'}</p>
     <p class="muted sm" style="margin:2px 0 0">Market: <a href="https://www.leveltenenergy.com/post/levelten-north-american-ppa-price-index-q2-2026" target="_blank" rel="noopener">LevelTen PPA Price Index, Q2 2026</a>, North America offers, mostly virtual PPAs, not ERCOT-specific. Wind +17.5% year on year.</p></div>`;}
 
 // ---- alerts and decisions ----
@@ -495,7 +505,7 @@ function drawAlertsDecs(over,months,kg5){const p=plant,o=p.cur,M=o.mo,at=p.at,L=
     A.push({lvl:'warn',h:`${money(cu)} paid for wind and solar you could not use`,b:`Last 12 months: contracts pay for available output, but the shared import limit or low demand left it unused (${fmt(100*cu/bill,0)}% of the bill).`,act});}
   // 3 gas share of bill and rising gas price
   const fuel=sumM(M.fuel,at-12,at);if(fuel>0.2*bill&&mi<MIXORD.length-1){const a=alt(MIXORD[mi+1],p.battery,p.cap);
-    A.push({lvl:a&&a.d.cost<0?'warn':'info',h:`Gas fuel is ${fmt(100*fuel/bill,0)}% of the power bill`,b:'The packet has gas prices rising 3% a year. More contracted wind and solar would cut fuel use.',act:a?{t:'Sign more clean contracts',a:tag(a,p.cap),note:`Move to ${MIXT[MIXORD[mi+1]]}.`}:null});}
+    A.push({lvl:a&&a.d.cost<0?'warn':'info',h:`Gas fuel is ${fmt(100*fuel/bill,0)}% of the power bill`,b:'Gas prices are assumed to rise 3% a year. More contracted wind and solar would cut fuel use.',act:a?{t:'Sign more clean contracts',a:tag(a,p.cap),note:`Move to ${MIXT[MIXORD[mi+1]]}.`}:null});}
   // 4 stress-event costs
   const wk=sumM(M.work,at-12,at);if(wk>1e4){let act=null;
     A.push({lvl:'warn',h:`Grid stress cost ${money(wk)} in moved or paused work`,b:'Last 12 months. Stress events cap imports at 60% and work moves to the remote site.',act});}
@@ -518,21 +528,24 @@ function drawAlertsDecs(over,months,kg5){const p=plant,o=p.cur,M=o.mo,at=p.at,L=
     const tr=(l,w,d)=>`<tr><td>${l}</td><td>${fmt(w.co2/1e3,0)}k t</td><td class="${d?d.co2<0?'up':'down':''}">${d?sgn(d.co2*w.yrs/1e3,v=>fmt(v,0)+'k t'):'–'}</td><td class="${w.kg>capL?'down':''}">${fmt(w.kg,0)}</td><td>${fmt(100*w.clean/Math.max(w.served,1),0)}%</td><td>${d?sgn(d.cost):'–'}</td><td>${d&&d.co2<-100?'$'+fmt(Math.max(0,d.cost)/-d.co2)+'/t':'–'}</td></tr>`;
     document.querySelectorAll('.atm').forEach(e=>e.textContent=at);
     $('env-imp').innerHTML=`<div class="chart"><table class="tbl"><thead><tr><th>Plan</th><th>CO₂ to m120</th><th>Change</th><th>kg/MWh</th><th>Clean share</th><th>Cost / yr</th><th>Cost per t avoided</th></tr></thead><tbody>${tr('<b>Current plan</b>',cur,null)}${rowsI.map(r=>tr(r.l,win(r.q,at,120),r.d)).join('')}</tbody></table></div>`;}
-  $('c-decs').innerHTML=G.map((g,gi)=>`<div class="dec"><div class="dh"><svg viewBox="-22 -26 44 48" width="34" height="38" aria-hidden="true">${ICON[g.icon](`var(${g.col})`)}</svg><div><div class="t">${g.t}</div><div class="d">${g.d}</div></div></div>
-    <div class="curp"><span class="muted">Current</span> <b>${(g.opts.find(q=>q.cur)||{}).l||'–'}</b></div>${g.k==='mix'?'<div id="mkt"></div>':''}
-    <div class="dopts">${g.opts.map((q,qi)=>{if(q.cur)return '';if(!q.a)return `<div class="dopt dis"><span class="l">${q.l}</span><span class="fx muted">${q.blk?`above the ${fmt(100*F.vcap,0)}% wind and solar cap`:'not tested'}</span></div>`;
-      const miss=q.a.q.miss;return `<button type="button" class="dopt" data-g="${gi}" data-q="${qi}" ${miss?'disabled':''}><span class="l">${q.l}</span><span class="fx">${miss?'<span class="down">cannot meet this cap with this build</span>':fxTxt(q.a.d)}</span></button>`;}).join('')}</div></div>`).join('');
+  {const mk0=$('c-decs').querySelector('.mktd'),mkOpen=mk0?mk0.open:false,w0=win(o,at,120);
+    const capTxt=p.cap?('below '+p.cap+' kg/MWh'):'none';
+    const stat=(lab,txt)=>`<div><small>${lab}</small><b>${txt}</b></div>`;
+    $('c-decs').innerHTML=`<div class="curmix"><div class="cm-top"><div><div class="cm-l">Clean energy contracts</div><div class="cm-n">${MIXT[p.mix]}</div></div><button class="btn" type="button" id="c-chg">Change in Plan the project</button></div>
+      <div class="ostats cm-s">${stat('Cost / yr',money(w0.total/w0.yrs))}${stat('CO₂ / yr',fmt(w0.co2/w0.yrs/1e3,1)+'k t')}${stat('Profit / yr',money(w0.e.profit/w0.yrs))}</div>
+      <div class="cm-foot">Yearly figures cover month ${at} to 119. Carbon cap: <b>${capTxt}</b>. Both are set under Plan the project.</div></div><details class="mktd"${mkOpen?' open':''}><summary><b>Contract prices vs today's market</b><span id="mktsum"></span></summary><div id="mkt"></div></details>`;
+    if($('c-chg'))$('c-chg').onclick=()=>showStep(1);}
   drawMarket(o);
   $('c-decs').querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{const q=G[+b.dataset.g].opts[+b.dataset.q];p.cap=q.cap;setPlan(q.a.q);drawRun();});
   const dS=delta(p.start,o,at);const changed=o!==p.start;
-  $('c-vs').innerHTML=changed?`<span class="muted">Your changes vs the plan you opened with, from month ${at}:</span> ${fxTxt(dS)} <button class="btn" type="button" id="c-reset">Undo all</button>`:`<span class="muted">Deltas are per year from month ${at} to month 120, from full hourly re-runs, if the change were in place from now.</span>`;
+  $('c-vs').innerHTML=changed?`<span class="muted">Your changes vs the plan you opened with, from month ${at}:</span> ${fxTxt(dS)} <button class="btn" type="button" id="c-reset">Undo all</button>`:`<span class="muted">Changes are per year, from month ${at} to month 120, from full hourly reruns as if made now.</span>`;
   if($('c-reset'))$('c-reset').onclick=()=>{p.cap=F.cap;setPlan(p.start);drawRun();};}
 $('back-1').onclick=()=>showStep(1);
 $('go-3').onclick=()=>{showStep(3);};
 
 // ---------------- STEP 3: live ----------------
 const SUP=[['gas','Onsite gas','--s-gas',''],['dsl','Backup generator','--s-dsl',''],['grid','Grid power','--s-grid',''],['wind','Wind','--s-wind',''],['solar','Solar','--s-solar','lt'],['nuclear','Nuclear','--s-nuc',''],['bat','Battery','--s-bat',''],['rel','Moved away','--s-rel',''],['cur','Batch paused','--s-int',''],['uns','Unserved','--s-uns','']];
-function hourSup(R,t){const O=R.O,cl=O.wind[t]+O.solar[t]+O.nuclear[t],sc=cl>0?(cl-O.ch[t])/cl:0;return {gas:O.fuel_cell[t]+O.gas_engine[t]+O.gas_turbine[t],dsl:O.rental?O.rental[t]:0,grid:O.grid[t],wind:O.wind[t]*sc,solar:O.solar[t]*sc,nuclear:O.nuclear[t]*sc,bat:O.di[t],rel:O.rel[t],cur:O.cur[t],uns:O.unserved[t]};}
+function hourSup(R,t){const O=R.O,cl=O.wind[t]+O.solar[t]+O.nuclear[t],sc=cl>0?(cl-O.cch[t])/cl:0;return {gas:O.fuel_cell[t]+O.gas_engine[t]+O.gas_turbine[t],dsl:O.rental?O.rental[t]:0,grid:O.grid[t]-(O.ch[t]-O.cch[t]),wind:O.wind[t]*sc,solar:O.solar[t]*sc,nuclear:O.nuclear[t]*sc,bat:O.di[t],rel:O.rel[t],cur:O.cur[t],uns:O.unserved[t]};}
 function buckets(R,lo,hi,b){const k=Math.ceil((hi-lo)/b),Z={k};[...SUP.map(x=>x[0]),'L','G','st'].forEach(x=>Z[x]=new Float64Array(k));
   for(let t=lo;t<hi;t++){const i=Math.floor((t-lo)/b),h=hourSup(R,t);for(const [key] of SUP)Z[key][i]+=h[key];Z.L[i]+=R.I.L[t];Z.G[i]+=R.I.G[t];Z.st[i]=Math.max(Z.st[i],R.I.st[t]);}
   for(let i=0;i<k;i++){const c=Math.min(b,hi-lo-i*b);for(const x of [...SUP.map(x=>x[0]),'L','G'])Z[x][i]/=c;}return Z;}
@@ -639,13 +652,13 @@ const hh=t=>{const q=dateOf(t);return `${q.wd} ${String(q.h).padStart(2,'0')}:00
 // ---- site diagram: built once per structure, updated each tick ----
 let selK='campus',siteKey='';
 const IC2={...ICON,backup:c=>`<rect x="-16" y="-9" width="32" height="18" rx="2" fill="none" stroke="${c}" stroke-width="2.2"/><path d="M-11 -9 L-11 -14 L-3 -14 L-3 -9" fill="none" stroke="${c}" stroke-width="2"/><path d="M2 -5 L-3 1 L1 1 L-2 6" fill="none" stroke="${c}" stroke-width="2"/><circle cx="9" cy="0" r="3" fill="${c}"/>`};
-function siteSVG(R){const c=R.caps,W=880;let s='';
+function siteSVG(R){const c=R.caps,W=908;let s='';
   const flow=(id,d,col)=>`<path id="fl-${id}" class="flow" d="${d}" fill="none" stroke="${col}" stroke-width="2"/>`;
   const pad=(k,x,y,w,h,icon,col,name,ghost)=>`<g class="eq ${ghost?'ghost':''}" data-k="${k}" tabindex="0" role="button" aria-label="${name}"><rect class="padr" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/>
-    <g transform="translate(${x+24},${y+h/2})">${icon(col)}</g><text class="lbl" x="${x+50}" y="${y+18}">${name}</text><text id="tx-${k}" x="${x+50}" y="${y+33}"></text><text id="st-${k}" class="st" x="${x+50}" y="${y+h-8}"></text>
+    <g transform="translate(${x+24},${y+h/2})">${icon(col)}</g><text class="lbl" x="${x+50}" y="${y+22}">${name}</text><text id="tx-${k}" x="${x+50}" y="${y+40}"></text><text id="st-${k}" class="st" x="${x+50}" y="${y+h-9}"></text>
     <circle id="dot-${k}" cx="${x+w-10}" cy="${y+10}" r="4" fill="var(--ink-3)"/><g id="sv-${k}"></g></g>`;
-  const T=44,PH=56,GAP=12;            // top of content, pad height, gap
-  const X1=16,W1=184,X2=236,W2=172,BUS=436,BX=476,BW=W-BX-12;
+  const T=48,PH=62,GAP=10;            // top of content, pad height, gap
+  const X1=16,W1=224,X2=272,W2=214,BUS=520,BX=562,BW=W-BX-12;
   // column 1: off-site
   const off=[['wind',c.wind?`Wind · ${fmt(c.wind)} MW`:'Wind',ICON.wind,'--s-wind',!!c.wind],['utility_solar',c.utility_solar?`Solar · ${fmt(c.utility_solar)} MW`:'Solar',ICON.utility_solar,'--s-solar',!!c.utility_solar],['nuclear',c.nuclear?`Nuclear · ${fmt(c.nuclear)} MW`:'Nuclear',ICON.nuclear,'--s-nuc',!!c.nuclear],['grid','Grid power',ICON.grid,'--s-grid',true]];
   s+=`<text x="${X1}" y="${T-14}" class="sec">OFF-SITE · OVER THE GRID</text>`;
@@ -654,7 +667,7 @@ function siteSVG(R){const c=R.caps,W=880;let s='';
   // column 2: substation then yard
   s+=`<text x="${X2}" y="${T-14}" class="sec">SUBSTATION</text>`;
   s+=`<g class="eq" data-k="sub" tabindex="0" role="button" aria-label="Substation"><rect class="padr" x="${X2}" y="${subY}" width="${W2}" height="${subH}" rx="6"/><g transform="translate(${X2+26},${subY+40})">${ICON.grid('var(--s-grid)')}</g>
-    <text class="lbl" x="${X2+52}" y="${subY+26}">Import meter</text><text id="tx-sub" x="${X2+52}" y="${subY+44}"></text><rect x="${X2+14}" y="${subY+76}" width="${W2-28}" height="8" rx="4" fill="var(--rule-2)"/><rect id="bar-sub" x="${X2+14}" y="${subY+76}" width="0" height="8" rx="4" fill="var(--s-grid)"/><text id="st-sub" class="st" x="${X2+14}" y="${subY+102}"></text><circle id="dot-sub" cx="${X2+W2-10}" cy="${subY+10}" r="4"/></g>`;
+    <text class="lbl" x="${X2+52}" y="${subY+30}">Import meter</text><text id="tx-sub" x="${X2+52}" y="${subY+52}"></text><rect x="${X2+14}" y="${subY+82}" width="${W2-28}" height="8" rx="4" fill="var(--rule-2)"/><rect id="bar-sub" x="${X2+14}" y="${subY+82}" width="0" height="8" rx="4" fill="var(--s-grid)"/><text id="st-sub" class="st" x="${X2+14}" y="${subY+110}"></text><circle id="dot-sub" cx="${X2+W2-10}" cy="${subY+10}" r="4"/></g>`;
   s+=flow('sub',`M${X2+W2},${subMid} L${BUS},${subMid}`,'var(--s-grid)');
   const yard=[['battery_4h',c.battery_4h?`Battery · ${fmt(c.battery_4h)} MW`:'Battery',ICON.battery_4h,'--s-bat',!!c.battery_4h]];
   for(const [k,n] of [['gas_turbine','Gas turbine'],['gas_engine','Gas engines'],['fuel_cell','Fuel cell']])if(c[k])yard.push([k,`${n} · ${fmt(c[k])}`,ICON.gas,'--s-gas',true]);
@@ -664,18 +677,18 @@ function siteSVG(R){const c=R.caps,W=880;let s='';
   const bot=Math.max(yT+yard.length*(PH+GAP)-GAP,T+off.length*(PH+GAP)-GAP,T+430);
   s+=`<line x1="${BUS}" x2="${BUS}" y1="${subMid-14}" y2="${bot-PH/2+14}" stroke="var(--ink-2)" stroke-width="4" stroke-linecap="round"/><text x="${BUS}" y="${bot+16}" text-anchor="middle" class="sec">BUS</text>`;
   // building: roof with chillers, then three halls
-  const BY=T,BH=bot-T,RH=64,HG=10,HH=(BH-RH-HG*4)/3;
+  const BY=T,BH=bot-T,RH=78,HG=10,HH=(BH-RH-HG*4)/3;
   s+=`<text x="${BX}" y="${T-14}" class="sec">DATA CENTER</text><rect x="${BX}" y="${BY}" width="${BW}" height="${BH}" rx="8" fill="var(--bg)" stroke="var(--ink-2)" stroke-width="1.5"/>`;
   const cw=(BW-2*HG-4*HG)/3;
   s+=`<g class="eq" data-k="chillers" tabindex="0" role="button" aria-label="Chillers"><rect class="padr" x="${BX+HG}" y="${BY+HG}" width="${BW-2*HG}" height="${RH-HG}" rx="5"/>
-    ${[0,1,2].map(i=>{const cx=BX+2*HG+i*(cw+HG)+cw/2,cy=BY+HG+(RH-HG)/2;return `<g transform="translate(${cx},${cy})"><rect id="ch-${i}" x="${-cw/2+6}" y="-17" width="${cw-12}" height="34" rx="4" fill="var(--panel)" stroke="var(--rule)"/><circle r="12" fill="none" stroke="var(--ink-3)" stroke-width="1"/><g class="fan" id="fan-${i}"><path d="M0 -10 L3 -2 L0 0 L-3 -2 Z M0 0 L9 5 L2 3 Z M0 0 L-9 5 L-2 3 Z" fill="var(--ink-3)"/></g><circle r="1.8" fill="var(--ink-2)"/><text x="${-cw/2+12}" y="4" style="font-size:10px">CH-${i+1}</text></g>`;}).join('')}
-    <text id="tx-chillers" x="${BX+BW-HG-8}" y="${BY+HG+12}" text-anchor="end" style="font-size:10px"></text><g id="sv-chillers"></g></g>`;
-  const halls=[['A','Hall A · always-on','--t0'],['B','Hall B · movable','--t1'],['C','Hall C · batch','--t2']];
-  const cols=12,rws=3,rkw=(BW-2*HG-24-(cols-1)*6)/cols,rkh=Math.min(16,(HH-28-20-(rws-1)*5)/rws);
+    ${[0,1,2].map(i=>{const cx=BX+2*HG+i*(cw+HG)+cw/2,cy=BY+HG+(RH-HG)/2+8;return `<g transform="translate(${cx},${cy})"><rect id="ch-${i}" x="${-cw/2+6}" y="-17" width="${cw-12}" height="34" rx="4" fill="var(--panel)" stroke="var(--rule)"/><g transform="translate(15,0)"><circle r="12" fill="none" stroke="var(--ink-3)" stroke-width="1"/><g class="fan" id="fan-${i}"><path d="M0 -10 L3 -2 L0 0 L-3 -2 Z M0 0 L9 5 L2 3 Z M0 0 L-9 5 L-2 3 Z" fill="var(--ink-3)"/></g><circle r="1.8" fill="var(--ink-2)"/></g><text x="${-cw/2+10}" y="4" style="font-size:10px">CH-${i+1}</text></g>`;}).join('')}
+    <text id="tx-chillers" x="${BX+BW-HG-8}" y="${BY+HG+16}" text-anchor="end" style="font-size:10px"></text><g id="sv-chillers"></g></g>`;
+  const halls=[['A','Hall A · always on','--t0'],['B','Hall B · movable','--t1'],['C','Hall C · batch','--t2']];
+  const cols=12,rws=3,rkw=(BW-2*HG-24-(cols-1)*6)/cols,rkh=Math.min(16,(HH-40-26-(rws-1)*5)/rws);
   halls.forEach(([k,n,col],i)=>{const y=BY+RH+HG+i*(HH+HG),my=y+HH/2,by=subMid+30+i*40;
     s+=flow('h'+k,`M${BUS},${by} C${BUS+22},${by} ${BX-16},${my} ${BX+HG},${my}`,`var(${col})`);
-    s+=`<g class="eq" data-k="campus" tabindex="0" role="button" aria-label="${n}"><rect class="padr" x="${BX+HG}" y="${y}" width="${BW-2*HG}" height="${HH}" rx="5"/><rect x="${BX+HG}" y="${y}" width="4" height="${HH}" rx="2" fill="var(${col})"/><text class="lbl" x="${BX+HG+14}" y="${y+18}">${n}</text><text id="tx-h${k}" x="${BX+BW-HG-12}" y="${y+18}" text-anchor="end"></text>
-      ${Array.from({length:rws},(_,r)=>Array.from({length:cols},(_,q)=>`<rect class="rack" id="rk-${k}-${r*cols+q}" x="${(BX+HG+12+q*(rkw+6)).toFixed(1)}" y="${(y+26+r*(rkh+5)).toFixed(1)}" width="${rkw.toFixed(1)}" height="${rkh.toFixed(1)}" rx="2"/>`).join('')).join('')}<text id="st-h${k}" class="st" x="${BX+HG+14}" y="${y+HH-8}"></text></g>`;});
+    s+=`<g class="eq" data-k="campus" tabindex="0" role="button" aria-label="${n}"><rect class="padr" x="${BX+HG}" y="${y}" width="${BW-2*HG}" height="${HH}" rx="5"/><rect x="${BX+HG}" y="${y}" width="4" height="${HH}" rx="2" fill="var(${col})"/><text class="lbl" x="${BX+HG+14}" y="${y+22}">${n}</text><text id="tx-h${k}" x="${BX+BW-HG-12}" y="${y+22}" text-anchor="end"></text>
+      ${Array.from({length:rws},(_,r)=>Array.from({length:cols},(_,q)=>`<rect class="rack" id="rk-${k}-${r*cols+q}" x="${(BX+HG+12+q*(rkw+6)).toFixed(1)}" y="${(y+34+r*(rkh+5)).toFixed(1)}" width="${rkw.toFixed(1)}" height="${rkh.toFixed(1)}" rx="2"/>`).join('')).join('')}<text id="st-h${k}" class="st" x="${BX+HG+14}" y="${y+HH-10}"></text></g>`;});
   return `<svg viewBox="0 0 ${W} ${bot+26}" role="img" aria-label="Site diagram: power sources, yard and data center">${s}</svg>`;}
 function setT(id,v){const e=document.getElementById(id);if(e&&e.textContent!==v)e.textContent=v;}
 function setFlow(id,mw,rev){const e=document.getElementById('fl-'+id);if(!e)return;const on=mw>0.05;e.style.strokeWidth=on?(1.5+8*Math.min(mw/75,1)).toFixed(1):'1';e.classList.toggle('on',on);e.classList.toggle('rev',!!rev);e.style.opacity=on?'.9':'.18';}
@@ -693,7 +706,7 @@ function updSite(R,t){const c=R.caps,I=R.I,O=R.O,m=I.month[t],RX=resX(),av=k=>m>
   else{setT('tx-battery_4h','not installed');setT('st-battery_4h','click to add');setFlow('battery_4h',0);}
   for(const k of GASK){if(!c[k])continue;const o=O[k][t];setT('tx-'+k,`${fmt(o,1)} MW · ${fmt(100*o/c[k],0)}%`);setT('st-'+k,isOff(k)?'TRIPPED · offline':inSvc(k)?'in planned service':!av(k)?`from month ${RX[k].available_month}`:o>0.05?'running':'standby');
     setDot(k,isOff(k)?'off':inSvc(k)?'warn':o>0.05?'run':'stby');setFlow(k,o);}
-  const bk=O.rental?O.rental[t]:0;setT('tx-backup',`${fmt(bk,1)} MW`);setT('st-backup',bk>0.05?'running · diesel':ops.gen&&t<ops.gen.to&&t>=ops.gen.from-24?'on standby for event':'off · ext.');setDot('backup',bk>0.05?'run':ops.gen&&t<ops.gen.to?'warn':'stby');setFlow('backup',bk);
+  const bk=O.rental?O.rental[t]:0;setT('tx-backup',`${fmt(bk,1)} MW`);setT('st-backup',bk>0.05?'running · diesel':ops.gen&&t<ops.gen.to&&t>=ops.gen.from-24?'on standby for event':'off');setDot('backup',bk>0.05?'run':ops.gen&&t<ops.gen.to?'warn':'stby');setFlow('backup',bk);
   // service badges
   for(const k of [...GASK,'battery_4h','chillers','backup']){const g=document.getElementById('sv-'+k);if(!g)continue;const sv=service(R,k,t);const due=sv&&sv.days<=14;const pad=g.parentNode.querySelector('.padr');
     const bx=pad?+pad.getAttribute('x')+ +pad.getAttribute('width')-62:0,by=pad?+pad.getAttribute('y')+ +pad.getAttribute('height')-18:0;
@@ -742,9 +755,9 @@ function drawFc(R,t){const I=R.I,c=R.caps,RX=resX(),H0=Math.min(87600,t+72),n=H0
 let alertSig='';
 function alertsFor(R,t){const A=[],F=flagsAt(R,t),c=R.caps,first=k=>F.find(f=>f.kind===k);
   const winOf=f=>({from:f.from,to:f.to});
-  const sh=first('short');if(sh)A.push({lvl:'bad',k:'short',h:`Short of power ${hh(sh.from)}`,b:'Demand will exceed the grid limit plus onsite capacity. Always-on work is at risk.',acts:[['backup','Backup diesel on standby',winOf(sh)],c.battery_4h?['bat','Reserve the battery',winOf(sh)]:['addbat','Add a battery (Run the plant)']]});
-  const ev=first('outage')||first('stress');if(ev)A.push({lvl:ev.kind==='outage'?'bad':'warn',k:ev.kind,h:`${ev.lab} ${hh(ev.from)}–${hh(ev.to).split(' ')[1]}`,b:ev.kind==='outage'?'No imports at all: wind, solar and grid power stop. Onsite gas and the battery must carry the campus.':'Imports capped. Movable work shifts to the remote site automatically; batch work pauses if still short.',acts:[c.battery_4h?['bat','Reserve the battery',winOf(ev)]:['addbat','Add a battery (Run the plant)'],['backup','Backup diesel on standby',winOf(ev)]]});
-  const lu=first('lull');if(lu){const lack=Math.max(0,1);A.push({lvl:'warn',k:'lull',h:`Wind lull ${hh(lu.from)} for ${fmt((lu.to-lu.from),0)} h`,b:'Wind below 12% of contract. The gap is bought from the grid or burned as gas, at a higher cost and more carbon.',acts:[c.battery_4h?['bat','Charge and hold the battery for it',winOf(lu)]:['addbat','Add a battery (Run the plant)'],['backup','Backup diesel on standby',winOf(lu)]]});}
+  const sh=first('short');if(sh)A.push({lvl:'bad',k:'short',h:`Short of power ${hh(sh.from)}`,b:'Demand will exceed the grid limit plus onsite capacity. Always-on work is at risk.',acts:[['backup','Backup diesel on standby',winOf(sh)],c.battery_4h?['bat','Reserve the battery',winOf(sh)]:['addbat','Add a battery (Plant performance)']]});
+  const ev=first('outage')||first('stress');if(ev)A.push({lvl:ev.kind==='outage'?'bad':'warn',k:ev.kind,h:`${ev.lab} ${hh(ev.from)}–${hh(ev.to).split(' ')[1]}`,b:ev.kind==='outage'?'No imports at all: wind, solar and grid power stop. Onsite gas and the battery must carry the campus.':'Imports capped. Movable work shifts to the remote site automatically; batch work pauses if still short.',acts:[c.battery_4h?['bat','Reserve the battery',winOf(ev)]:['addbat','Add a battery (Plant performance)'],['backup','Backup diesel on standby',winOf(ev)]]});
+  const lu=first('lull');if(lu){const lack=Math.max(0,1);A.push({lvl:'warn',k:'lull',h:`Wind lull ${hh(lu.from)} for ${fmt((lu.to-lu.from),0)} h`,b:'Wind below 12% of contract. The gap is bought from the grid or burned as gas, at a higher cost and more carbon.',acts:[c.battery_4h?['bat','Charge and hold the battery for it',winOf(lu)]:['addbat','Add a battery (Plant performance)'],['backup','Backup diesel on standby',winOf(lu)]]});}
   const cl=first('cloud');if(cl)A.push({lvl:'info',k:'cloud',h:`Heavy cloud from ${hh(cl.from)}`,b:'Solar at 30% of normal. Usually a cost issue, not a reliability one.',acts:[]});
   const ch=first('chiller');if(ch)A.push({lvl:'bad',k:'chiller',h:'Chiller 2 drawing excess power',b:`Fault adds 3 MW of cooling load from ${hh(ch.from)}${ops.tech?'; technician booked, fixed in 3 hours':' for 12 hours'}.`,acts:ops.tech?[]:[['tech','Dispatch a technician ($8,000)']]});
   const fl=F.find(f=>f.kind==='fail');if(fl)A.push({lvl:'bad',k:'fail',h:`${RN[fl.id]||fl.id} trips ${hh(fl.from)}`,b:ops.tech?`Technician dispatched: back in ${TECH_H} hours.`:`Offline ${DOWN_H} hours unless repaired.`,acts:ops.tech?[['backup','Backup diesel on standby',winOf(fl)]]:[['tech',`Dispatch a technician ($${fmt(TECH_COST)})`],['backup','Backup diesel on standby',winOf(fl)]]});
@@ -765,13 +778,13 @@ function drawAlerts(R,t){const A=alertsFor(R,t),sig=A.map(a=>a.k+a.h+a.acts.map(
 const EQN={campus:'Data center halls',sub:'Substation',grid:'ERCOT grid power',wind:'Wind contract',utility_solar:'Solar contract',nuclear:'Nuclear contract',battery_4h:'Battery',gas_turbine:'Gas turbine',gas_engine:'Gas engines',fuel_cell:'Gas fuel cell',backup:'Backup diesel generator',chillers:'Chillers'};
 function drawPanel(){const R=live.R;if(!R)return;const k=selK,c=R.caps,el=$('eq-panel');let ctl='';const seg=(id,opts,cur)=>`<div class="seg" role="group" id="${id}">${opts.map(([v,l])=>`<button type="button" data-v="${v}" aria-pressed="${v===cur}">${l}</button>`).join('')}</div>`;
   const nextWin=()=>{const F=flagsAt(R,live.t).filter(f=>f.kind!=='svc'&&f.kind!=='cloud');return F.length?{from:F[0].from,to:F[F.length-1].to,lab:F[0].lab}:null;};const nw=nextWin();
-  if(k==='battery_4h'){ctl=c.battery_4h?`<div class="crow"><span>Mode</span>${seg('pc-bat',[['auto','Auto'],['res','Reserve for next event']],ops.bat?'res':'auto')}</div><p class="muted sm">${nw?`Next event: ${nw.lab} ${hh(nw.from)}. Reserve charges it beforehand and stops price trading.`:'No event in the next 72 hours; Auto trades price spikes and covers stress events.'}</p>`:`<p class="sm">No battery in this plan.</p><button class="btn" type="button" id="pc-add">Add one in Run the plant</button>`;}
-  else if(k==='backup')ctl=`<div class="crow"><span>Mode <span class="tag">ext.</span></span>${seg('pc-gen',[['off','Off'],['stby','Standby for next event']],ops.gen?'stby':'off')}</div><p class="muted sm">10 MW diesel, about $350/MWh and 0.74 t CO₂/MWh. On standby it starts only if gas and the grid fall short, before any work is paused.${nw?` Next event: ${nw.lab} ${hh(nw.from)}.`:''}</p>`;
+  if(k==='battery_4h'){ctl=c.battery_4h?`<div class="crow"><span>Mode</span>${seg('pc-bat',[['auto','Auto'],['res','Reserve for next event']],ops.bat?'res':'auto')}</div><p class="muted sm">${nw?`Next event: ${nw.lab} ${hh(nw.from)}. Reserve charges it beforehand and stops price trading.`:'No event in the next 72 hours; Auto trades price spikes and covers stress events.'}</p>`:`<p class="sm">No battery in this plan.</p><button class="btn" type="button" id="pc-add">Add one in Plant performance</button>`;}
+  else if(k==='backup')ctl=`<div class="crow"><span>Mode <span class="tag">assumed</span></span>${seg('pc-gen',[['off','Off'],['stby','Standby for next event']],ops.gen?'stby':'off')}</div><p class="muted sm">10 MW diesel, about $350/MWh and 0.74 t CO₂/MWh. On standby it starts only if gas and the grid fall short, before any work is paused.${nw?` Next event: ${nw.lab} ${hh(nw.from)}.`:''}</p>`;
   else if(GASK.includes(k))ctl=`<div class="crow"><button class="btn" type="button" id="pc-trip">Simulate a trip tomorrow</button><label class="chk"><input type="checkbox" id="pc-tech" ${ops.tech?'checked':''}> technician on call ($${fmt(TECH_COST)}, back in ${TECH_H} h)</label></div>`;
-  else if(k==='chillers')ctl=`<p class="sm">Cooling is assumed at ${fmt(100*COOL)}% of campus load <span class="tag">ext.</span>; the packet's demand already includes it.</p><div class="crow"><button class="btn" type="button" id="pc-chill">Simulate a chiller fault tomorrow</button><label class="chk"><input type="checkbox" id="pc-tech" ${ops.tech?'checked':''}> technician on call</label></div>`;
+  else if(k==='chillers')ctl=`<p class="sm">Cooling is assumed at ${fmt(100*COOL)}% of campus load <span class="tag">assumed</span>; the demand figures already include it.</p><div class="crow"><button class="btn" type="button" id="pc-chill">Simulate a chiller fault tomorrow</button><label class="chk"><input type="checkbox" id="pc-tech" ${ops.tech?'checked':''}> technician on call</label></div>`;
   else if(k==='wind'||k==='utility_solar')ctl=`<div class="crow"><button class="btn" type="button" id="pc-wx">${k==='wind'?'Simulate a 3-day wind lull':'Simulate 3 days of heavy cloud'}</button></div>`;
   else if(k==='sub'||k==='grid')ctl=`<div class="crow"><button class="btn" type="button" id="pc-out">Simulate an outage tomorrow</button><button class="btn" type="button" id="pc-str">Simulate a stress alert</button></div>`;
-  const sv=service(R,k,live.t);const svh=sv?`<div class="svc"><div class="crow"><span>Next service <span class="tag">ext.</span></span><span class="mono">${sv.days<1?'due now':'in '+fmt(sv.days,0)+' days'}${sv.unit==='run hours'?` · ${fmt(sv.left)} run h`:''}</span></div><div class="meter"><i style="width:${fmt(sv.pct)}%;background:${sv.days<=14?'#c98500':'var(--accent)'}"></i></div><div class="muted sm">${sv.what} · ${sv.hrs} h · $${fmt(sv.cost)}</div>${k==='chillers'?(()=>{const cs=chillerSave(R,live.t);return cs?`<div class="save"><b>On time saves ${fmt(cs.co2,0)} t CO₂</b> and ${money(cs.cost)} vs ${CH_LATE} days late <span class="tag">ext.</span><br><span class="muted">Dirty coils add ~${fmt(100*CH_DEGR)}% cooling power: ${fmt(cs.mw,1)} MW, ${fmt(cs.mwh,0)} MWh.</span></div>`:'';})():''}${ops.svc&&ops.svc.id===k?`<div class="sm up">Booked ${hh(ops.svc.from)}</div>`:`<button class="btn" type="button" id="pc-svc">Schedule in a quiet window</button>`}</div>`:'';
+  const sv=service(R,k,live.t);const svh=sv?`<div class="svc"><div class="crow"><span>Next service <span class="tag">assumed</span></span><span class="mono">${sv.days<1?'due now':'in '+fmt(sv.days,0)+' days'}${sv.unit==='run hours'?` · ${fmt(sv.left)} run h`:''}</span></div><div class="meter"><i style="width:${fmt(sv.pct)}%;background:${sv.days<=14?'#c98500':'var(--accent)'}"></i></div><div class="muted sm">${sv.what} · ${sv.hrs} h · $${fmt(sv.cost)}</div>${k==='chillers'?(()=>{const cs=chillerSave(R,live.t);return cs?`<div class="save"><b>On time saves ${fmt(cs.co2,0)} t CO₂</b> and ${money(cs.cost)} vs ${CH_LATE} days late <span class="tag">assumed</span><br><span class="muted">Dirty coils add ~${fmt(100*CH_DEGR)}% cooling power: ${fmt(cs.mw,1)} MW, ${fmt(cs.mwh,0)} MWh.</span></div>`:'';})():''}${ops.svc&&ops.svc.id===k?`<div class="sm up">Booked ${hh(ops.svc.from)}</div>`:`<button class="btn" type="button" id="pc-svc">Schedule in a quiet window</button>`}</div>`:'';
   const hasTrend=!!TK[k];
   el.innerHTML=`<div class="hd"><p class="eyebrow" style="margin:0">${EQN[k]||k}</p></div><div id="eq-live" class="eqlive"></div>${ctl}${svh}${hasTrend?`<div id="l-trend" class="trend" hidden></div>`:k==='campus'?'<p class="muted sm">Racks light green when served, blue when moved to the remote site, grey when paused, red when unserved. Click any piece of equipment for its controls.</p>':''}`;
   const S=(id,fn)=>{const e=$(id);if(e)e.onclick=fn;};
@@ -826,12 +839,12 @@ document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.clos
 function drawRoute(R,t){const I=R.I,O=R.O,s=tierSplit(R,t),st=I.st[t]===1,open=s.L>0,h=hourSup(R,t),pol=R.policy||'last_resort';
   // flows in source order; destination order follows tier order
   const F=[[0,'site',s.t0-s.unA],[0,'uns',s.unA],[1,'site',s.t1-s.rel-s.unB],[1,'rem',s.rel],[1,'uns',s.unB],[2,'site',s.t2-s.cur],[2,'pau',s.cur]].map(([a,b,v])=>[a,b,Math.max(0,v)]);
-  const cpt=($('rt-sk').clientWidth||700)<540,W=cpt?440:680,k=180/Math.max(80,s.L),SL=cpt?28:34,GAP=12,TOP=30,BW=10,XL=cpt?116:184,XR=W-(cpt?122:206);
-  const TI=[['Always-on','Tier 0 · stays on campus','--t0',s.t0],['Movable','Tier 1 · can move off-site','--t1',s.t1],['Batch','Tier 2 · can pause','--t2',s.t2]];
+  const CW=Math.round($('rt-sk').clientWidth||600),cpt=CW<480,W=Math.max(CW,300),k=180/Math.max(80,s.L),SL=cpt?40:46,GAP=cpt?10:14,TOP=34,BW=12,XL=cpt?116:150,XR=W-(cpt?124:172);
+  const TI=[['Always on','stays on campus','--t0',s.t0],['Movable','can move off site','--t1',s.t1],['Batch','can pause','--t2',s.t2]];
   const srcTop=(i=>{let y=TOP;return TI.map(([,,,v])=>{const hh=Math.max(v*k,2),sl=Math.max(hh,SL),o={y:y+(sl-hh)/2,h:hh,sl,y0:y};y+=sl+GAP;return o;});})();
-  const top3=[['grid','grid'],['gas','gas'],['dsl','diesel'],['wind','wind'],['solar','solar'],['nuclear','nuclear'],['bat','battery']].map(([q,n])=>[n,h[q]||0]).filter(x=>x[1]>0.05).sort((a,b)=>b[1]-a[1]).slice(0,cpt?2:3).map(([n,v])=>`${n} ${fmt(v,0)}`).join(' · ');
+  const top3=[['grid','grid'],['gas','gas'],['dsl','diesel'],['wind','wind'],['solar','solar'],['nuclear','nuclear'],['bat','battery']].map(([q,n])=>[n,h[q]||0]).filter(x=>x[1]>0.05).sort((a,b)=>b[1]-a[1]).slice(0,cpt?1:3).map(([n,v])=>`${n} ${fmt(v,0)}`).join(' · ');
   const site=F.filter(f=>f[1]==='site').reduce((a,f)=>a+f[2],0);
-  const so_=cpt?'stress only':'stress windows only',DI=[['site','On campus',open?(top3||'no supply'):'not open yet','--accent',site,true],['rem','Remote site',st?(cpt?`max ${fmt(REM_MW,1)} MW`:`${fmt(REM_MW,1)} MW max · $123.50/MWh`):so_,'--s-rel',s.rel,true],['pau',cpt?'Paused':'Paused (cancelled)',st?'$1,000/MWh':so_,'--s-int',s.cur,true],['uns','Unserved','alert · plan is short','--bad',s.un,s.un>0.05]].filter(d=>d[5]);
+  const so_=cpt?'stress only':'stress windows only',DI=[['site',cpt?'Campus':'On campus',open?(top3||'no supply'):'not open yet','--accent',site,true],['rem',cpt?'Remote':'Remote site',st?(cpt?`max ${fmt(REM_MW,1)} MW`:'$123.50/MWh to move'):so_,'--s-rel',s.rel,true],['pau','Paused',st?(cpt?'$1,000/MWh':'$1,000/MWh to pause'):so_,'--s-int',s.cur,true],['uns','Unserved','plan is short','--bad',s.un,s.un>0.05]].filter(d=>d[5]);
   const dstTop=(()=>{let y=TOP;return DI.map(([,,,,v])=>{const hh=v>0.05?Math.max(v*k,2):0,sl=Math.max(hh,SL),o={y:y+(sl-Math.max(hh,10))/2,h:hh,sl,y0:y};y+=sl+GAP;return o;});})();
   const H=Math.max(srcTop[2].y0+srcTop[2].sl,dstTop[dstTop.length-1].y0+dstTop[dstTop.length-1].sl)+6;
   let g=`<text x="${XL}" y="14" class="sec" text-anchor="end">${cpt?'TIER · MW':'DEMAND TIER'}</text><text x="${XR}" y="14" class="sec">GOES TO${cpt?' · MW':''}</text>`;
@@ -839,10 +852,10 @@ function drawRoute(R,t){const I=R.I,O=R.O,s=tierSplit(R,t),st=I.st[t]===1,open=s
   const so=srcTop.map(o=>o.y),dIdx=Object.fromEntries(DI.map((d,i)=>[d[0],i])),doff=dstTop.map(o=>o.y);const xm1=XL+BW+(XR-XL-BW)*0.45,xm2=XL+BW+(XR-XL-BW)*0.55;
   for(const [ti,dk,v] of F){if(v<0.02||dIdx[dk]==null)continue;const w=v*k,i=dIdx[dk],y1=so[ti],y2=doff[i];so[ti]+=w;doff[i]+=w;
     g+=`<path class="rib" d="M${XL+BW},${y1.toFixed(1)} C${xm1},${y1.toFixed(1)} ${xm2},${y2.toFixed(1)} ${XR},${y2.toFixed(1)} L${XR},${(y2+w).toFixed(1)} C${xm2},${(y2+w).toFixed(1)} ${xm1},${(y1+w).toFixed(1)} ${XL+BW},${(y1+w).toFixed(1)} Z" fill="var(${TI[ti][2]})" opacity="${dk==='site'?.42:.75}"><title>${TI[ti][0]} → ${DI[i][1]}: ${fmt(v,1)} MW</title></path>`;}
-  TI.forEach(([n,sub,c,v],i)=>{const o=srcTop[i],cy=o.y0+o.sl/2+(cpt?7:0);g+=`<rect x="${XL}" y="${o.y.toFixed(1)}" width="${BW}" height="${o.h.toFixed(1)}" rx="2" fill="var(${c})"/><text class="nm" x="${XL-8}" y="${cy-3}" text-anchor="end">${n} <tspan class="v" style="font-family:var(--f-mono);font-weight:500">${open?fmt(v,1):'–'}</tspan></text>${cpt?'':`<text x="${XL-8}" y="${cy+12}" text-anchor="end" style="font-size:10.5px">${sub}</text>`}`;});
+  TI.forEach(([n,sub,c,v],i)=>{const o=srcTop[i],cy=o.y0+o.sl/2+(cpt?7:0);g+=`<rect x="${XL}" y="${o.y.toFixed(1)}" width="${BW}" height="${o.h.toFixed(1)}" rx="2" fill="var(${c})"/><text class="nm" x="${XL-8}" y="${cy-2}" text-anchor="end">${n} <tspan class="v" style="font-family:var(--f-mono);font-weight:500">${open?fmt(v,1):'–'}</tspan></text>${cpt?'':`<text x="${XL-8}" y="${cy+17}" text-anchor="end" style="font-size:10.5px">${sub}</text>`}`;});
   DI.forEach(([dk,n,sub,c,v],i)=>{const o=dstTop[i],cy=o.y0+o.sl/2,live=v>0.05;
     g+=live?`<rect x="${XR}" y="${o.y.toFixed(1)}" width="${BW}" height="${o.h.toFixed(1)}" rx="2" fill="var(${c})"/>`:`<rect class="gh" x="${XR+0.5}" y="${o.y.toFixed(1)}" width="${BW-1}" height="10" rx="2"/>`;
-    g+=`<text class="nm" x="${XR+BW+8}" y="${cy-3}" style="${live?'':'fill:var(--ink-3)'}">${n} <tspan class="v" style="font-family:var(--f-mono);font-weight:500">${fmt(v,1)}${cpt?'':' MW'}</tspan></text><text x="${XR+BW+8}" y="${cy+12}" style="font-size:10.5px">${sub}</text>`;});
+    g+=`<text class="nm" x="${XR+BW+8}" y="${cy-2}" style="${live?'':'fill:var(--ink-3)'}">${n} <tspan class="v" style="font-family:var(--f-mono);font-weight:500">${fmt(v,1)}${cpt?'':' MW'}</tspan></text><text x="${XR+BW+8}" y="${cy+17}" style="font-size:10.5px">${sub}</text>`;});
   const svg=`<svg viewBox="0 0 ${W} ${H.toFixed(0)}" role="img" aria-label="Demand routing this hour: always-on ${fmt(s.t0,1)} MW, movable ${fmt(s.t1,1)} MW with ${fmt(s.rel,1)} moved, batch ${fmt(s.t2,1)} MW with ${fmt(s.cur,1)} paused">${g}</svg>`;
   // grid stress: three responses, each with event cost and revenue at risk
   const C1=rtCum(R);let wf,wt;if(st&&open){wf=t;while(wf>0&&I.st[wf-1]===1)wf--;wt=t;while(wt<87599&&I.st[wt+1]===1)wt++;wt++;}
@@ -851,21 +864,21 @@ function drawRoute(R,t){const I=R.I,O=R.O,s=tierSplit(R,t),st=I.st[t]===1,open=s
   if(wf==null||!open)pb=`<div class="sx"><div class="hd">Grid stress</div><div class="sub2">${open?'No more grid stress windows in the 10 years.':'Campus not open yet.'}</div></div>`;
   else{const win=[wf,wt],hrs=wt-wf,q=dateOf(wf),E=pbEval(win),sel=pbResp(win),avg=f=>{let a=0;for(let h=wf;h<wt;h++)a+=f(h);return a/hrs;};
     const cap=avg(h=>I.G[h]),L=avg(h=>I.L[h]),o=E.opt[sel];
-    const RS=[['move','Move flexible work off-site',`${fmt(avg(h=>Math.min(I.t1[h],REM_MW)),1)} MW to the remote site; gas covers the rest`],['keep','Keep all work here','Nothing moves; run onsite gas harder'],['pause','Pause batch work',`Cancel ${fmt(avg(h=>I.t2[h]),1)} MW of batch jobs; less gas`]];
-    pb=`<div class="sx"><div><div class="hd">Grid stress · ${q.wd} ${q.m} ${q.d}, ${String(q.h).padStart(2,'0')}:00–${String(dateOf(wt).h).padStart(2,'0')}:00</div>
-      <div class="sub2">${st?`<b>Now</b>, hour ${t-wf+1} of ${hrs}`:`In ${wf-t<48?fmt(wf-t,0)+' h':fmt((wf-t)/24,0)+' days'}`} · imports capped at <b>${fmt(cap,0)} MW</b>, campus needs <b>${fmt(L,0)} MW</b></div></div>
-      <div class="sxk"><div><div class="k">Event cost</div><div class="v">${o?money(o.cost):'…'}</div><div class="s">power, remote site and pauses, ${hrs} h</div></div><div><div class="k">Revenue at risk <span class="tag">team</span></div><div class="v ${o&&o.risk>1?'down':''}">${o?money(o.risk):'…'}</div><div class="s">${o?`of ${money(E.flex)} from flexible tenants`:'tenant rent for work not delivered'}</div></div></div>
-      <div class="resp" role="radiogroup" aria-label="Response">${RS.map(([k,n,d])=>{const x=E.opt[k];return `<button type="button" class="rb" role="radio" data-resp="${k}" aria-pressed="${sel===k}" aria-checked="${sel===k}"><span class="dot"></span><span class="t">${n}${E.best===k?'<span class="rec">lowest cost</span>':''}</span><span class="n r1">${x?money(x.cost):'…'}<small>cost</small></span><span class="n r2 ${x&&x.risk>1?'down':''}">${x?money(x.risk):'…'}<small>at risk</small></span><span class="d">${d}</span></button>`;}).join('')}</div>
-      <p class="muted" style="font-size:11.5px;margin:0">Cost is the packet's decision cost in the window ($123.50/MWh to move, $1,000/MWh to pause). Revenue at risk is the rent for work paused or unserved, at your revenue model's rates.</p></div>`;}
+    const RS=[['move','Move flexible work off site',`${fmt(avg(h=>Math.min(I.t1[h],REM_MW)),1)} MW to the remote site; gas covers the rest`],['keep','Keep all work here','Nothing moves; run onsite gas harder'],['pause','Pause batch work',`Cancel ${fmt(avg(h=>I.t2[h]),1)} MW of batch jobs; less gas`]];
+    pb=`<div class="sx"><div><div class="hd">${q.wd} ${q.m} ${q.d}, ${String(q.h).padStart(2,'0')}:00 to ${String(dateOf(wt).h).padStart(2,'0')}:00</div>
+      <div class="sub2">${st?`<b>Now</b>, hour ${t-wf+1} of ${hrs}`:`In ${wf-t<48?fmt(wf-t,0)+' h':fmt((wf-t)/24,0)+' days'}`} · ${hrs} h window · imports capped at <b>${fmt(cap,0)} MW</b>, campus needs <b>${fmt(L,0)} MW</b></div></div>
+      <div class="rsph"><span></span><span>Choose a response</span><span>Cost</span><span>Revenue at risk</span></div>
+      <div class="resp" role="radiogroup" aria-label="Response">${RS.map(([k,n,d])=>{const x=E.opt[k];return `<button type="button" class="rsp" role="radio" data-resp="${k}" aria-pressed="${sel===k}" aria-checked="${sel===k}"><span class="dot"></span><span class="t">${n}${E.best===k?'<span class="rec">lowest cost</span>':''}</span><span class="n r1">${x?money(x.cost):'…'}</span><span class="n r2 ${x&&x.risk>1?'down':''}">${x?money(x.risk):'…'}</span><span class="d">${d}</span></button>`;}).join('')}</div>
+      <p class="muted rspn">${o?`Cost is for the ${hrs} h window. Flexible tenants pay ${money(E.flex)} over it <span class="tag">assumed</span>`:'&nbsp;'}</p></div>`;}
   const sig=svg+pb;if(sig!==rtSig){rtSig=sig;$('rt-sk').innerHTML=svg;$('rt-pb').innerHTML=pb;}$('rt-pb').dataset.win=wf!=null?JSON.stringify([wf,wt]):'';
   // since first power: what routing has cost so far, and the next stress window
   const C=rtCum(R),s0=R.open*730,s1=Math.max(s0,t+1),d=(a)=>a[s1]-a[s0],t0d=d(C.t0);
-  const tot=`<div><div class="k">Stress hours so far</div><div class="v">${fmt(d(C.st),0)} h</div></div><div><div class="k">Work moved to remote site</div><div class="v">${fmt(d(C.rel),0)} MWh</div></div><div><div class="k">Batch work paused</div><div class="v">${fmt(d(C.cur),0)} MWh</div></div><div><div class="k">Always-on served</div><div class="v">${t0d>0?fmt(100*(1-d(C.unA)/t0d),2)+'%':'–'}</div></div>`;
+  const tot=`<div><div class="k">Stress hours so far</div><div class="v">${fmt(d(C.st),0)} h</div></div><div><div class="k">Work moved to remote site</div><div class="v">${fmt(d(C.rel),0)} MWh</div></div><div><div class="k">Batch work paused</div><div class="v">${fmt(d(C.cur),0)} MWh</div></div><div><div class="k">Always on served</div><div class="v">${t0d>0?fmt(100*(1-d(C.unA)/t0d),2)+'%':'–'}</div></div>`;
   if($('rt-tot').innerHTML!==tot)$('rt-tot').innerHTML=tot;
   let nx='';if(st&&open){let e=t;while(e<87599&&I.st[e+1]===1)e++;nx=`<span class="status stress">Stress now · until ${String(dateOf(e+1).h).padStart(2,'0')}:00</span>`;}
   else{let lo=0,hi=C.starts.length;while(lo<hi){const m=(lo+hi)>>1;if(C.starts[m]<=t)lo=m+1;else hi=m;}const ns=C.starts[lo];
-    if(ns!=null){let e=ns;while(e<87599&&I.st[e+1]===1)e++;const q=dateOf(ns),dd=(ns-t)/24;nx=`<span>Next stress window: <b>${q.wd} ${q.m} ${q.d}, ${String(q.h).padStart(2,'0')}:00</b>, ${e-ns+1} h${dd<60?` · in ${dd<2?fmt(ns-t,0)+' h':fmt(dd,0)+' days'}`:''}</span><button class="btn" type="button" data-rtj="1">Jump there</button>`;}
-    else nx='<span class="muted">No more stress windows in the 10 years</span>';}
+    if(ns!=null){let e=ns;while(e<87599&&I.st[e+1]===1)e++;const q=dateOf(ns),dd=(ns-t)/24;nx=`<button class="btn" type="button" data-rtj="1">Jump to this event</button>`;}
+    else nx='';}
   if(nx!==rtNextSig){rtNextSig=nx;$('rt-next').innerHTML=nx;const b=$('rt-next').querySelector('[data-rtj]');if(b)b.onclick=()=>{const j=document.querySelector('[data-j="stress"]');if(j)j.click();};}}
 window.addEventListener('resize',()=>{if(live.R&&!$('v-3').hidden)drawRoute(live.R,live.t);});
 function drawOps(R,t){drawSite(R,t);drawRoute(R,t);drawFc(R,t);drawAlerts(R,t);updPanel(R,t);}
@@ -934,7 +947,7 @@ const GL=['Good','Moderate','Bad','Not graded','Excellent'],GCLS=['g','m','b','n
 const pill=(r,t)=>`<span class="rt ${r==null?'n':GCLS[r]}">${r==null?(t||'…'):(t||GL[r])}</span>`;
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const GRK={calm:0,packet:1,wave:2,tight:3};
-const STRESS_TXT={calm:'no stress events',packet:'7 events a year, imports cut to 60%',wave:'packet events plus a 2 week August heat wave at 50%',tight:'7 events a year, imports cut to 40%'};
+const STRESS_TXT={calm:'no stress events',packet:'7 events a year, imports cut to 60%',wave:'standard events plus a 2 week August heat wave at 50%',tight:'7 events a year, imports cut to 40%'};
 const LEADS={packet:{},market:{gas_turbine:45}},COMM=3;
 const XS={site:null};
 // share of annual energy the contracted wind and solar supply, per contract mix (full 10 year hourly runs of the case packet plans)
@@ -1042,7 +1055,7 @@ const PORT={};
 function effGrid(){const st=XS.site||curSite(),floor=(st&&st.stress)||'packet';return F.hard&&GRK[F.grid]<GRK[floor]?floor:F.grid;}
 const siteEff=st=>st.id===siteId?{...st,delay:F.delay,acres:F.acres}:st;
 function withSite(st,fn){const sv={d:F.delay,a:F.acres,s:XS.site};F.delay=st.delay;F.acres=st.acres;XS.site=st;try{return fn();}finally{F.delay=sv.d;F.acres=sv.a;XS.site=sv.s;}}
-function keyFor(st){return JSON.stringify([st.id,F.delay,F.acres,effGrid(),F.leads,F.permit,F.hard,F.vcap,F.cap,F.capMode,F.dead,F.ren,F.growth,F.weather,F.flex,RM.model,RM.tier,RM.mk,RM.rate]);}
+function keyFor(st){return JSON.stringify([st.id,F.delay,F.acres,effGrid(),F.leads,F.permit,F.hard,F.vcap,F.bess,F.mix,F.cap,F.capMode,F.dead,F.ren,F.growth,F.weather,F.flex,RM.model,RM.tier,RM.mk,RM.rate]);}
 const getPort=st=>st.id===siteId?PORT[keyFor(st)]:withSite(st,()=>PORT[keyFor(st)]);
 function summRows(rs){const ok=rs.filter(r=>feasible(r.r)&&inDeadline(r.o));const best=ok.length?ok.reduce((a,b)=>b.r.e.profit>a.r.e.profit?b:a):null;
   return {o:best?best.o:null,p:best?best.r.e.profit:null,rev:best?best.r.e.rev:null,pc:best?best.r.z.total:null,first:ok.length?ok[0].o:null,gate:best?'pass':'fail',caps:best?best.r.caps:null,op:best?best.o:null,pol:best?best.r.base.policy:null,md:best?best.r.base.mode:null};}
@@ -1072,7 +1085,7 @@ function resetAll(){Object.assign(F,JSON.parse(JSON.stringify(F0)));Object.assig
   if(step>1){plant=null;showStep(1);}drawModels();step1();}
 
 // ---- tier shares: how much of the load can move or pause (packet default 36%) ----
-const FLEXV=[{v:0,n:'Firm',t:'all work stays on, 0% flexible'},{v:0.5,n:'Half',t:'82% always on, 12% movable, 6% batch'},{v:1,n:'Packet',t:'64% always on, 24% movable, 12% batch'}];
+const FLEXV=[{v:0,n:'Firm',t:'all work stays on, 0% flexible'},{v:0.5,n:'Half',t:'82% always on, 12% movable, 6% batch'},{v:1,n:'Standard',t:'64% always on, 24% movable, 12% batch'}];
 const keyFlex=(st,v)=>{const o=F.flex;F.flex=v;try{return keyFor(st);}finally{F.flex=o;}};
 let sTok=0;
 function schedSens(){const tok=++sTok,st=curSite(),base=keyFor(st),todo=FLEXV.filter(q=>!PORT[keyFlex(st,q.v)]);let qi=0,oi=0,acc=[];
@@ -1109,10 +1122,10 @@ function offWhy(k,R,RX){const r=RX[k];if(!r)return '';
 function cWhy(c){const S=stOf(c),tx=c.s==='48';
   const loc=`${c.dm} mi to ${MAPD.metros[c.am]}`+(tx&&c.c?'. Core county, so land is scarce and costly':!tx&&c.dm<=15?'. Inside a major metro, so land is scarce and costly':'')+(tx&&c.k?'. Gulf coast, so hurricane and flood exposure':'');
   const en=!tx?`Not graded on its own. The hourly grid model in this demo covers ERCOT only. This county sits in ${S.reg}, so the Overall grade uses that region's grid queue wait as a stand in for energy (see Time to power).`
-    :c.z===2?'Outside ERCOT or on its edge (approximate boundary). The grid model here is ERCOT only, so its results do not apply.':c.z===1?'West Texas wind belt. Plenty of wind and solar, but transmission out of the region is congested, so grid upgrades run slower.':`ERCOT load zone, ${c.dt} mi from ${MAPD.txm[c.at]}. Deep gas and grid supply near demand.`;
+    :c.z===2?'Outside ERCOT or on its edge. The grid model here is ERCOT only, so its results do not apply.':c.z===1?'West Texas wind belt. Plenty of wind and solar, but transmission out of the region is congested, so grid upgrades run slower.':`ERCOT load zone, ${c.dt} mi from ${MAPD.txm[c.at]}. Deep gas and grid supply near demand.`;
   const pol=S.t;
   const fib=c.fd==null?`${c.dh} mi to the ${MAPD.hubs[c.ah]} carrier hub`:`Nearest listed colocation or network facility is ${c.fd} mi away (${c.fc}). ${c.fn===0?'None within 50 miles':c.fn+(c.fn===1?' facility':' facilities')+' within 50 miles'}.`;
-  return {loc:[c.r[0],loc,'Public geography'],en:[c.r[1],en,tx?'Team screen, approximate market boundary':'Not modeled yet'],pol:[c.r[2],pol,'State actions in public sources, Nov 2026. Local zoning and abatements not loaded'],fib:[c.r[3],fib,'CAIDA IXP dataset (PeeringDB based), Oct 2026 release. Facility locations, not fiber routes'],
+  return {loc:[c.r[0],loc,'Public geography'],en:[c.r[1],en,tx?'Our market screen':'Not modeled yet'],pol:[c.r[2],pol,'State actions in public sources, Nov 2026. Local zoning and abatements not loaded'],fib:[c.r[3],fib,'CAIDA IXP dataset (PeeringDB based), Oct 2026 release. Facility locations, not fiber routes'],
     water:[c.r[4],WTXT(c,tx),c.w==null?'Data needed':'WRI Aqueduct 4.0 baseline water stress, watershed matched to the county centroid'],
     haz:[c.r[5],HTXT(c),c.h==null?'Data needed':'FEMA National Risk Index v1.20 (Dec 2025), expected annual building loss per dollar of building value'],
     zon:[c.r[6],LOCALZ[c.f]?`A local pause on data centers is under consideration: ${LOCALZ[c.f]}.`:'Not scored. Needs county and city zoning and ordinance data. The state level view is under Policy.',LOCALZ[c.f]?'Electric Choice moratorium tracker, Oct 2026':'Data needed'],
@@ -1153,18 +1166,18 @@ function drawMapChrome(){const L=mapLayer;
   $('map-leg').innerHTML=[4,0,1,2,3].map(i=>`<span><i style="background:${GCOL[i]};opacity:${i===4?.95:.7}"></i>${GL[i]}</span>`).join('')+`<span><i style="background:var(--accent);border-radius:50%"></i>Your project</span>`;
   $('map-note').textContent=LAYTXT[L]+' Screening grades from public geography and sourced state actions, to be replaced by licensed county data.';}
 function drawCounty(){const c=CMAP.get(selCounty),w=cWhy(c),here=SITES.filter(s=>s.fips===c.f),ov=cOverall(c),S=stOf(c);
-  $('cdet').innerHTML=`<div class="rech"><div><p class="eyebrow">County detail</p><h2>${c.n} County, ${S.a}</h2><p class="sub">Grid: ${S.reg} (approximate)</p></div><div>${pill(ov,ov===3?'No overall grade':'Overall '+GL[ov].toLowerCase())}</div></div>
-   <div class="dimcols">${[['Power',[['en','Energy availability'],['pwr','Time to power']]],['Site',[['loc','Location'],['fib','Fiber']]],['Risk',[['pol','Policy'],['water','Water'],['haz','Natural hazard']]]].map(([g,ks])=>`<div class="dimcol"><div class="pgh">${g}</div>${ks.map(([k,l])=>`<div class="dimrow"><div class="dh"><b>${l}</b> ${pill(w[k][0],(w[k][0]===3&&['water','haz','pwr'].includes(k))?'Not scored':null)}</div><div class="dt">${w[k][1]}</div><div class="ev">Basis: ${w[k][2]}</div></div>`).join('')}</div>`).join('')}</div>
+  $('cdet').innerHTML=`<div class="rech"><div><p class="eyebrow">County detail</p><h2>${c.n} County, ${S.a}</h2><p class="sub">Grid: ${S.reg}</p></div><div>${pill(ov,ov===3?'No overall grade':'Overall '+GL[ov].toLowerCase())}</div></div>
+   <div class="dimcols">${[['Power',[['en','Energy availability'],['pwr','Time to power'],['rel','Grid reliability','Depends on the stress case and the plan chosen for a project. Add a project to grade it.']]],['Site',[['loc','Location'],['fib','Fiber'],['land','Land','Depends on the acres a project brings for onsite power. Add a project to grade it.']]],['Risk',[['pol','Policy'],['water','Water'],['haz','Natural hazard']]]].map(([g,ks])=>`<div class="dimcol"><div class="pgh">${g}</div>${ks.filter(x=>!x[2]).map(([k,l,ph])=>ph?`<div class="dimrow off"><div class="dh"><b>${l}</b> <span class="rt n">Set per project</span></div><div class="dt">${ph}</div><div class="ev">Basis: project inputs</div></div>`:`<div class="dimrow"><div class="dh"><b>${l}</b> ${pill(w[k][0],(w[k][0]===3&&['water','haz','pwr'].includes(k))?'Not scored':null)}</div><div class="dt">${w[k][1]}</div><div class="ev">Basis: ${w[k][2]}</div></div>`).join('')}</div>`).join('')}</div>
    ${here.length?`<p class="sm" style="margin-top:8px">Projects here: ${here.map(s=>`<button type="button" class="chip" data-proj="${s.id}">${SITES.indexOf(s)+1}. ${s.nm}</button>`).join(' ')}</p>`:'<p class="muted sm" style="margin-top:8px">No project in this county yet. Click any county to see its grades and the reason behind each.</p>'}`;}
 
 // ---- project grades: Austin's four factors plus land and grid reliability ----
 function projDims(st){const c=CMAP.get(st.fips),w=cWhy(c),floor=st.stress||'packet',d=[];
   d.push({k:'loc',l:'Location',r:c.r[0],t:w.loc[1],ev:'Public geography'});
   let er=c.r[1],et=w.en[1];if(st.delay>0){er=Math.max(er,1);et+=` Grid connection is ${st.delay} months late on this project (month ${18+st.delay} instead of 18).`;}
-  d.push({k:'en',l:'Energy',r:er,t:et,ev:'Modeled grid timing and team screen'});
+  d.push({k:'en',l:'Energy',r:er,t:et,ev:'Modeled grid timing and our screen'});
   d.push({k:'pol',l:'Policy',r:c.r[2],t:w.pol[1],ev:'State actions in public sources'});
   d.push({k:'fib',l:'Fiber',r:c.r[3],t:w.fib[1],ev:'CAIDA IXP dataset, Oct 2026. Facility locations, not fiber routes'});
-  d.push({k:'land',l:'Land',r:st.acres>=12?0:st.acres>=8?1:2,t:`${st.acres} acres for onsite power. ${st.acres>=12?'Room for a full gas bridge and growth.':st.acres>=8?'Fits the packet plan.':'Too tight for a full gas bridge.'}`,ev:'Project data'});
+  d.push({k:'land',l:'Land',r:st.acres>=12?0:st.acres>=8?1:2,t:`${st.acres} acres for onsite power. ${st.acres>=12?'Room for a full gas bridge and growth.':st.acres>=8?'Fits a full onsite gas plan.':'Too tight for a full gas bridge.'}`,ev:'Project data'});
   d.push({k:'rel',l:'Grid reliability',r:floor==='tight'?2:floor==='calm'?0:1,t:`Design case: ${STRESS_TXT[floor]}, plus a 5 day wind and solar drought each January. The plan must serve every MWh under it and keep wind and solar within the cap.`,ev:'Modeled in the dispatch engine'});
   d.push({k:'water',l:'Water',r:c.r[4],t:w.water[1],ev:w.water[2]});
   d.push({k:'haz',l:'Hazard',r:c.r[5],t:w.haz[1],ev:w.haz[2]});
@@ -1185,7 +1198,7 @@ function drawHead(info){const N=info.length,done=info.filter(x=>x.sm);
   const cnt=[4,0,1,2].map(g=>[g,info.filter(x=>x.ov===g).length]).filter(a=>a[1]>0).map(a=>`${a[1]} ${GL[a[0]]}`).join(', ');
   $('pf-hl').innerHTML=`<p class="eyebrow">Portfolio</p><h2>${N} projects: ${cnt}</h2>
    <p class="sub">${paused?`${paused} of ${N} are affected by the Texas permit pause. `:''}${pass} of ${N} hold up in a bad grid week.${top?` Earliest opening: month ${Math.min(...done.filter(x=>x.sm.first!=null).map(x=>x.sm.first))}.`:' Each project below has at least one blocker. The cards say which.'}</p>
-   ${F.flex!==1?`<p class="note" style="margin:6px 0 0"><b>Flexible work share changed:</b> ${F.flex===0?'0% of work can move or pause':'18% of work can move or pause'}. Results below use this, not the base case of 36%. Change it back under Reliability on the Project plan tab.</p>`:''}`;$('pf-key').innerHTML=`<div class="kh">Overall grade</div><div class="krow">${pill(4)}<span>strong across the board</span></div><div class="krow">${pill(0)}<span>clear to proceed</span></div><div class="krow">${pill(1)}<span>workable, something to fix</span></div><div class="krow">${pill(2)}<span>a blocker</span></div>`;}
+   ${F.flex!==1?`<p class="note" style="margin:6px 0 0"><b>Flexible work share changed:</b> ${F.flex===0?'0% of work can move or pause':'18% of work can move or pause'}. Results below use this, not the default of 36%. Change it back under Reliability in Plan the project.</p>`:''}`;$('pf-key').innerHTML=`<div class="kh">Overall grade</div><div class="krow">${pill(4)}<span>strong across the board</span></div><div class="krow">${pill(0)}<span>clear to proceed</span></div><div class="krow">${pill(1)}<span>workable, something to fix</span></div><div class="krow">${pill(2)}<span>a blocker</span></div>`;}
 function card(x){const sm=x.sm,c=CMAP.get(x.st.fips),S=stOf(c);
   return `<article class="pcard${x.st.id===siteId?' sel':''}" data-proj="${x.st.id}" tabindex="0">${x.st.id===siteId?'<div class="selbar">Selected project</div>':''}<div class="ph"><span class="pnum">${x.i+1}</span><div><b>${x.st.nm}</b><div class="muted sm">${c.n} County, ${S.a} · ${x.st.stage}</div></div><span class="rt big ${GCLS[x.ov]}">Overall ${GL[x.ov].toLowerCase()}</span></div>
    <div class="pm"><div><span class="k">Earliest opening</span><b>${sm?(sm.first!=null?'Month '+sm.first:'None'):'…'}</b></div><div><span class="k">10 year profit</span><b>${sm&&sm.p!=null?money(sm.p):sm?'None':'…'}</b></div><div><span class="k">Holds in a bad grid week</span><b class="${sm?(sm.gate==='pass'?'up':'down'):''}">${sm?(sm.gate==='pass'?'Yes':'No'):'…'}</b></div></div>
@@ -1227,7 +1240,7 @@ function onePager(x){const c=CMAP.get(x.st.fips),S=stOf(c),sm=x.sm||{},today=new
   <div class="op-stats"><div><span>Earliest opening</span><b>${sm.first!=null?'Month '+sm.first:'None'}</b></div><div><span>Best profit opening</span><b>${sm.o!=null?'Month '+sm.o:'None'}</b></div><div><span>10 year profit</span><b>${sm.p!=null?money(sm.p):'None'}</b></div><div><span>Holds in a bad grid week</span><b>${sm.gate==='pass'?'Yes':sm.gate==='fail'?'No':'Testing'}</b></div></div>
   <table class="op-t"><thead><tr><th>Factor</th><th>Grade</th><th>Why</th></tr></thead><tbody>${x.dims.map(d=>`<tr><td><b>${d.l}</b></td><td>${pl(d.r)}</td><td>${shortT(d.t)}<div class="op-b">Basis: ${d.ev}</div></td></tr>`).join('')}</tbody></table>
   <div class="op-risk"><b>Blockers:</b> ${bad.length?bad.map(d=>d.l.toLowerCase()).join(', '):'none'}. <b>To watch:</b> ${mod.length?mod.map(d=>d.l.toLowerCase()).join(', '):'none'}.${lift!=null&&lift!==x.ov?` If the Texas permit pause lifts, Overall moves from ${GL[x.ov].toLowerCase()} to ${GL[lift].toLowerCase()}.`:''}</div>
-  <p class="op-foot">Method: 10 year hourly dispatch simulation of a 75 MW campus using the case packet data, with wind and solar capped at realistic shares and tested against a design drought. Grades come from public data: state actions (Nov 2026), WRI Aqueduct 4.0, FEMA National Risk Index v1.20, LBNL Queued Up (through 2025), EIA hourly generation (2025) and the CAIDA IXP dataset (Oct 2026). This is a screening summary. Confirm power, permits and zoning with the utility and the county before committing capital.</p></div>`;}
+  <p class="op-foot">Method: 10 year hourly dispatch simulation of a 75 MW campus using the reference dataset, with wind and solar capped at realistic shares and tested against a design drought. Grades come from public data: state actions (Nov 2026), WRI Aqueduct 4.0, FEMA National Risk Index v1.20, LBNL Queued Up (through 2025), EIA hourly generation (2025) and the CAIDA IXP dataset (Oct 2026). This is a screening summary. Confirm power, permits and zoning with the utility and the county before committing capital.</p></div>`;}
 function openOnePager(id){const x=lastInfo.find(q=>q.st.id===id);if(!x)return;let o=$('onepager');if(!o){o=document.createElement('div');o.id='onepager';document.body.appendChild(o);}
   o.innerHTML=`<div class="op-bar"><button type="button" class="btn" id="op-print">Print or save as PDF</button><button type="button" class="btn" id="op-close">Close</button></div>`+onePager(x);
   o.hidden=false;document.body.classList.add('pp-open');o.scrollTop=0;}
@@ -1271,7 +1284,7 @@ function setProject(id,go){const st=SITES.find(x=>x.id===id);if(!st)return;const
   if(was!==id||go)step1();else drawPortfolio();syncProj();window.scrollTo({top:0});}
 function showPtab(t){ptab=t;const f=$('p-fin'),e=$('p-energy');if(f)f.hidden=t!=='fin';if(e)e.hidden=t!=='energy';document.querySelectorAll('#ptabs [data-ptab]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.ptab===t)));}
 const failWords=q=>!q?'no contract mix fits within the wind and solar cap':q.why==='late'?(q.det||'gas equipment cannot be delivered in time'):q.why==='land'?'the gas needed does not fit on the land':q.why==='limit'?'no more gas can be added':!q.capOk?'it breaks the carbon limit':(q.z&&q.z.uns>=0.5)?'load goes unserved in the design case (grid stress and a wind drought week)':'it does not fit';
-const failLbl=q=>!q?'No mix':q.why==='late'?'Too early':q.why==='land'?'No land':q.why==='limit'?'No gas room':!q.capOk?'Over cap':(q.z&&q.z.uns>=0.5)?'Power short':'No fit';
+const failLbl=q=>!q?(F.mix!=='auto'?'Mix does not fit':'No mix'):q.why==='late'?'Too early':q.why==='land'?'No land':q.why==='limit'?'No gas room':!q.capOk?'Over cap':(q.z&&q.z.uns>=0.5)?'Power short':'No fit';
 function afterCards(){const all=rows.length&&rows.every(r=>r.done);
   if(!all||chosen==null||recO==null){$('psum').innerHTML=`<p class="eyebrow">Project</p><h2>${curSite().nm}</h2>${busy('Testing every opening month against the reliability limit…')}`;
     $('gate-body').innerHTML=busy('Running the reliability test…');$('gas-body').innerHTML=busy('Sizing onsite gas…');return;}
@@ -1297,8 +1310,9 @@ function drawGateCtlOld(){const el=$('gate-ctl');if(!el)return;
   el.innerHTML=`<div class="ppwrap" style="grid-template-columns:1fr;margin-top:0">
     <div class="pp"><div class="pph">Stress and drought tests</div>${seg('hard',[[1,'On'],[0,'Off']],F.hard?1:0)}<div class="hint">Off lets a plan lean on a calmer grid and steadier wind than this site will see.</div></div>
     <div class="pp"><div class="pph">Most energy from wind and solar</div>${seg('vcap',[[0.5,'50%'],[0.6,'60%'],[0.7,'70%'],[0.8,'80%'],[1,'No cap']],F.vcap)}<div class="hint">For scale, the highest large US grid is at about 45%.</div></div>
+    <div class="pp"><div class="pph">Battery</div>${seg('bess',[['auto','Let the tool decide'],['on','Include one'],['off','Leave out']],F.bess)}<div class="hint">Include one picks the best plan that has a battery, so you can see what it costs against the best plan without.</div></div>
     <div class="pp"><div class="pph">Work that can move or pause</div>${seg('flex',[[0,'0%'],[0.5,'18%'],[1,'36%']],F.flex)}<div class="rtab"><span>Always on<b>${sh[0]}%</b></span><span>Movable<b>${sh[1]}%</b></span><span>Batch<b>${sh[2]}%</b></span></div></div></div>`;
-  el.querySelectorAll('[data-gc]').forEach(b=>b.onclick=()=>{const k=b.dataset.gc,v=b.dataset.v;if(k==='hard')F.hard=v==='1';else if(k==='vcap')F.vcap=+v;else F.flex=+v;step1();});}
+  el.querySelectorAll('[data-gc]').forEach(b=>b.onclick=()=>{const k=b.dataset.gc,v=b.dataset.v;if(k==='hard')F.hard=v==='1';else if(k==='vcap')F.vcap=+v;else if(k==='bess')F.bess=v;else F.flex=+v;step1();});}
 function drawGateOld(c){const g=effGrid(),z=c.z,vs=z.vs!=null?z.vs:(VSH[c.base.mix]||0);
   const R=c.R||run(c.open,c.caps,c.base.policy,c.base.mode);
   const R2=run(c.open,c.caps,c.base.policy,c.base.mode,{capFrac:0.4,packetEvents:true}),z2=E.summarize(R2.I,R2.O,R2.A);
@@ -1317,18 +1331,39 @@ function drawGateOld(c){const g=effGrid(),z=c.z,vs=z.vs!=null?z.vs:(VSH[c.base.m
     </div>`;}
 const cap1=t=>t.charAt(0).toUpperCase()+t.slice(1);
 function gShare(R,m0,m1){let g=0,l=0;for(let t=Math.max(0,m0)*730;t<Math.min(87600,m1*730);t++){g+=R.O.fuel_cell[t]+R.O.gas_engine[t]+R.O.gas_turbine[t];l+=R.I.L[t];}return l?g/l:0;}
-function drawGas(c){const RX=resX(),R=c.R||run(c.open,c.caps,c.base.policy,c.base.mode),O=R.O,d=F.delay,gb=(30+d)*730;let pb=0,pa=0;
-  for(let t=c.open*730;t<87600;t++){const g=O.fuel_cell[t]+O.gas_engine[t]+O.gas_turbine[t];if(t<gb){if(g>pb)pb=g;}else if(g>pa)pa=g;}
-  const mw=gasOf(c.caps),early=gShare(R,c.open,c.open+36),late=gShare(R,84,120);
-  const NAME={fuel_cell:'Gas fuel cell',gas_engine:'Gas engine',gas_turbine:'Gas turbine',battery_4h:'Battery (4 h)'};
-  const tr=['fuel_cell','gas_engine','gas_turbine','battery_4h'].map(k=>{const used=RX[k].available_month,mk=LEADS.market[k],m=c.caps[k]||0;
-    const status=!m?'<span class="muted">Not in this plan</span>':used<=c.open?'<span class="up">Ready at opening</span>':`<span class="down">Arrives ${used-c.open} month${used-c.open===1?'':'s'} after opening</span>`;
-    return `<tr><td>${NAME[k]}</td><td>${fmt(m)}</td><td>${RES[k].available_month} months</td><td>${mk!=null?mk+' months':k==='battery_4h'?'n/a':'no figure loaded'}</td><td>${GASK.includes(k)?F.permit+' months':'n/a'}</td><td>${F.leads==='market'?'+'+COMM+' months':'none'}</td><td><b>Month ${used}</b></td><td style="text-align:left">${status}</td></tr>`;}).join('');
-  $('gas-body').innerHTML=`<div class="gasgrid"><div><p class="sm"><b>What gas does here.</b> It bridges the gap until the grid reaches 75 MW at month ${30+d}, then covers grid stress events.</p>
-     <ul class="gl2"><li>Sized at <b>${fmt(mw)} MW</b> on ${fmt(landOf(c.caps),1)} of ${F.acres} acres.</li><li>Peaks at <b>${fmt(pb,0)} MW</b> during the grid ramp and <b>${fmt(pa,0)} MW</b> after it, in stress events.</li><li>Supplies <b>${fmt(100*early,0)}%</b> of energy in the first 3 years of operation and <b>${fmt(100*late,0)}%</b> in the last 3.</li></ul></div>
-     <div class="note" style="margin:0"><b>16 months versus 45 months.</b> 16 months is how long the case packet allows for a gas engine to arrive. 45 months is the market lead time for a large gas turbine. They are different machines on different delivery tracks, so this plan bridges with engines and fuel cells and only counts a turbine once it arrives.</div></div>
-    <div class="tblwrap"><table class="tbl"><thead><tr><th>Equipment</th><th>MW in plan</th><th>Case packet delivery</th><th>Market check</th><th>Air permit</th><th>Install and commission</th><th>In service</th><th style="text-align:left">Versus opening at month ${c.open}</th></tr></thead><tbody>${tr}</tbody></table></div>
-    <p class="muted sm">A unit cannot run before it is delivered, permitted and commissioned, so it enters service at the later of delivery and permit, plus install time. The case packet setting skips the install buffer. Large turbines: Wood Mackenzie reported an average of almost five years in 2025, so 45 months is not conservative (<a href="https://www.utilitydive.com/news/natural-gas-equipment-generation-bottleneck-data-centers/812931/" target="_blank" rel="noopener">Utility Dive</a>). Air permits for onsite gas run 6 to 18 months (<a href="https://www.datacentres.com/news/behind-the-meter-power-gas-turbines-and-fuel-cells-emerge-as-data-centres-escape-slot1-2026-08-19" target="_blank" rel="noopener">Datacentres.com Research</a>). Engines, fuel cells and batteries use case packet figures because no market figure is loaded yet.</p>`;}
+function drawGas(c){const RX=resX(),R=c.R||run(c.open,c.caps,c.base.policy,c.base.mode),O=R.O,d=F.delay,gb=(30+d)*730,open=c.open;let pb=0,pa=0;
+  for(let t=open*730;t<87600;t++){const g=O.fuel_cell[t]+O.gas_engine[t]+O.gas_turbine[t];if(t<gb){if(g>pb)pb=g;}else if(g>pa)pa=g;}
+  const gasCaps={};GASK.forEach(k=>{if(c.caps[k])gasCaps[k]=c.caps[k];});const mw=gasOf(c.caps),gAc=landOf(gasCaps),early=gShare(R,open,open+36),late=gShare(R,84,120),FB='font-family:var(--f-body);';
+  const NAME={fuel_cell:'Gas fuel cell',gas_engine:'Gas engine',gas_turbine:'Gas turbine',battery_4h:'Battery, 4 hour'},COL={fuel_cell:'--s-gas',gas_engine:'--s-gas',gas_turbine:'--s-gas',battery_4h:'--s-bat'};
+  let U=['fuel_cell','gas_engine','gas_turbine','battery_4h'].map(k=>{const m=c.caps[k]||0,del=F.leads==='market'&&LEADS.market[k]!=null?LEADS.market[k]:RES[k].available_month,perm=GASK.includes(k)?F.permit:0,wait=Math.max(del,perm),on=RX[k].available_month;return {k,m,del,perm,wait,on,inst:Math.max(0,on-wait),inP:m>0};});
+  U=U.filter(r=>r.inP).concat(U.filter(r=>!r.inP));
+  const inP=U.filter(r=>r.inP),lateU=inP.filter(r=>r.on>open),okU=inP.filter(r=>r.on<=open),nm=r=>({fuel_cell:'gas fuel cell',gas_engine:'gas engine',gas_turbine:'gas turbine',battery_4h:'battery'})[r.k],list=a=>a.length>1?a.slice(0,-1).map(nm).join(', ')+' and '+nm(a[a.length-1]):nm(a[0]);
+  let vt,vc='';
+  if(!inP.length)vt='This plan uses no onsite equipment, so there is nothing to wait for.';
+  else if(!lateU.length)vt=`Everything in this plan is ready by opening, month ${open}.`;
+  else{const last=Math.max(...lateU.map(r=>r.on));vt=`The ${list(lateU)} ${lateU.length>1?'arrive':'arrives'} after opening, ${lateU.length>1?'the last ':''}at month ${last}, ${last-open} months late. Until then the plan runs on ${okU.length?'the '+list(okU)+', ':''}the grid and contracts.`;vc=' late';}
+  const M=Math.max(48,Math.ceil((Math.max(...U.map(r=>r.on),open)+6)/12)*12),W=1000,rh=46,P={l:178,r:250,t:40,b:10},iw=W-P.l-P.r,H=P.t+U.length*rh+P.b,x=m=>P.l+iw*Math.min(m,M)/M;let s='';
+  for(let m=0;m<=M;m+=12)s+=`<line class="gl" x1="${x(m)}" x2="${x(m)}" y1="${P.t-6}" y2="${H-P.b}"/><text x="${x(m)}" y="${P.t-12}" text-anchor="middle">m${m}</text>`;
+  U.forEach((r,i)=>{const y=P.t+i*rh,by=y+9,bh=rh-18,dim=!r.inP;
+    s+=`<text class="lbl" x="${P.l-12}" y="${y+rh/2+(r.inP?-2:4)}" text-anchor="end" style="${r.inP?'font-weight:700':'fill:var(--ink-3)'}">${NAME[r.k]}</text>`;
+    if(r.inP)s+=`<text x="${P.l-12}" y="${y+rh/2+12}" text-anchor="end" style="${FB}font-size:11.5px;font-weight:600;fill:var(--ink)">${fmt(r.m)} MW in your plan</text>`;
+    s+=`<rect x="${x(0)}" y="${by}" width="${x(r.wait)-x(0)}" height="${bh}" fill="var(--rule)" opacity="${dim?.6:1}"/>`;
+    if(x(r.wait)-x(0)>110)s+=`<text x="${x(0)+8}" y="${by+bh/2+4}" style="${FB}font-size:11px;fill:var(--ink-2)" opacity="${dim?.6:1}">${r.perm>r.del?'air permit '+r.perm+' months':'delivery '+r.del+' months'}</text>`;
+    if(r.inst>0)s+=`<rect x="${x(r.wait)}" y="${by}" width="${x(r.on)-x(r.wait)}" height="${bh}" fill="var(--ink-3)" opacity="${dim?.5:1}"/>`;
+    s+=`<rect x="${x(r.on)}" y="${by}" width="${Math.max(x(M)-x(r.on),0)}" height="${bh}" fill="var(${COL[r.k]})" opacity="${dim?.28:.92}"${r.inP?' stroke="var(--ink)" stroke-width="1.5"':''}/>`;
+    if(r.inP&&x(M)-Math.max(x(r.on),x(open))>80)s+=`<text x="${Math.max(x(r.on),x(open))+8}" y="${by+bh/2+4}" style="${FB}font-size:11px;font-weight:600;fill:#fff">in service</text>`;
+    const st=!r.inP?['Not in your plan','']:r.on<=open?['Ready at opening','up']:[`Arrives ${r.on-open} month${r.on-open===1?'':'s'} after opening`,'down'];
+    s+=`<text x="${W-P.r+14}" y="${y+rh/2-1}" style="${FB}font-size:12.5px;font-weight:${r.inP?700:400};${r.inP?'':'fill:var(--ink-3)'}">${r.inP?'Online':'Would be online'} month ${r.on}</text><text x="${W-P.r+14}" y="${y+rh/2+14}" style="${FB}font-size:11.5px;${st[1]==='up'?'fill:var(--good);font-weight:600':st[1]==='down'?'fill:var(--bad);font-weight:600':'fill:var(--ink-3)'}">${st[0]}</text>`;});
+  s+=`<line x1="${x(open)}" x2="${x(open)}" y1="${P.t-8}" y2="${H-P.b+2}" stroke="var(--ink)" stroke-width="2"/><text x="${x(open)}" y="${P.t-26}" text-anchor="middle" class="ink" style="${FB}font-weight:700">opening, month ${open}</text>`;
+  const ramp=open<30+d,tile=(k,v,sub)=>`<div class="gtile"><span>${k}</span><b>${v}</b><em>${sub}</em></div>`;
+  const tiles=mw>0?`<p class="sm" style="margin:14px 0 6px"><b>What onsite gas does in this plan.</b> It bridges the gap until the grid reaches 75 MW at month ${30+d}, then covers grid stress events.</p><div class="gtiles">${tile('Onsite gas',fmt(mw)+' MW',fmt(gAc,1)+' acres of '+F.acres)}${tile('Peak while the grid ramps up',ramp?fmt(pb,0)+' MW':'n/a',ramp?'months '+open+' to '+(30+d):'grid is full at opening')}${tile('Peak once the grid is full',fmt(pa,0)+' MW','in stress events')}${tile('Share of energy',fmt(100*early,0)+'% to '+fmt(100*late,0)+'%','first 3 years to last 3 years')}</div>`:'';
+  const eg=RES.gas_engine.available_month,fcm=RES.fuel_cell.available_month,tb=LEADS.market.gas_turbine;
+  const why=F.leads==='market'?`<b>Why the turbine comes so late.</b> Industry reporting puts large gas turbines at more than five years from order to delivery, and smaller ones at 18 to 36 months. We use ${tb} months for the turbine here. Engines and fuel cells ship faster (${eg} and ${fcm} months), so the plan leans on them first and only counts a turbine once it arrives.`:`<b>Supplier quoted delivery times.</b> This uses engine ${eg}, turbine ${RES.gas_turbine.available_month} and fuel cell ${fcm} months, with no install buffer. Switch to Current market above for a more cautious turbine date.`;
+  $('gas-body').innerHTML=`<div class="gverdict${vc}"><b>${vt}</b></div>
+    <div class="legend"><span><i style="background:var(--rule);border:1px solid var(--ink-3)"></i>Waiting for delivery or permit</span><span><i style="background:var(--ink-3)"></i>Install and commission</span><span><i style="background:var(--s-gas)"></i>In service</span><span><i style="background:var(--ink);width:2px;height:12px"></i>Opening</span></div>
+    <div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="When each piece of onsite equipment comes online">${s}</svg></div>${tiles}
+    <div class="note" style="margin:12px 0 0">${why}</div>
+    <p class="muted sm">A unit enters service at the later of delivery and air permit, plus install time (${F.leads==='market'?COMM+' months with Current market':'none with Supplier quotes'}). Sources: <a href="https://www.utilitydive.com/news/5-year-waits-and-rising-costs-how-demand-is-redefining-the-gas-turbine-mar/813385/" target="_blank" rel="noopener">Utility Dive, March 2026</a> for turbine waits, and <a href="https://www.onterris.com/our-thinking/air-permitting-for-data-centers-what-determines-your-timeline" target="_blank" rel="noopener">Onterris</a> for air permits, which for major sources can run six to 18 months or longer when contested. Engines, fuel cells and batteries use supplier quoted delivery times because no market figure is loaded yet. These are planning assumptions, so confirm them with suppliers.</p>`;}
 
 function drawCards(){drawCards0();afterCards();setStatus();if(rows.length&&rows.every(r=>r.done)){if(pendingGo!=null)runPending();else prewarm();}}
 function drawRamp(o){const W=900,H=216,P={l:56,r:14,t:46,b:44},iw=W-P.l-P.r,ih=H-P.t-P.b,x=m=>P.l+iw*m/120,y=v=>P.t+ih*(1-v/80),full=o+10,d=F.delay;
@@ -1361,8 +1396,8 @@ function initNew(){
   buildProj();
   titleize();new MutationObserver(schedTitleize).observe(document.body,{childList:true,subtree:true});
   syncs.push(syncReset);if($('reset-btn'))$('reset-btn').onclick=resetAll;
-  sel('g-leads',[{v:'market',l:'Market check: large gas turbines take 45 months'},{v:'packet',l:'Case packet: engine 16, turbine 18, fuel cell 14 months'}],()=>F.leads,v=>{F.leads=v;step1();});
-  sel('g-permit',[{v:6,l:'6 months (fast)'},{v:12,l:'12 months (midpoint)'},{v:18,l:'18 months (slow)'}],()=>F.permit,v=>{F.permit=+v;step1();});
+  psel('g-leads',[{v:'market',l:'Current market: turbine takes 45 months'},{v:'packet',l:'Supplier quotes: engine 16, turbine 18, fuel cell 14'}],()=>F.leads,v=>{F.leads=v;step1();},{market:'Current market',packet:'Supplier quotes'});
+  psel('g-permit',[{v:6,l:'6 months (fast)'},{v:12,l:'12 months (midpoint)'},{v:18,l:'18 months (slow)'}],()=>F.permit,v=>{F.permit=+v;step1();},{6:'6 months',12:'12 months',18:'18 months'});
   syncs.push(()=>{drawGateCtl();syncProj();const n=$('s-grid-note');if(n)n.textContent=F.hard&&GRK[F.grid]<GRK[effGrid()]?`Held at this site's design case: ${STRESS_TXT[effGrid()]}.`:'';});
   document.addEventListener('click',e=>{const t=e.target;if(!t.closest)return;let el;
     if((el=t.closest('#map [data-site]'))){setProject(el.dataset.site);return;}
@@ -1474,67 +1509,85 @@ function ladRes(e){const s0=s0Of();let hold=null,fail=null,pend=false;
   return {s0,hold,fail,pend};}
 const cushOf=r=>r.hold==null?null:Math.round((LV[r.s0]-LV[r.hold])*100);
 
-function ladSvg(e,s0,sel){const L=LV.slice(s0),n=L.length,W=560,H=236,P={l:58,r:12,t:30,b:62},iw=W-P.l-P.r,ih=H-P.t-P.b,cw=iw/n;
+const capsAt=(c,m)=>{const RX=resX(),d=F.delay;return {gl:m>=30+d?75:m>=24+d?50:m>=18+d?25:0,gs:GEQ.reduce((a,k)=>a+((c.caps[k]&&m>=Math.max(c.open,RX[k].available_month))?c.caps[k]:0),0)};};
+const totLoad=c=>{if(c._tl!=null)return c._tl;const R=c.R||run(c.open,c.caps,c.base.policy,c.base.mode),L=R.I.L;let s=0;for(let t=0;t<L.length;t++)s+=L[t];return c._tl=s;};
+const pctTxt=(u,tl)=>{const p=100*u/tl;return p<0.01?'under 0.01%':(p<1?p.toFixed(2):p.toFixed(1))+'%';};
+
+function ladSvg(e,s0,sel){const L=LV.slice(s0),n=L.length,W=440,H=250,P={l:52,r:8,t:28,b:62},iw=W-P.l-P.r,ih=H-P.t-P.b,cw=iw/n;
   const vals=L.map((f,j)=>e.u[s0+j]).filter(v=>v!=null&&isFinite(v)),mx=niceMax(Math.max(500,...vals));
   const y=v=>P.t+ih*(1-v/mx),fs='font-size:12px';
   let s=`<line x1="${P.l}" x2="${W-P.r}" y1="${y(0)}" y2="${y(0)}" stroke="var(--ink-3)"/>`;
   for(const v of [mx/2,mx])s+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule-2)"/><text x="${P.l-8}" y="${y(v)+4}" text-anchor="end" style="${fs};fill:var(--ink-3)">${fmtK(v)}</text>`;
-  s+=`<text x="${P.l-8}" y="${y(0)+4}" text-anchor="end" style="${fs};fill:var(--ink-3)">0</text><text x="${P.l-8}" y="${P.t-14}" text-anchor="end" style="${fs};font-weight:700;fill:var(--ink)">MWh</text>`;
-  L.forEach((f,j)=>{const i=s0+j,v=e.u[i],cx=P.l+cw*(j+.5),on=i===sel,bw=Math.min(52,cw*.6);
-    s+=`<g data-glv="${i}" style="cursor:pointer"><rect x="${P.l+cw*j+3}" y="${P.t-6}" width="${cw-6}" height="${ih+P.b-24}" fill="${on?'var(--bg)':'transparent'}" stroke="${on?'var(--ink)':'none'}" stroke-width="1.5"/>`;
+  s+=`<text x="${P.l-8}" y="${y(0)+4}" text-anchor="end" style="${fs};fill:var(--ink-3)">0</text><text x="${P.l-44}" y="${P.t-14}" style="${fs};font-weight:700;fill:var(--ink)">MWh not served</text>`;
+  L.forEach((f,j)=>{const i=s0+j,v=e.u[i],cx=P.l+cw*(j+.5),on=i===sel,bw=Math.min(40,cw*.6);
+    s+=`<g data-glv="${i}" style="cursor:pointer"><rect x="${P.l+cw*j+3}" y="${P.t-6}" width="${cw-6}" height="${y(0)+40-(P.t-6)}" fill="${on?'var(--bg)':'transparent'}" stroke="${on?'var(--ink)':'none'}" stroke-width="1.5"/>`;
     if(v===undefined)s+=`<text x="${cx}" y="${y(0)-8}" text-anchor="middle" style="${fs};fill:var(--ink-3)">…</text>`;
     else if(isNaN(v))s+=`<text x="${cx}" y="${y(0)-8}" text-anchor="middle" style="${fs};fill:var(--ink-3)">?</text>`;
     else if(!(v>=0.5))s+=`<rect x="${cx-bw/2}" y="${y(0)-4}" width="${bw}" height="4" fill="var(--good)"/><text x="${cx}" y="${y(0)-12}" text-anchor="middle" style="${fs};font-weight:700;fill:var(--good)">0</text>`;
     else s+=`<rect x="${cx-bw/2}" y="${y(v)}" width="${bw}" height="${Math.max(2,y(0)-y(v))}" fill="var(--bad)"/><text x="${cx}" y="${y(v)-6}" text-anchor="middle" style="${fs};font-weight:600;fill:var(--ink)">${fmt(v,0)}</text>`;
     s+=`<text x="${cx}" y="${y(0)+19}" text-anchor="middle" style="${fs};font-weight:${on?700:600};fill:var(--ink)">${LVL(f)}</text>`;
-    if(j===0)s+=`<text x="${cx}" y="${y(0)+34}" text-anchor="middle" style="font-size:11px;fill:var(--ink-3)">design case</text>`;
+    if(j===0)s+=`<text x="${cx}" y="${y(0)+34}" text-anchor="middle" style="font-size:11px;fill:var(--ink-3)">planned for</text>`;
     s+='</g>';});
-  s+=`<text x="${W-P.r}" y="${H-6}" text-anchor="end" style="${fs};font-weight:700;fill:var(--ink)">Grid imports during an event, share of normal</text>`;
-  return `<svg class="gsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Unserved energy as grid imports are cut deeper">${s}</svg>`;}
+  s+=`<text x="${W-P.r}" y="${H-6}" text-anchor="end" style="${fs};font-weight:700;fill:var(--ink)">Share of normal grid power left</text>`;
+  return `<svg class="gsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Energy not served as the grid delivers less of its normal power">${s}</svg>`;}
 
 // ---- when the shortfalls fall, against what is online ----
-function tlSvg(c,mon,f){const W=900,H=240,P={l:80,r:14,t:30,b:20},pH=108,iw=W-P.l-P.r,x=m=>P.l+iw*m/120,fs='font-size:12px',RX=resX(),d=F.delay;
-  const gl=m=>m>=30+d?75:m>=24+d?50:m>=18+d?25:0,gs=m=>GEQ.reduce((a,k)=>a+((c.caps[k]&&m>=Math.max(c.open,RX[k].available_month))?c.caps[k]:0),0);
+function tlSvg(c,mon){const W=640,H=250,P={l:98,r:10,t:30,b:20},pH=116,iw=W-P.l-P.r,x=m=>P.l+iw*m/120,fs='font-size:12px';
+  const gl=m=>capsAt(c,m).gl,gs=m=>capsAt(c,m).gs;
   const mxv=niceMax(Math.max(100,...mon)),y=v=>P.t+pH*(1-v/mxv),y0=y(0);
   let s='';const nz=[];mon.forEach((v,m)=>{if(v>0.5)nz.push(m);});
-  if(nz.length){const a=nz[0],b=nz[nz.length-1];s+=`<rect x="${x(a)-2}" y="${P.t-6}" width="${x(b+1)-x(a)+4}" height="${pH+6}" fill="var(--warn-bg)"/><text x="${x(a)-4}" y="${P.t-12}" style="${fs};font-weight:600;fill:var(--warn-ink)">Shortfalls fall in months ${a+1} to ${b+1}</text>`;}
+  if(nz.length){const a=nz[0],b=nz[nz.length-1];s+=`<rect x="${x(a)-2}" y="${P.t-6}" width="${x(b+1)-x(a)+4}" height="${pH+6}" fill="var(--warn-bg)"/><text x="${x(a)+x(b+1)>W?x(b+1)+4:x(a)-4}" y="${P.t-12}" text-anchor="${x(a)+x(b+1)>W?'end':'start'}" style="${fs};font-weight:600;fill:var(--warn-ink)">Weak window: months ${a} to ${b+1}</text>`;}
   for(const v of [mxv/2,mxv])s+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--rule-2)"/><text x="${P.l-8}" y="${y(v)+4}" text-anchor="end" style="${fs};fill:var(--ink-3)">${fmtK(v)}</text>`;
-  s+=`<text x="${P.l-8}" y="${y0+4}" text-anchor="end" style="${fs};fill:var(--ink-3)">0</text><text x="${P.l-8}" y="${P.t-14}" text-anchor="end" style="${fs};font-weight:700;fill:var(--ink)">MWh</text>`;
-  const bw=Math.max(1,iw/120-1.4);mon.forEach((v,m)=>{if(v>0.5)s+=`<rect x="${x(m)+0.7}" y="${y(v)}" width="${bw}" height="${Math.max(1.5,y0-y(v))}" fill="var(--bad)"><title>Month ${m+1}: ${fmt(v,0)} MWh unserved</title></rect>`;});
+  s+=`<text x="${P.l-8}" y="${y0+4}" text-anchor="end" style="${fs};fill:var(--ink-3)">0</text><text x="${P.l-58}" y="${P.t-14}" style="${fs};font-weight:700;fill:var(--ink)">MWh not served</text>`;
+  const bw=Math.max(1,iw/120-1.4);mon.forEach((v,m)=>{if(v>0.5)s+=`<rect x="${x(m)+0.7}" y="${y(v)}" width="${bw}" height="${Math.max(1.5,y0-y(v))}" fill="var(--bad)"/>`;});
   s+=`<line x1="${P.l}" x2="${W-P.r}" y1="${y0}" y2="${y0}" stroke="var(--ink-3)"/>`;
   for(let m=0;m<=120;m+=12)s+=`<line x1="${x(m)}" x2="${x(m)}" y1="${y0}" y2="${y0+5}" stroke="var(--ink-3)"/><text x="${x(m)}" y="${y0+19}" text-anchor="middle" style="${fs};fill:var(--ink-3)">${m}</text>`;
   const strip=(fn,col,yy,lab)=>{let s2=`<text x="${P.l-8}" y="${yy+13}" text-anchor="end" style="${fs};font-weight:600;fill:var(--ink-2)">${lab}</text>`;let m=0;
     while(m<120){let e2=m;while(e2+1<120&&fn(e2+1)===fn(m))e2++;const v=fn(m),w=x(e2+1)-x(m);
       s2+=`<rect x="${x(m)}" y="${yy}" width="${w}" height="18" fill="${v>0?col:'none'}" fill-opacity="${v>0?.28:1}" stroke="${v>0?col:'var(--rule)'}" ${v>0?'':'stroke-dasharray="3 3"'}/>`;
-      if(w>=34)s2+=`<text x="${x(m)+w/2}" y="${yy+13}" text-anchor="middle" style="font-size:11px;font-weight:600;fill:var(--ink)">${v>0?v+' MW':'none'}</text>`;
+      if(w>=(v>0?18:34))s2+=`<text x="${x(m)+w/2}" y="${yy+13}" text-anchor="middle" style="font-size:11px;font-weight:600;fill:var(--ink)">${v>0?v:'none'}</text>`;
       m=e2+1;}return s2;};
-  const ys=y0+32;s+=strip(gl,'var(--s-grid)',ys,'Grid limit')+strip(gs,'var(--s-gas)',ys+26,'Onsite gas');
+  const ys=y0+30;s+=strip(gl,'var(--s-grid)',ys,'Grid limit, MW')+strip(gs,'var(--s-gas)',ys+26,'Onsite gas, MW');
   const ch=new Set();for(let m=1;m<120;m++){if(gl(m)!==gl(m-1)||gs(m)!==gs(m-1))ch.add(m);}
   ch.forEach(m=>{s+=`<line x1="${x(m)}" x2="${x(m)}" y1="${P.t}" y2="${ys+44}" stroke="var(--ink-3)" stroke-dasharray="2 3" opacity=".55"/>`;});
+  s+=`<line id="th" x1="0" x2="0" y1="${P.t-6}" y2="${ys+44}" stroke="var(--ink)" opacity="0" pointer-events="none"/><rect id="thit" x="${P.l}" y="${P.t-6}" width="${iw}" height="${ys+50-P.t}" fill="transparent"/>`;
   s+=`<text x="${W-P.r}" y="${H-2}" text-anchor="end" style="${fs};font-weight:700;fill:var(--ink)">Months from start</text>`;
-  return `<svg class="gsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Unserved energy by month against grid and gas capacity online">${s}</svg>`;}
+  return {W,P,iw,svg:`<svg class="gsvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Energy not served by month against grid and gas capacity online">${s}</svg>`};}
+function weakText(c,mon){const nz=[];mon.forEach((v,m)=>{if(v>0.5)nz.push(m);});if(!nz.length)return '';
+  const a=nz[0],b=nz[nz.length-1],{gl,gs}=capsAt(c,a),RX=resX();
+  let nx=null;for(const k of GEQ){if(!c.caps[k])continue;const am=Math.max(c.open,RX[k].available_month);if(am>a&&(nx==null||am<nx.m))nx={k,m:am};}
+  return `The weak window is months ${a} to ${b+1}. ${gl>=75?'The grid is at full size':`The grid is at ${gl} MW`} but only ${gs} MW of onsite gas is online.${nx&&nx.m>b?` The ${GNAME[nx.k].toLowerCase()} arrives in month ${nx.m}.`:''}`;}
 
-function drawTen(c,e){const r=ladRes(e),s0=r.s0,d=LV[s0],sel=Math.max(s0,GX.lvl!=null?GX.lvl:(r.fail!=null?r.fail:s0));
-  let cls='off',word='Checking',line='Running the grid cut tests',sub='Each cut is a full 10 year hourly run.';
+function drawTen(c,e){const r=ladRes(e),s0=r.s0,d=LV[s0],sel=Math.max(s0,GX.lvl!=null?GX.lvl:(r.fail!=null?r.fail:s0)),tl0=totLoad(c);
+  const intro=$('gate-intro');if(intro)intro.textContent=`Seven times a year the grid delivers only ${LVL(d)} of its normal power for 3 to 7 hours, and each January wind and solar fall for 5 days. This test asks how much lower grid power can fall before the campus runs short.${F.hard?'':' Stress tests are off, so this plan was not built to pass them.'}`;
+  let cls='off',word='Checking',line='Running the grid power tests',sub='Each level is a full 10 year hourly run.';
   if(!r.pend||r.fail!=null){const f=r.fail,h=r.hold;
-    if(f===s0){cls='bad';word='Short';line=`Falls short even at the ${LVL(d)} design case`;sub=`${fmt(e.u[s0],0)} MWh unserved over 10 years.`;}
-    else if(f==null){cls='ok';word='Holds';line='Holds even with no grid imports during events';sub='No hour goes unserved at any cut tested.';}
+    if(f===s0){cls='bad';word='Short';line=`Falls short even when the grid delivers ${LVL(d)} of normal`;sub=`${fmt(e.u[s0],0)} MWh of campus demand goes unmet over 10 years, ${pctTxt(e.u[s0],tl0)} of demand.`;}
+    else if(f==null){cls='ok';word='Holds';line='Stays on even with no grid power during events';sub='No hour goes unserved at any level tested.';}
     else{const cu=cushOf(r);cls=cu>=10?'ok':'warn';word=cu>=10?'Holds':'At the limit';
-      line=cu>=10?`Holds with grid imports cut to ${LVL(LV[h])}`:`Holds at the ${LVL(d)} design case and no deeper`;
-      sub=(cu>=10?`That is ${cu} points beyond the ${LVL(d)} design case. `:'The plan has no cushion past the design case. ')+`At ${LVL(LV[f])} it falls short by ${fmt(e.u[f],0)} MWh over 10 years.`;}}
+      line=cu>=10?`Stays on if the grid delivers as little as ${LVL(LV[h])} of normal`:`Stays on at ${LVL(d)} of normal grid power, but not lower`;
+      sub=(cu>=10?`That is ${cu} points below the ${LVL(d)} we plan for. `:`There is no margin below the ${LVL(d)} we plan for. `)+`At ${LVL(LV[f])} the campus goes ${fmt(e.u[f],0)} MWh short over 10 years, ${pctTxt(e.u[f],tl0)} of demand.`;}}
   const z=c.z,back=`Plan backup: ${fmt(gasOf(c.caps))} MW onsite gas${z.rel>0?`, ${fmt(z.rel,0)} MWh of work moved to another site`:''}${z.cur>0?`, ${fmt(z.cur,0)} MWh of batch work paused`:''}.`;
   $('gate-body').innerHTML=`<div class="verdict ${cls}"><div class="vword">${word}</div><div class="vtxt"><b>${line}</b><span>${sub}</span></div></div><p class="vsub">${back}</p>`;
   const el=$('gate-lad');
-  el.innerHTML=`<h3 class="sech" style="margin-top:16px">How far can the grid be cut?</h3><p class="sub" style="margin:0 0 6px">Unserved energy over 10 years as imports during events fall. Click a bar to see when it happens.</p>${ladSvg(e,s0,sel)}`;
-  el.querySelectorAll('[data-glv]').forEach(g=>g.onclick=()=>{GX.lvl=+g.dataset.glv;drawGateAll();});
+  el.innerHTML=`<h3 class="sech">How low can grid power fall?</h3><p class="sub">Each bar is a test at that share of normal grid power. Taller means more campus demand went unmet over 10 years. Click a bar.</p>${ladSvg(e,s0,sel)}`;
+  el.querySelectorAll('[data-glv]').forEach(g=>{const i=+g.dataset.glv;g.onclick=()=>{GX.lvl=i;drawGateAll();};
+    g.onmousemove=ev=>{const v=e.u[i];tipAt(el,`<div class="h">Grid delivers ${LVL(LV[i])} of normal</div>${v===undefined?'<div class="muted">Still running</div>':v<0.5?'<div class="muted">The campus stays on.</div>':row('Not served',fmt(v,0)+' MWh','--bad')+row('Share of demand',pctTxt(v,tl0))+'<div class="muted" style="margin-top:4px">Click to see when.</div>'}${LV[i]===d?'<div class="muted">The level we plan for.</div>':''}`,ev);};
+    g.onmouseleave=()=>hideTip(el);});
   const mon=e.mon[sel],tl=$('gate-tl');
-  if(!mon)tl.innerHTML=`<h3 class="sech">When it falls short</h3>${busy('Running the test…')}`;
-  else{const tot=e.u[sel];tl.innerHTML=`<h3 class="sech">When it falls short, with grid imports cut to ${LVL(LV[sel])}</h3><p class="sub" style="margin:0 0 6px">${tot>=0.5?`${fmt(tot,0)} MWh unserved. The strips show what is online in each month.`:`Nothing falls short at ${LVL(LV[sel])}. Click a deeper cut above.`}</p>${tlSvg(c,mon,LV[sel])}`;}}
+  if(!mon)tl.innerHTML=`<h3 class="sech">When does it fall short?</h3><p class="sub">Running the test</p>${busy('Running the test…')}`;
+  else{const tot=e.u[sel];tl.innerHTML=`<h3 class="sech">When does it fall short?</h3><p class="sub">${tot>=0.5?`Grid power at ${LVL(LV[sel])} of normal. Red bars are months with demand unmet. Hover for detail.`:`Nothing falls short at ${LVL(LV[sel])}. Pick a lower level.`}</p><div class="tlbox">${(()=>{const T=tlSvg(c,mon);tl._T=T;return T.svg;})()}</div>${tot>=0.5?`<p class="wk">${weakText(c,mon)}</p>`:''}`;
+    const T=tl._T,box=tl.querySelector('.tlbox'),svg=box.querySelector('svg'),hit=svg.querySelector('#thit'),hl=svg.querySelector('#th');
+    hit.onmousemove=ev=>{const b=svg.getBoundingClientRect(),px=(ev.clientX-b.left)*T.W/b.width,m=Math.max(0,Math.min(119,Math.floor((px-T.P.l)/T.iw*120))),cp=capsAt(c,m),xx=T.P.l+T.iw*(m+.5)/120*1;
+      hl.setAttribute('x1',T.P.l+T.iw*(m+0.5)/120);hl.setAttribute('x2',T.P.l+T.iw*(m+0.5)/120);hl.setAttribute('opacity','.5');
+      tipAt(box,`<div class="h">Month ${m}</div>${row('Grid limit',cp.gl+' MW','--s-grid')}${row('Onsite gas online',cp.gs+' MW','--s-gas')}${row('Not served',mon[m]>0.5?fmt(mon[m],0)+' MWh':'none','--bad')}`,ev);};
+    hit.onmouseleave=()=>{hl.setAttribute('opacity','0');hideTip(box);};}}
 
-// ---- what flexible work changes ----
+// ---- one control: how much work can move or pause, shown with what it changes ----
 function drawSens(){const el=$('flex-sens');if(!el)return;const st=curSite(),cur=F.flex;
   const FL=[{v:0,n:'0% flexible',t:'All work always on'},{v:0.5,n:'18% flexible',t:'82% always on, 12% movable, 6% batch'},{v:1,n:'36% flexible',t:'64% always on, 24% movable, 12% batch'}];
   const D=FL.map(q=>{const sm=PORT[keyFlex(st,q.v)];const e=sm&&sm.p!=null&&sm.caps?ladEntry(sm.op,sm.caps,sm.pol,sm.md,q.v,false):null;return {q,sm,e,r:e?ladRes(e):null};});
+  const d0=LV[s0Of()];
   const cols=D.map(({q,sm,e,r})=>{const on=Math.abs(q.v-cur)<1e-9;let a,b,c2,o,h,k;
     if(!sm){a=b=c2=o=h=k='<span class="muted">Checking</span>';}
     else if(sm.p==null){a='No plan';b=c2=o=h=k='…';}
@@ -1542,25 +1595,21 @@ function drawSens(){const el=$('flex-sens');if(!el)return;const st=curSite(),cur
       if(!r||(r.pend&&r.fail==null)){h=k='<span class="muted">Checking</span>';}
       else if(r.fail===r.s0){h='<span style="color:var(--bad)">Short</span>';k='<span style="color:var(--bad)">None</span>';}
       else{h=r.hold==null?'…':(r.fail==null?'0%':LVL(LV[r.hold]));const cu=r.fail==null?Math.round(LV[r.s0]*100):cushOf(r);k=cu>=10?`<span style="color:var(--good)">+${cu} points</span>`:'<span style="color:var(--warn-ink)">None</span>';}}
-    return `<div class="fscol${on?' on':''}"><div class="fsh">${q.n}${on?' <small>selected</small>':''}</div><div class="fss">${q.t}</div><div class="fsv"><span>Best opening</span><b>${o}</b></div><div class="fsv"><span>10 year profit</span><b>${a}</b></div><div class="fsv"><span>Onsite gas needed</span><b>${b}</b></div><div class="fsv"><span>Upfront equipment</span><b>${c2}</b></div><div class="fsv"><span>Holds with imports cut to</span><b>${h}</b></div><div class="fsv"><span>Cushion past design case</span><b>${k}</b></div></div>`;}).join('');
+    return `<button type="button" class="fscol${on?' on':''}" data-fx="${q.v}" aria-pressed="${on}"><div class="fsh">${q.n}${on?' <small>selected</small>':''}</div><div class="fss">${q.t}</div><div class="fsv"><span>Best opening</span><b>${o}</b></div><div class="fsv"><span>10 year profit</span><b>${a}</b></div><div class="fsv"><span>Onsite gas needed</span><b>${b}</b></div><div class="fsv"><span>Upfront equipment</span><b>${c2}</b></div><div class="fsv"><span>Stays on if grid power falls to</span><b>${h}</b></div><div class="fsv"><span>Margin below the ${LVL(d0)} planned for</span><b>${k}</b></div></button>`;}).join('');
   let note='';const A=D[0],B=D[2];
   if(A.sm&&B.sm&&A.sm.p!=null&&B.sm.p!=null){const cl=[];
     cl.push(B.sm.p<A.sm.p?`profit falls ${money(A.sm.p-B.sm.p)}`:B.sm.p>A.sm.p?`profit rises ${money(B.sm.p-A.sm.p)}`:'profit is unchanged');
     const ga=gasOf(A.sm.caps),gb=gasOf(B.sm.caps);if(gb<ga)cl.push(`onsite gas falls by ${fmt(ga-gb)} MW`);else if(gb>ga)cl.push(`onsite gas rises by ${fmt(gb-ga)} MW`);
-    if(A.r&&B.r&&!A.r.pend&&!B.r.pend&&A.r.fail!==A.r.s0&&B.r.fail!==B.r.s0){const ca=A.r.fail==null?99:cushOf(A.r),cb=B.r.fail==null?99:cushOf(B.r);if(cb>ca)cl.push(`the cushion grows from ${ca} to ${cb} points`);}
+    if(A.r&&B.r&&!A.r.pend&&!B.r.pend&&A.r.fail!==A.r.s0&&B.r.fail!==B.r.s0){const ca=A.r.fail==null?99:cushOf(A.r),cb=B.r.fail==null?99:cushOf(B.r);if(cb>ca)cl.push(`the margin grows from ${ca} to ${cb} points`);}
     note=`<p class="muted sm" style="margin:8px 0 0">From 0% to 36% flexible: ${cl.join(', ')}.${B.sm.p<A.sm.p?' Movable and batch work pays lower rent, so profit falls as the flexible share rises.':''}</p>`;}
-  el.innerHTML=`<h3 class="sech">What flexible work changes</h3><p class="sub" style="margin:0 0 8px">Same site. Only the share of work that can move or pause changes, and each column uses its own best opening and plan.</p><div class="fsrow">${cols}</div>${note}`;}
+  el.innerHTML=`<h3 class="sech">How much work can move or pause?</h3><p class="sub">Pick one. Work that can pause lets the campus ride out a weak grid with less gas, but it earns less rent. Each column uses its own best opening and plan.</p><div class="fsrow">${cols}</div>${note}`;
+  el.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{F.flex=+b.dataset.fx;step1();});}
 
-// ---- controls: flexible share, and the plan rules ----
-function drawGateCtl(){const el=$('gate-ctl');if(!el)return;
+// ---- rules this plan is built to: always visible ----
+function drawGateCtl(){const el=$('gate-rulesbar');if(!el)return;
   const seg=(id,opts,cur)=>`<div class="pseg" role="group">`+opts.map(([v,l])=>`<button type="button" data-gc="${id}" data-v="${v}" aria-pressed="${String(cur)===String(v)}">${l}</button>`).join('')+`</div>`;
-  const sh={0:[100,0,0],0.5:[82,12,6],1:[64,24,12]}[F.flex]||[64,24,12];
-  el.innerHTML=`<div class="ppwrap" style="grid-template-columns:1fr;margin-top:16px"><div class="pp"><div class="pph">Work that can move or pause</div>${seg('flex',[[0,'0%'],[0.5,'18%'],[1,'36%']],F.flex)}<div class="rtab"><span>Always on<b>${sh[0]}%</b></span><span>Movable<b>${sh[1]}%</b></span><span>Batch<b>${sh[2]}%</b></span></div><div class="hint">The more work that can pause, the further the grid can be cut with the same gas.</div></div></div>`;
-  const rl=$('gate-rules-body');
-  if(rl){rl.innerHTML=`<div class="ppwrap" style="margin-top:8px"><div class="pp"><div class="pph">Stress and drought tests when sizing the plan</div>${seg('hard',[[1,'On'],[0,'Off']],F.hard?1:0)}<div class="hint">Off lets a plan lean on a calmer grid and steadier wind than this site will see.</div></div>
-    <div class="pp"><div class="pph">Most energy from wind and solar</div>${seg('vcap',[[0.5,'50%'],[0.6,'60%'],[0.7,'70%'],[0.8,'80%'],[1,'No cap']],F.vcap)}<div class="hint">For scale, the highest large US grid is at about 45%.</div></div></div><p class="muted sm" id="rules-vs" style="margin:8px 0 0"></p>`;
-    const sm=$('gate-rules-sum');if(sm)sm.textContent='Plan rules';}
-  document.querySelectorAll('#gate [data-gc]').forEach(b=>b.onclick=()=>{const k=b.dataset.gc,v=b.dataset.v;if(k==='hard')F.hard=v==='1';else if(k==='vcap')F.vcap=+v;else F.flex=+v;step1();});}
+  el.innerHTML=`<div class="rb"><div class="rbt">Rules this plan is built to</div><div class="rbc"><span>Stress and drought tests</span>${seg('hard',[[1,'On'],[0,'Off']],F.hard?1:0)}</div><div class="rbc"><span>Wind and solar share of energy, at most</span>${seg('vcap',[[0.5,'50%'],[0.6,'60%'],[0.7,'70%'],[0.8,'80%'],[1,'No cap']],F.vcap)}</div><div class="rbc"><span>Clean energy contracts</span>${seg('mix',[['auto','Let the tool decide'],['W100','100 wind'],['W150S50','150 wind, 50 solar'],['W200S100','200 wind, 100 solar'],['W200S100N25','200 wind, 100 solar, nuclear']],F.mix)}</div><div class="rbc"><span>Battery</span>${seg('bess',[['auto','Let the tool decide'],['on','Include one'],['off','Leave out']],F.bess)}</div><p class="rbn" id="rules-vs"></p></div>`;
+  el.querySelectorAll('[data-gc]').forEach(b=>b.onclick=()=>{const k=b.dataset.gc,v=b.dataset.v;if(k==='hard')F.hard=v==='1';else if(k==='bess')F.bess=v;else if(k==='mix'){F.mix=v;if(v!=='auto'&&VSH[v]>F.vcap+1e-9)F.vcap=[0.5,0.6,0.7,0.8,1].find(x=>x>=VSH[v]-1e-9)||1;}else{F.vcap=+v;if(F.mix!=='auto'&&VSH[F.mix]>F.vcap+1e-9)F.mix='auto';}step1();});}
 
 // ---- one bad hour: minute by minute replay ----
 const BATS=[[0,0,'No battery'],[10,15,'10 MW for 15 min'],[25,15,'25 MW for 15 min'],[50,30,'50 MW for 30 min']];
@@ -1623,36 +1672,38 @@ function drawHour(c){const el=$('hour-body');if(!el)return;const RX=resX(),P=GX,
   const seg=(key,opts,cur,off)=>`<div class="pseg" role="group">`+opts.map(([v,l])=>`<button type="button" data-hx="${key}" data-v="${v}" aria-pressed="${same(cur,v)}"${off?' disabled':''}>${l}</button>`).join('')+`</div>`;
   const gl=m=>m>=30+F.delay?75:m>=24+F.delay?50:m>=18+F.delay?25:0;
   const on=m=>GEQ.filter(k=>c.caps[k]&&m>=Math.max(c.open,RX[k].available_month)).map(k=>`${fmt(c.caps[k])} MW ${GNAME[k].toLowerCase()}`);
-  const mh=on(r.mo),sb=standbyCost(c),bP=P.bat?`Price up to ${money(BATS[P.bat][0]*1000*RX.battery_4h.capex_usd_per_kw)}.`:'Campus backup batteries are not counted here.';
+  const mh=on(r.mo),sb=standbyCost(c),bP=P.bat?`Up to ${money(BATS[P.bat][0]*1000*RX.battery_4h.capex_usd_per_kw)}.`:'Campus UPS not counted.';
   const noFlex=F.flex===0,spdTxt=GEQ.filter(k=>c.caps[k]).map(k=>{const g=GPR[k],s=P.spd;return `${GNAME[k]}: ${fmt((g.cd+g.cr)*s)} min from cold, ${fmt(g.hr*s)} min from idle`;}).join('. ');
-  const inputs=`<div class="bhin"><h4 class="grp">The event</h4>
-    <div class="pp"><div class="pph">When it happens</div>${seg('mi',mos.map((m,i)=>[i,'Month '+m]),P.mi)}<div class="hint">Online then: grid ${gl(r.mo)} MW${mh.length?', '+mh.join(', '):', no onsite gas yet'}.</div></div>
-    <div class="pp"><div class="pph">What happens</div>${seg('ev',[['cut','Grid cut'],['trip','Gas unit trips too'],['wind','Wind drops too']],P.ev)}<div class="hint">${P.ev==='trip'?(r.tripK?`The ${fmt(c.caps[r.tripK])} MW ${GNAME[r.tripK].toLowerCase()} goes offline as the grid is cut.`:'No gas unit is online yet, so nothing trips.'):P.ev==='wind'?'Wind and solar fall over 15 minutes as the grid is cut.':'Only the grid is cut.'}</div></div>
-    <div class="pp"><div class="pph">How deep is the grid cut</div>${seg('lv',[[0.6,'60%'],[0.4,'40%'],[0.2,'20%'],[0,'Lost']],P.lv2)}<div class="hint">Share of normal imports that remains for 90 minutes. 60% is the design case.</div></div>
-    <div class="pp"><div class="pph">Warning before the cut</div>${seg('nt',[[0,'None'],[30,'30 min'],[120,'2 hours']],P.nt)}<div class="hint">A fault gives no warning. A planned utility request gives some.</div></div>
-    <h4 class="grp">Your backup</h4>
-    <div class="pp"><div class="pph">Onsite gas before the event</div>${seg('hot',[[0,'Cold'],[1,'Hot idle']],P.hot)}<div class="hint">${P.hot?`Units idle at 30% and ramp in minutes. About ${money(sb)} a year in extra fuel.`:'Units are off unless the plan needs them, so they start from cold.'}</div></div>
-    <div class="pp"><div class="pph">Backup battery</div>${seg('bat',BATS.map((b,i)=>[i,b[0]?b[0]+' MW':'None']),P.bat)}<div class="hint">${BATS[P.bat][2]}. ${bP}</div></div>
-    <div class="pp${noFlex?' off':''}"><div class="pph">Flexible work can pause in</div>${seg('rsp',[[1,'1 min'],[15,'15 min'],[60,'1 hour']],P.rsp,noFlex)}<div class="hint">${noFlex?'No flexible work in this plan. Set it on the Over 10 years tab.':`${F.flex===1?'36%':'18%'} of campus load pauses once it responds.`}</div></div></div>`;
+  const ctl=(h,body,hint,off)=>`<div class="pp${off?' off':''}"><div class="pph">${h}</div>${body}<div class="hint">${hint}</div></div>`;
+  const evTxt=P.ev==='trip'?(r.tripK?`The ${fmt(c.caps[r.tripK])} MW ${GNAME[r.tripK].toLowerCase()} goes offline.`:'No gas unit online yet.'):P.ev==='wind'?'Wind and solar fall over 15 min.':'Only the grid is cut.';
+  const inputs=`<div class="hin"><div class="hgrp"><h4 class="grp">The event</h4><div class="hcells">
+    ${ctl('When it happens',seg('mi',mos.map((m,i)=>[i,'Month '+m]),P.mi),`Online then: grid ${gl(r.mo)} MW${mh.length?', '+mh.join(', '):', no onsite gas'}.`)}
+    ${ctl('What happens',seg('ev',[['cut','Grid cut'],['trip','Plus gas trip'],['wind','Plus wind drop']],P.ev),evTxt)}
+    ${ctl('Grid power left',seg('lv',[[0.6,'60%'],[0.4,'40%'],[0.2,'20%'],[0,'None']],P.lv2),'Share of normal grid power for 90 min. 60% is what we plan for.')}
+    ${ctl('Warning before the cut',seg('nt',[[0,'None'],[30,'30 min'],[120,'2 hours']],P.nt),'A fault gives none. A utility request gives some.')}</div></div>
+    <div class="hgrp"><h4 class="grp">Your backup</h4><div class="hcells">
+    ${ctl('Onsite gas before the event',seg('hot',[[0,'Cold'],[1,'Hot idle']],P.hot),P.hot?`Idles at 30%. About ${money(sb)} a year in extra fuel.`:'Off unless the plan needs it, so it starts cold.')}
+    ${ctl('Backup battery',seg('bat',BATS.map((b,i)=>[i,b[0]?b[0]+' MW':'None']),P.bat),`${BATS[P.bat][2]}. ${bP}`)}
+    ${ctl('Flexible work can pause in',seg('rsp',[[1,'1 min'],[15,'15 min'],[60,'1 hour']],P.rsp,noFlex),noFlex?'No flexible work in this plan. Set it on the other tab.':`${F.flex===1?'36%':'18%'} of load pauses once it responds.`,noFlex)}</div></div></div>`;
   const ok=r.uns<0.01,cls=ok?'ok':'bad',upTxt=r.up==null?'n/a':r.up<=0?'Ready':r.up;
   const verdict=`<div class="verdict ${cls}"><div class="vword">${ok?'Holds':'Short'}</div><div class="vtxt"><b>${ok?'Load is served through the whole event':`Drops up to ${fmt(r.peak,0)} MW for ${fmt(r.mins)} min`}</b><span>${ok?(r.up==null||r.up<=0?'Gas is ready before the grid is cut.':`Onsite gas is fully up ${r.up} min after the event starts.`):`${fmt(r.uns,1)} MWh not served before backup comes up.`}</span></div></div>`;
-  const kp=`<div class="kpis" style="margin-top:8px"><div class="kpi"><div class="k">Gas fully up</div><div class="v">${typeof upTxt==='number'?upTxt+'<small> min</small>':upTxt}</div><div class="s">${typeof upTxt==='number'?'after the event starts':r.up==null?'no onsite gas online':'before the event starts'}</div></div><div class="kpi"><div class="k">Battery used</div><div class="v">${r.ecap?fmt(100*r.used/r.ecap,0)+'<small>%</small>':'n/a'}</div><div class="s">${r.ecap?'of its stored energy':'no battery chosen'}</div></div><div class="kpi"><div class="k">Work paused</div><div class="v">${fmt(r.cur,1)}<small> MWh</small></div><div class="s">${noFlex?'no flexible work':'flexible work'}</div></div></div>`;
-  let ways='';if(!ok){const tryP=p=>simHour(c,{...P,...p}),res=q=>q.uns<0.01?'<em class="res ok">Holds</em>':`<em class="res warn">Still short ${fmt(q.peak,0)} MW for ${fmt(q.mins)} min</em>`;
+  const kp=`<div class="kpis"><div class="kpi"><div class="k">Gas fully up</div><div class="v">${typeof upTxt==='number'?upTxt+'<small> min</small>':upTxt}</div><div class="s">${typeof upTxt==='number'?'after the event starts':r.up==null?'no onsite gas online':'before the event starts'}</div></div><div class="kpi"><div class="k">Battery used</div><div class="v">${r.ecap?fmt(100*r.used/r.ecap,0)+'<small>%</small>':'n/a'}</div><div class="s">${r.ecap?'of its stored energy':'no battery chosen'}</div></div><div class="kpi"><div class="k">Work paused</div><div class="v">${fmt(r.cur,1)}<small> MWh</small></div><div class="s">${noFlex?'no flexible work':'flexible work'}</div></div></div>`;
+  let ways='';{const tryP=p=>simHour(c,{...P,...p}),res=q=>q.uns<0.01?'<em class="res ok">Holds</em>':`<em class="res warn">Still short ${fmt(q.peak,0)} MW for ${fmt(q.mins)} min</em>`;
     const W=[];if(!P.hot)W.push(['Keep gas hot',`About ${money(sb)} a year in extra fuel`,tryP({hot:1})]);
-    if(P.bat<2)W.push(['Add a 25 MW battery for 15 min',`Price up to ${money(25*1000*RX.battery_4h.capex_usd_per_kw)}`,tryP({bat:2})]);
+    if(P.bat<2)W.push(['Add a 25 MW battery for 15 min',`Up to ${money(25*1000*RX.battery_4h.capex_usd_per_kw)}`,tryP({bat:2})]);
     if(!noFlex&&P.rsp>1)W.push(['Pause flexible work within 1 minute','Needs work built for fast pausing',tryP({rsp:1})]);
     if(P.nt<30)W.push(['Get 30 minutes of warning','Needs an agreement with the utility',tryP({nt:30})]);
-    if(W.length)ways=`<h3 class="sech" style="margin-top:16px">Ways to close the gap</h3><div class="tlist">${W.map(w=>`<div class="trow"><div><b>${w[0]}</b><span>${w[1]}</span></div>${res(w[2])}</div>`).join('')}</div>`;}
+    ways=ok?`<h3 class="sech">Ways to close the gap</h3><div class="tlist"><div class="trow"><div><b>Nothing to fix</b><span>Try a deeper cut, a gas trip, or no warning.</span></div></div></div>`:W.length?`<h3 class="sech">Ways to close the gap</h3><div class="tlist">${W.map(w=>`<div class="trow"><div><b>${w[0]}</b><span>${w[1]}</span></div>${res(w[2])}</div>`).join('')}</div>`:`<h3 class="sech">Ways to close the gap</h3><div class="tlist"><div class="trow"><div><b>Every lever above is already on</b><span>Gas capacity is the limit. Change the event.</span></div></div></div>`;}
   const asm=`<details class="fold" id="hour-asm"><summary><span class="sm" style="font-weight:600">Start and ramp assumptions</span></summary><div class="pp" style="margin-top:8px"><div class="pph">Equipment start speed</div>${seg('spd',[[0.5,'Fast'],[1,'Typical'],[2,'Slow']],P.spd)}<div class="hint">${spdTxt}. Batteries respond at once. Wind and solar fall over 15 minutes. These are typical screening values. Replace them with your vendor's figures.</div></div></details>`;
   const open=el.querySelector('#hour-asm')&&el.querySelector('#hour-asm').open;
-  el.innerHTML=`<p class="sub" style="margin:12px 0 0">The 10 year test steps one hour at a time, so it assumes onsite gas is ready when the grid is cut. This view checks the first minutes of one event with no warning.</p><div class="bhgrid">${inputs}<div>${verdict}${kp}<div style="margin-top:10px">${hourSvg(r)}</div>${ways}${asm}</div></div>`;
+  el.innerHTML=`<p class="sub" style="margin:12px 0 10px">The 10 year test steps one hour at a time, so it assumes onsite gas is ready when the grid is cut. This view checks the first minutes of one event.</p>${inputs}<div class="hres">${verdict}${kp}</div><div class="hbody"><div><h3 class="sech">Supply against campus load</h3>${hourSvg(r)}</div><div>${ways}${asm}</div></div>`;
   if(open)el.querySelector('#hour-asm').open=true;
   el.querySelectorAll('[data-hx]').forEach(b=>b.onclick=()=>{const k=b.dataset.hx,v=b.dataset.v;if(k==='ev')P.ev=v;else if(k==='lv')P.lv2=+v;else P[k]=+v;drawHour(c);});}
 
 function drawGate(c){GX.c=c;drawGateAll();}
 function drawGateAll(){const c=GX.c;if(!c||!$('gate-body'))return;
   document.querySelectorAll('#gtabs [data-gtab]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.gtab===GX.tab));b.onclick=()=>{GX.tab=b.dataset.gtab;drawGateAll();};});
-  $('g-ten').hidden=GX.tab!=='ten';$('g-hour').hidden=GX.tab!=='hour';
+  $('g-ten').hidden=GX.tab!=='ten';$('g-hour').hidden=GX.tab!=='hour';const gw=$('gate-why');if(gw)gw.hidden=GX.tab!=='ten';
   ladQ=[];const e=ladEntry(c.open,c.caps,c.base.policy,c.base.mode,F.flex,true);
   const vs=c.z.vs!=null?c.z.vs:(VSH[c.base.mix]||0),rv=$('rules-vs');if(rv)rv.textContent=`Stress tests are ${F.hard?'on':'off'}. This plan gets ${fmt(100*vs,0)}% of its energy from wind and solar${F.vcap<1?', against a limit of '+fmt(100*F.vcap,0)+'%':' with no limit set'}.`;
   if(GX.tab==='ten'){if(e)drawTen(c,e);drawSens();}else drawHour(c);}

@@ -64,7 +64,7 @@ try {
   await p.click('.next [data-open="1"]');
   ok(await p.waitFor(`!document.getElementById('v-1').hidden`, 30000), 'Open selected project goes to the Project plan');
   ok(await p.waitFor(`document.getElementById('pipe').innerText.indexOf('up to 53 MW') >= 0`, 60000), 'Energy section shows the V2 battery limit (up to 53 MW)');
-  ok(await p.waitFor(`document.querySelector('#pipe').innerText.indexOf('$45/MWh') >= 0`, 5000), 'Energy section shows the V2 wind price ($45/MWh)');
+  ok(await p.waitFor(`/\\$45 per MWh/.test(document.querySelector('#pipe').innerText)`, 5000), 'Energy section shows the V2 wind price ($45/MWh)');
   // the app ignores a tab click until the project plan has been computed, so retry the click until it takes effect
   const goTo = async (tab, view) => { const t0 = Date.now(); while (Date.now() - t0 < 180000) { await p.click(tab); if (await p.waitFor(`!document.getElementById('${view}').hidden`, 4000)) return true; } return false; };
   ok(await goTo('#tab-2', 'v-2') && await p.waitFor(`document.getElementById('v-2').innerText.length > 200`, 60000), 'Run the plant (board review) renders');

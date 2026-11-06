@@ -25,9 +25,9 @@
   </header>
   <nav class="steps" role="tablist">
     <button role="tab" id="tab-0" data-s="0"><span class="n">1</span><span style="min-width:0"><b>Portfolio</b><small>Projects, timeline, map</small></span></button>
-    <button role="tab" id="tab-1" data-s="1"><span class="n">2</span><span style="min-width:0"><b>Project plan</b><small>Finance and energy</small></span></button>
-    <button role="tab" id="tab-2" data-s="2"><span class="n">3</span><span style="min-width:0"><b>Run the plant</b><small>Cost, carbon, decisions</small></span></button>
-    <button role="tab" id="tab-3" data-s="3"><span class="n">4</span><span style="min-width:0"><b>Live operations</b><small>Hour by hour dispatch</small></span></button>
+    <button role="tab" id="tab-1" data-s="1"><span class="n">2</span><span style="min-width:0"><b>Plan the project</b><small>Finance and energy</small></span></button>
+    <button role="tab" id="tab-2" data-s="2"><span class="n">3</span><span style="min-width:0"><b>Plant performance</b><small>How the plant runs, year by year</small></span></button>
+    <button role="tab" id="tab-3" data-s="3"><span class="n">4</span><span style="min-width:0"><b>Control room</b><small>Hour by hour operations</small></span></button>
   </nav>
 
   <!-- ============ PORTFOLIO ============ -->
@@ -58,7 +58,7 @@
           <div class="chart mapbox" id="map"></div>
           <div class="legend" id="map-leg" style="margin-top:6px"></div>
           <p class="muted sm" id="map-note"></p>
-          <details class="fold"><summary><span class="sm" style="font-weight:600">Data sources</span></summary><ul class="gl2"><li>Geography: county boundaries from US Census data (us-atlas), distances to 57 metro anchors, computed here.</li><li>Fiber: distance to the nearest colocation or network facility, from the <a href="https://www.caida.org/catalog/datasets/ixps/" target="_blank" rel="noopener">CAIDA IXP dataset</a> (built on PeeringDB), Oct 2026 release. Facility locations only, not fiber routes.</li><li>Carbon reference: the US grid averages about 384 kg CO₂e per MWh (<a href="https://greencalculus.com/factors/united-states-emission-factors/" target="_blank" rel="noopener">Ember 2025</a>). There is no industry standard cap, so the caps here are examples. Tenants usually set clean energy goals instead.</li><li>Policy: state actions found in public sources in Nov 2026. <a href="https://www.electricchoice.com/datacenters/moratoriums/" target="_blank" rel="noopener">Moratorium tracker</a>, <a href="https://www.afslaw.com/perspectives/alerts/state-regulation-data-centers-2026-shifting-landscape" target="_blank" rel="noopener">ArentFox Schiff</a>, <a href="https://www.venable.com/insights/publications/2026/06/data-center-tax-incentives-under-pressure" target="_blank" rel="noopener">Venable</a>, <a href="https://www.ncsl.org/resources/details/does-your-state-offer-data-center-tax-incentives" target="_blank" rel="noopener">NCSL</a>. Verify before relying on any state.</li><li>Energy: the hourly model covers ERCOT only, from the case packet. Outside Texas the Overall grade uses the regional grid queue wait as a stand in, until hourly prices for those regions are added.</li><li>Water: <a href="https://www.wri.org/data/aqueduct-global-maps-40-data" target="_blank" rel="noopener">WRI Aqueduct 4.0</a> baseline water stress, matched to counties here.</li><li>Time to power: <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener">LBNL Queued Up</a> (data through 2025), by grid operator area.</li><li>Wind and solar cap: EIA Hourly Electric Grid Monitor, 2025 net generation by grid operator (via Catalyst Cooperative's PUDL).</li><li>Hazard: <a href="https://hazards.fema.gov/nri/data-resources" target="_blank" rel="noopener">FEMA National Risk Index</a> v1.20 (Dec 2025), expected building loss per dollar of buildings.</li></ul></details>
+          <details class="fold" id="dsrc"><summary><span class="sm" style="font-weight:600">Data sources</span></summary><ol class="gl2 refs"><li><b>Energy.</b> Hourly dispatch model, Texas (ERCOT) only, built from the reference dataset. Outside Texas the Overall grade uses the regional queue wait until hourly prices for those regions are added.</li><li><b>Time to power.</b> Lawrence Berkeley National Laboratory. <a href="https://emp.lbl.gov/queues" target="_blank" rel="noopener">Queued Up</a>, data through 2025. Median years from interconnection request to operation for plants online in 2021 to 2025, by grid operator area. It tracks power plants, not data center loads.</li><li><b>Wind and solar cap.</b> U.S. Energy Information Administration. <a href="https://www.eia.gov/electricity/gridmonitor/" target="_blank" rel="noopener">Hourly Electric Grid Monitor</a>, 2025 net generation by grid operator, via Catalyst Cooperative's <a href="https://catalyst.coop/pudl/" target="_blank" rel="noopener">PUDL</a>.</li><li><b>Location.</b> U.S. Census Bureau county boundaries, via <a href="https://github.com/topojson/us-atlas" target="_blank" rel="noopener">us-atlas</a>. Distances to 57 metro anchors are computed here.</li><li><b>Fiber.</b> CAIDA. <a href="https://www.caida.org/catalog/datasets/ixps/" target="_blank" rel="noopener">IXP Dataset</a>, built on PeeringDB, Oct 2026 release. Facility locations only, not fiber routes.</li><li><b>Policy.</b> State actions found in public sources, Nov 2026: <a href="https://www.electricchoice.com/datacenters/moratoriums/" target="_blank" rel="noopener">ElectricChoice moratorium tracker</a>; <a href="https://www.afslaw.com/perspectives/alerts/state-regulation-data-centers-2026-shifting-landscape" target="_blank" rel="noopener">ArentFox Schiff on state regulation</a>; <a href="https://www.venable.com/insights/publications/2026/06/data-center-tax-incentives-under-pressure" target="_blank" rel="noopener">Venable on tax incentives</a>; <a href="https://www.ncsl.org/resources/details/does-your-state-offer-data-center-tax-incentives" target="_blank" rel="noopener">NCSL on state incentives</a>. Verify before relying on any state.</li><li><b>Water.</b> World Resources Institute. <a href="https://www.wri.org/data/aqueduct-global-maps-40-data" target="_blank" rel="noopener">Aqueduct 4.0</a>, baseline water stress, matched to counties.</li><li><b>Natural hazard.</b> Federal Emergency Management Agency. <a href="https://hazards.fema.gov/nri/data-resources" target="_blank" rel="noopener">National Risk Index</a>, v1.20, Dec 2025. Expected annual building loss per dollar of buildings.</li><li><b>Carbon reference.</b> Ember, 2025, via <a href="https://greencalculus.com/factors/united-states-emission-factors/" target="_blank" rel="noopener">Green Calculus</a>. The US grid averages about 384 kg CO₂e per MWh. There is no industry standard cap, so the caps here are examples. Tenants usually set clean energy goals instead.</li><li><b>Land.</b> Acres are entered for each project. They are checked against our equipment allowances per MW: 0.05 acres for engines and fuel cells, 0.1 for turbines, 0.15 for a 4 hour battery. For scale, the U.S. EPA <a href="https://www.epa.gov/sites/default/files/2015-07/documents/catalog_of_chp_technologies.pdf" target="_blank" rel="noopener">Catalog of CHP Technologies</a> (Sept 2017) lists equipment power density of 35 to 50 kW per square meter for reciprocating engines, 20 to 500 for gas turbines and 5 to 20 for fuel cells. Our allowances sit well above bare equipment, leaving room for access, fuel handling and growth. The battery allowance and the acre cutoffs are our own assumptions.</li><li><b>Grid reliability.</b> Our dispatch model. The stress case is a design assumption set per project: 7 events a year of 3 to 7 hours with grid imports cut to 60% of normal (40% at tight sites), plus a 5 day January wind and solar drought. It is not fitted to a dataset. It is motivated by real events: the FERC, NERC and Regional Entity staff inquiry into <a href="https://www.nerc.com/news/Headlines%20DL/Elliott%20report%20release%20092123.pdf" target="_blank" rel="noopener">Winter Storm Elliott</a> (report released Sept 2023), when nearly 90,000 MW of generation was out at the same time, and the NERC incident review <a href="https://nerc.com/pa/rrm/ea/Documents/Incident_Review_Large_Load_Loss.pdf" target="_blank" rel="noopener">Considering Simultaneous Voltage-Sensitive Load Reductions</a> (Jan 2025), where about 1,500 MW of data center load moved to backup power at once in July 2024.</li></ol><p class="muted sm" style="margin:6px 0 0">Grade cutoffs are our own, applied to these sources.</p></details>
         </div>
         <div class="box" id="cdet"></div>
       </div>
@@ -93,46 +93,41 @@
       <div class="box" id="gate">
       <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">1</span>Reliability · how far the plan can be pushed</p></div>
       <div class="subtabs" role="group" aria-label="Reliability views" id="gtabs"><button type="button" data-gtab="ten" aria-pressed="true">Over 10 years</button><button type="button" data-gtab="hour" aria-pressed="false">One bad hour</button></div>
-      <div id="g-ten"><div id="gate-body" style="margin-top:12px"></div><div class="gategrid"><div id="gate-lad"></div><div id="gate-ctl"></div></div><div id="gate-tl"></div><div id="flex-sens"></div></div>
+      <div id="g-ten"><p class="sub gintro" id="gate-intro"></p><div id="gate-body"></div><div id="flex-sens"></div><div class="gcharts"><div id="gate-lad"></div><div id="gate-tl"></div></div><div id="gate-rulesbar"></div></div>
       <div id="g-hour" hidden><div id="hour-body"></div></div>
-      <details class="fold" id="gate-rules"><summary><span class="sm" style="font-weight:600" id="gate-rules-sum">Plan rules</span></summary><div id="gate-rules-body"></div></details>
-      <details class="fold" id="gate-why"><summary><span class="sm" style="font-weight:600">Why we cap wind and solar</span></summary><p class="muted sm" style="margin-top:6px">A plan that gets 80% or 90% of its energy from wind and solar looks cheap on paper, but real systems do not run that way without very large storage or firm backup. For scale, EIA hourly data for 2025 shows ERCOT, SPP and CAISO each got 37% of their energy from wind and solar. Among the 31 US grid operators above 15 TWh, the highest was Colorado's Xcel area at 45%, and the only one above that was a small New Mexico utility (PNM, 71%), which leans on its neighbors. Plans above the cap are removed before anything is ranked, and a plan within the cap still has to ride through a 5 day drought and the site's own grid stress case without leaving load unserved. The stress case can be made harsher but not softer than the site's own.</p></details>
+            <details class="fold" id="gate-why"><summary><span class="sm" style="font-weight:600">Why we cap wind and solar</span></summary><p class="muted sm" style="margin-top:6px">A plan that gets 80% or 90% of its energy from wind and solar looks cheap on paper, but real systems do not run that way without very large storage or firm backup. For scale, EIA hourly data for 2025 shows ERCOT, SPP and CAISO each got 37% of their energy from wind and solar. Among the 31 US grid operators above 15 TWh, the highest was Colorado's Xcel area at 45%, and the only one above that was a small New Mexico utility (PNM, 71%), which leans on its neighbors. Plans above the cap are removed before anything is ranked, and a plan within the cap still has to ride through a 5 day drought and the site's own grid stress case without leaving load unserved. The stress case can be made harsher but not softer than the site's own.</p></details>
     </div>
     <div class="box">
       <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">2</span>Site analysis · power and grid infrastructure</p></div>
-      <div class="qrow" aria-label="Site options">
-        <div class="in"><label for="q-delay">Grid connection</label><select id="q-delay"></select></div>
-        <div class="in"><label for="q-cap">Carbon cap</label><select id="q-cap"></select></div>
-        <div class="in"><label for="q-capmode">Cap applies to</label><select id="q-capmode"></select></div>
-      </div>
-      <p class="mlab" style="margin-top:12px">The seven power sources: when each is available and what it costs</p>
-      <div class="legend"><span><i style="background:var(--s-grid);opacity:.35"></i>Grid import limit (MW)</span><span><i style="background:var(--s-wind)"></i>Contract, delivered over the grid</span><span><i style="background:var(--s-gas)"></i>Onsite equipment</span><span><i style="background:var(--ink);width:2px;height:12px"></i>Your start month</span></div>
+      <div class="ppwrap ctl" aria-label="Site options"><div class="pp"><div class="pph">Grid connection</div><div class="pseg" id="q-delay"></div><div class="hint">When the grid connection arrives. On time is month 18.</div></div><div class="pp"><div class="pph">Carbon cap <em>kg CO₂ per MWh</em></div><div class="pseg" id="q-cap"></div><div class="hint">The US grid averages 384.</div></div><div class="pp"><div class="pph">Cap applies to</div><div class="pseg" id="q-capmode"></div><div class="hint">Measure the cap as a 10 year average, or in every single year.</div></div></div>
+      <p class="mlab" style="margin-top:12px">What you can build, and when it comes online</p>
+      <div class="legend"><span><i style="background:var(--ink);opacity:.9"></i>In your plan</span><span><i style="background:var(--ink);opacity:.25"></i>Available, not in your plan</span><span><i style="background:var(--s-grid);opacity:.35"></i>Grid import limit</span><span><i style="background:var(--ink);width:2px;height:12px"></i>Your start month</span></div>
       <div class="chart" id="pipe"></div>
       <p class="muted sm">Contracts pay for all available output and share the grid limit. Onsite units pay a fixed yearly charge plus fuel.</p>
 
-      <p class="mlab" style="margin-top:12px">Site and infrastructure for this start month</p>
+      <p class="mlab" style="margin-top:12px">Your plan on this site</p>
       <div id="infra"></div>
     </div>
 
     <div class="box" id="gas">
       <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">3</span>Onsite gas and equipment timelines</p></div>
-      <div class="qrow"><div class="in"><label for="g-leads">Equipment delivery assumptions</label><select id="g-leads"></select></div><div class="in"><label for="g-permit">Air permit for onsite gas</label><select id="g-permit"></select></div></div>
+      <div class="ppwrap ctl"><div class="pp"><div class="pph">Equipment delivery times</div><div class="pseg" id="g-leads"></div><div class="hint">Current market: a gas turbine takes 45 months to arrive. Supplier quotes: engine 16, turbine 18, fuel cell 14 months.</div></div><div class="pp"><div class="pph">Air permit time for onsite gas</div><div class="pseg" id="g-permit"></div><div class="hint">How long the air permit takes: fast, midpoint or slow.</div></div></div>
       <div id="gas-body" style="margin-top:8px"></div>
     </div>
     <details class="box fold" id="lp-fold"><summary><span class="eyebrow" style="margin:0"><span class="k">4</span>Site layout planner <span class="tag">try it</span></span><span class="muted sm">Drag data halls and power units onto the plot, then test the layout</span></summary>
-      <p class="muted sm">Click to place, drag to move, R to rotate, Delete to remove. Power-yard squares are 0.05 acre (packet land per MW). Buildings are illustrative.</p>
+      <p class="muted sm">Click to place, drag to move, R to rotate, Delete to remove. Power yard squares are 0.05 acre each. Buildings are illustrative.</p>
       <div class="lp2"><div><div class="tools" id="lp-tools"></div><div class="chart lpgrid" id="lp-grid"></div></div><div id="lp-side"></div></div>
       <div id="lp"></div>
     </details>
 
     <details class="settings"><summary>Limits and conditions <span class="sum" id="set-sum"></span></summary>
       <div class="inputs">
-        <div class="in"><label for="s-dead">Full campus no later than</label><select id="s-dead"></select><span class="hint">packet target: month 30</span></div>
+        <div class="in"><label for="s-dead">Full campus no later than</label><select id="s-dead"></select><span class="hint">target: month 30</span></div>
         <div class="in"><label for="s-cap">Carbon limit, 10-year average</label><select id="s-cap"></select></div>
         <div class="in"><label for="s-delay">Grid connection</label><select id="s-delay"></select></div>
-        <div class="in"><label for="s-ren">Wind and solar contract start <span class="tag">ext.</span></label><select id="s-ren"></select></div>
-        <div class="in"><label for="s-growth">Demand after full campus <span class="tag">ext.</span></label><select id="s-growth"></select></div>
-        <div class="in"><label for="s-weather">Weather year <span class="tag">ext.</span></label><select id="s-weather"></select></div>
+        <div class="in"><label for="s-ren">Wind and solar contract start <span class="tag">assumed</span></label><select id="s-ren"></select></div>
+        <div class="in"><label for="s-growth">Demand after full campus <span class="tag">assumed</span></label><select id="s-growth"></select></div>
+        <div class="in"><label for="s-weather">Weather year <span class="tag">assumed</span></label><select id="s-weather"></select></div>
         <div class="in"><label for="s-grid">Grid stress</label><select id="s-grid"></select><span class="hint" id="s-grid-note"></span></div>
         <div class="in"><label for="q-acres">Land for onsite power</label><select id="q-acres"></select></div>
       </div>
@@ -147,7 +142,8 @@
     <div class="box" id="c-head"></div>
     <div class="run2">
       <div class="box"><div class="boxh"><p class="eyebrow" style="margin:0">Power flows · where energy and money went</p><div class="seg" role="group" aria-label="Period" id="c-win"></div></div><p class="muted sm" id="c-wlab" style="margin:2px 0 6px"></p><div class="chart" id="c-plant"></div></div>
-      <div class="box"><p class="eyebrow">Alerts</p><div class="alerts" id="c-alerts"></div></div>
+      <div class="rcol"><div class="box"><p class="eyebrow">Alerts</p><div class="alerts" id="c-alerts"></div></div>
+      <div class="box"><p class="eyebrow">Decisions · the contracts and carbon cap behind this plan</p><div class="decs" id="c-decs"></div><p class="vs" id="c-vs"></p></div></div>
     </div>
     <div class="box"><p class="eyebrow">Power cost per MWh · by month</p><div class="legend" id="c-costleg"></div><div class="chart" id="c-cost"></div></div>
     <div class="box"><p class="eyebrow">Environmental report · emissions and clean energy share</p>
@@ -155,10 +151,9 @@
       <div class="env2"><div><p class="muted sm" style="margin:8px 0 2px">CO₂ by year, tonnes · label = kg/MWh · faded = projection</p><div class="legend"><span><i style="background:var(--s-gas)"></i>Onsite gas (scope 1)</span><span><i style="background:var(--s-grid)"></i>Grid power (scope 2)</span><span><i style="background:var(--s-rel)"></i>Work moved to remote site</span></div><div class="chart" id="env-yr"></div></div>
         <div><p class="muted sm" style="margin:8px 0 2px">Clean energy share by hour of day and month · darker = cleaner</p><div class="legend"><span><i style="background:var(--s-wind);opacity:.1"></i>0%</span><span><i style="background:var(--s-wind);opacity:.55"></i>50%</span><span><i style="background:var(--s-wind)"></i>100%</span><span class="muted">line = now</span></div><div class="chart" id="env-hm"></div></div></div>
       <details class="fold" style="margin-top:10px"><summary><span class="sm" style="font-weight:600">Projected impacts by plan</span><span class="muted sm">CO₂ to month 120, cost per tonne avoided · from month <span class="atm"></span></span></summary><div id="env-imp" style="margin-top:6px"></div></details>
-      <p class="muted sm">Emission factors are the packet's: gas units by heat rate, grid power at the packet's hourly-average grid intensity falling 3% a year, and moved work at the remote site's grid intensity. The packet does not count grid power as clean, so the hourly clean share is wind, solar, nuclear and battery used on site.</p>
+      <p class="muted sm">Emission factors: gas units by heat rate, grid power at the hourly average grid intensity falling 3% a year, and moved work at the remote site's grid intensity. Grid power is not counted as clean, so the hourly clean share is wind, solar, nuclear and battery energy that was charged from them.</p>
     </div>
-    <div class="box"><p class="eyebrow">Decisions · contracts and equipment you control. Gas and batch work run automatically.</p><div class="decs" id="c-decs"></div><p class="vs" id="c-vs"></p></div>
-    <div class="next"><button class="btn" type="button" id="back-1">← Change start month</button><button class="btn pri" type="button" id="go-3">Go to Live Operations →</button></div>
+    <div class="next"><button class="btn" type="button" id="back-1">← Change start month</button><button class="btn pri" type="button" id="go-3">Go to the control room →</button></div>
   </section>
 
   <!-- ============ STEP 3 ============ -->
@@ -178,10 +173,12 @@
       <div class="tot" id="l-tot"></div>
     </div>
     <section class="box" id="rt" aria-label="Demand routing">
-      <div class="boxh"><p class="eyebrow" style="margin:0">Demand routing · how each tier is served this hour</p><div class="rtnext" id="rt-next"></div></div>
-      <div class="rt2"><div class="chart" id="rt-sk"></div><div><div id="rt-pb"></div></div></div>
-      <div class="tot" id="rt-tot"></div>
-      <p class="muted sm" style="margin:6px 0 0">Tiers, the 60% stress import cap, the 12 MW remote site (11.4 MW of campus work at 1.05×), $123.50/MWh to move work and $1,000/MWh to pause it are the packet's rules. Moving and pausing are allowed only inside declared stress windows. The order of on-campus supply is our dispatch rule, not an optimizer.</p>
+      <div class="boxh"><p class="eyebrow" style="margin:0">Demand routing · how each tier is served this hour, and how to respond to the next grid stress event</p></div>
+      <div class="rt2">
+        <div class="rtL"><div class="rtlab">This hour</div><div class="chart" id="rt-sk"></div><div class="rtlab" style="margin-top:8px">Since the campus opened</div><div class="tot" id="rt-tot"></div></div>
+        <div class="rtR"><div class="rtlab">Grid stress event<span class="rtnext" id="rt-next"></span></div><div id="rt-pb"></div></div>
+      </div>
+      <p class="muted sm rtfoot">Set rules: the 60% stress import cap, the 12 MW remote site (11.4 MW of campus work at 1.05×), $123.50/MWh to move work and $1,000/MWh to pause it. Moving and pausing are allowed only inside declared stress windows. Cost is the decision cost inside the window. Revenue at risk is the rent for work paused or unserved, at your revenue model's rates. The order of on campus supply is our dispatch rule, not an optimizer.</p>
     </section>
     <div class="op2">
       <div class="col">
@@ -197,7 +194,7 @@
       <div class="col">
         <section class="box" id="eq-panel" aria-label="Selected equipment"></section>
         <section class="box" aria-label="Forecast"><p class="eyebrow">72 hour forecast</p>
-          <div class="legend"><span><i style="background:var(--s-wind)"></i>Wind</span><span><i style="background:var(--s-solar)"></i>Solar</span><span><i style="background:var(--ink-3);opacity:.4"></i>uncertainty <span class="tag">ext.</span></span><span><i style="height:0;border-top:2px solid var(--ink)"></i>Demand</span><span><i style="height:0;border-top:2px dashed var(--s-grid)"></i>Grid limit</span><span><i style="height:0;border-top:2px dotted var(--ink-3)"></i>Grid + onsite</span></div>
+          <div class="legend"><span><i style="background:var(--s-wind)"></i>Wind</span><span><i style="background:var(--s-solar)"></i>Solar</span><span><i style="background:var(--ink-3);opacity:.4"></i>uncertainty <span class="tag">assumed</span></span><span><i style="height:0;border-top:2px solid var(--ink)"></i>Demand</span><span><i style="height:0;border-top:2px dashed var(--s-grid)"></i>Grid limit</span><span><i style="height:0;border-top:2px dotted var(--ink-3)"></i>Grid + onsite</span></div>
           <div class="chart" id="fc"></div><div class="flags" id="fc-flags"></div></section>
         <section class="box" aria-label="Alerts"><p class="eyebrow">Alerts and actions</p><div class="alerts" id="al"></div>
           <div class="sim"><label for="sim" class="sm" style="font-weight:600">Simulate tomorrow</label><select id="sim"></select><select id="sim-src" aria-label="Which unit trips" hidden></select><div class="muted sm" id="sim-d"></div></div>
