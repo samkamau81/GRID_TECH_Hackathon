@@ -17,10 +17,10 @@ services:
         value: strict-origin-when-cross-origin
       - path: /js/*
         name: Cache-Control
-        value: public, max-age=3600, stale-while-revalidate=86400
+        value: public, max-age=60, must-revalidate
       - path: /css/*
         name: Cache-Control
-        value: public, max-age=3600, stale-while-revalidate=86400
+        value: public, max-age=60, must-revalidate
       - path: /assets/*
         name: Cache-Control
         value: public, max-age=3600, stale-while-revalidate=86400
