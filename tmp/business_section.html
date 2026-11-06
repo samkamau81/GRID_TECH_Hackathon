@@ -1,0 +1,71 @@
+  <!-- ============ D. BUSINESS MODEL ============ -->
+  <section class="asec" id="s-business" role="tabpanel" aria-labelledby="t-business" hidden>
+    <div class="card callout">
+      <h2>How Peak Power could become a business</h2>
+      <p><b>This section is a proposal, not evidence.</b> Peak Power has no customers, no revenue, no signed partners and no market sizing today. Prices, customer counts and rates below are assumptions the team made to show how a business could work, so they can be tested. They live in one file (<code>js/data/business-model.js</code>) and every table and chart on this page is computed from it.</p>
+      <div class="legend" aria-label="Status labels">
+        <span><span class="badge built">Built</span> exists in the Prototype today</span>
+        <span><span class="badge prop">Proposed</span> a team assumption</span>
+        <span><span class="badge todo">Not validated</span> needs customer or market evidence</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>A hybrid revenue model: four streams</h2>
+      <div class="tscroll"><table class="dt">
+        <thead><tr><th>Stream</th><th>What the customer buys</th><th>Proposed pricing</th><th>Type</th><th>Main revenue driver</th></tr></thead>
+        <tbody>
+          <tr><td>1. Tiered subscriptions</td><td>Access for individuals, teams and companies at three levels</td><td>$3,600 / $18,000 / about $120,000 a year</td><td><span class="badge rec">Recurring</span></td><td>Number of paying accounts and tier mix</td></tr>
+          <tr><td>2. Enterprise licensing</td><td>Annual contract for portfolio planning, collaboration, advanced simulation, integrations</td><td>$75,000 to $250,000 a year (the Enterprise tier above)</td><td><span class="badge rec">Recurring</span></td><td>Number of enterprise contracts, sites per portfolio</td></tr>
+          <tr><td>3. Usage-based services</td><td>Extra simulation runs, specialised reports, API calls</td><td id="usage-prices"></td><td><span class="badge rec">Recurring, variable</span></td><td>Customer activity beyond the plan allowance</td></tr>
+          <tr><td>4. Consulting and implementation</td><td>Custom feasibility studies, onboarding, data integration</td><td id="svc-prices"></td><td><span class="badge one">One-time</span></td><td>Number of engagements; also a route to new licences</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <h2>Customer segments and pricing tiers</h2>
+      <div class="tiers" id="tiers"></div>
+      <p class="muted sm">Segments follow the people the landing page describes: developers, operators and investors. Which segment pays most, and for what, is not validated.</p>
+    </div>
+
+    <div class="card">
+      <h2>Unit economics (assumptions)</h2>
+      <p>Lifetime value is annual price × gross margin ÷ annual churn. Payback is acquisition cost ÷ monthly gross profit. These ratios follow mechanically from the assumed inputs; they are <b>targets to test in pilots</b>, not results.</p>
+      <div class="tscroll"><table class="dt" id="unit-table"></table></div>
+    </div>
+
+    <div class="card">
+      <h2>Illustrative annual revenue scenarios</h2>
+      <p>Three adoption paths over three years. Customer counts are assumed paying accounts at the end of each year; revenue uses the average over the year. These are not forecasts.</p>
+      <div class="seg" role="group" aria-label="Choose scenario" id="scn"></div>
+      <p class="muted" id="scn-blurb"></p>
+      <div class="insgrid">
+        <div><div id="rev-chart" class="revchart" role="img" aria-label="Stacked bar chart of illustrative annual revenue by stream"></div><div class="legend" id="rev-legend"></div></div>
+        <div class="tscroll"><table class="dt" id="rev-table"></table></div>
+      </div>
+      <details class="fold"><summary>Customer-count assumptions behind this scenario</summary><div class="tscroll"><table class="dt" id="cust-table"></table></div></details>
+      <p class="muted sm" id="rev-note"></p>
+    </div>
+
+    <div class="card">
+      <h2>Go-to-market: five phases</h2>
+      <ol class="phases" id="phases"></ol>
+      <p class="muted sm">Time ranges are planning assumptions counted from the start of a funded effort. Each phase ends on an evidence gate, so spending follows what has been proven.</p>
+    </div>
+
+    <div class="card">
+      <h2>What is evidence and what is assumption</h2>
+      <div class="tscroll"><table class="dt">
+        <thead><tr><th>Statement</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>The Prototype screens counties on nine dimensions and simulates a plan hour by hour over ten years</td><td><span class="badge built">Built</span> (sections A to C)</td></tr>
+          <tr><td>Revenue-model logic (lease, pass-through, bundled, hybrid) for the campus operator's own profit</td><td><span class="badge built">Built</span>, a different thing from Peak Power's own pricing</td></tr>
+          <tr><td>Peak Power's prices, tiers, customer counts, churn, acquisition costs, gross margins</td><td><span class="badge prop">Proposed</span> assumptions</td></tr>
+          <tr><td>Willingness to pay, market size, competitors' pricing</td><td><span class="badge todo">Not validated</span>, no research done</td></tr>
+          <tr><td>Customers, pilots, revenue, partners</td><td><span class="badge todo">None exist today</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+

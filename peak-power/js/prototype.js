@@ -1274,9 +1274,9 @@ const failWords=q=>!q?'no contract mix fits within the wind and solar cap':q.why
 const failLbl=q=>!q?'No mix':q.why==='late'?'Too early':q.why==='land'?'No land':q.why==='limit'?'No gas room':!q.capOk?'Over cap':(q.z&&q.z.uns>=0.5)?'Power short':'No fit';
 function afterCards(){const all=rows.length&&rows.every(r=>r.done);
   if(!all||chosen==null||recO==null){$('psum').innerHTML=`<p class="eyebrow">Project</p><h2>${curSite().nm}</h2>${busy('Testing every opening month against the reliability limit…')}`;
-    $('gate-body').innerHTML=busy('Running the reliability test…');$('gas-body').innerHTML=busy('Sizing onsite gas…');const ab=$('alt-box');if(ab)ab.hidden=true;return;}
+    $('gate-body').innerHTML=busy('Running the reliability test…');$('gas-body').innerHTML=busy('Sizing onsite gas…');return;}
   recordCurrent();
-  const c=rows.find(r=>r.o===chosen).r;drawSummary(c);drawAlt(c);drawGate(c);drawGas(c);whyNot();drawSens();}
+  const c=rows.find(r=>r.o===chosen).r;drawSummary(c);drawGate(c);drawGas(c);whyNot();drawSens();}
 function whyNot(){const rec=$('rec');const ok=rows.filter(r=>feasible(r.r)&&inDeadline(r.o));if(!ok.length||!rec.querySelector('.why'))return;
   const first=ok[0].o,prev=rows.slice().reverse().find(r=>r.o<first),after=rows.find(r=>r.o>recO&&feasible(r.r));let t;
   if(!prev)t=`Month ${first} is the earliest month tested, and it works.`;
@@ -1396,47 +1396,7 @@ function prewarm(){if(plant||chosen==null||!rows.length||!rows.every(r=>r.done))
   setTimeout(()=>{if(tok!==token||plant||chosen!==o)return;const sv=plant;plant={open:o};try{planOf(b.mix,b.battery,F.cap);}catch(e){}plant=sv;},300);}
 function runPending(){if(pendingGo==null||plant||chosen==null||!rows.every(r=>r.done))return;const n=pendingGo;pendingGo=null;afterPlant=n===3?3:null;startPlant(chosen);}
 
-const ALTC=new Map();
-function drawAlt(c){const box=$('alt-box');if(!box)return;
-  const key=keyFor(curSite())+'|'+c.open+'|'+chosen;
-  if(ALTC.has(key)){box.innerHTML=ALTC.get(key);box.hidden=false;return;}
-  box.hidden=false;box.innerHTML=`<p class="eyebrow">Recommended plan and alternatives</p>${busy('Comparing a cleaner plan and a faster opening…')}`;const tok=token;
-  setTimeout(()=>{if(tok!==token||chosen==null)return;
-    const pool=S.filter(s=>s.open===c.open&&VSH[s.mix]<=F.vcap+1e-9&&landOf(s.caps)<=F.acres+1e-9&&s!==c.base).sort((a,b)=>capKg(a)-capKg(b));
-    let clean=null;const seen=new Set();let tried=0;
-    for(const s of pool){if(capKg(s)>=capKg(c.base)-1)break;const k=s.mix+s.battery+s.mode+s.policy;if(seen.has(k))continue;seen.add(k);if(++tried>3)break;
-      const o=evalBase(s,false);if(feasible(o)&&o.capOk&&o.z.kg<c.z.kg-1){clean=o;break;}}
-    const ok=rows.filter(r=>feasible(r.r)&&inDeadline(r.o));const first=ok.length?ok[0]:null;
-    const fast=first&&first.o<c.open?first.r:null;
-    // Cheaper alternative: what the hard carbon limit costs (plan without it), or else the lowest power-cost plan at this opening.
-    let cheap=null,cheapLab='',cheapSub='';
-    if(F.cap){const sv=F.cap;F.cap=0;try{const o=bestAt(c.open,false);if(o&&o.fits&&o.z.uns<0.5&&o.z.total<c.z.total-1e5&&o.z.kg>c.z.kg+1){cheap=o;cheapLab='Without the carbon limit';cheapSub='what the limit costs';}}finally{F.cap=sv;}}
-    else{const seen2=new Set();let n2=0;const byCost=S.filter(s=>s.open===c.open&&VSH[s.mix]<=F.vcap+1e-9&&landOf(s.caps)<=F.acres+1e-9&&s!==c.base).sort((a,b)=>a.total_decision_cost_usd-b.total_decision_cost_usd);
-      for(const s of byCost){if(s.total_decision_cost_usd>=c.z.total-1e5||++n2>3)break;const k=s.mix+s.battery+s.mode+s.policy;if(seen2.has(k))continue;seen2.add(k);const o=evalBase(s,false);if(feasible(o)&&o.z.total<c.z.total-1e5){cheap=o;cheapLab='Lower-cost alternative';cheapSub='same opening, lowest power cost that passes';break;}}}
-    const cols=[['Recommended','best 10-year profit',c]];if(cheap)cols.push([cheapLab,cheapSub,cheap]);if(clean)cols.push(['Cleaner alternative','same opening, lowest carbon that passes',clean]);if(fast)cols.push(['Faster alternative','earliest credible opening',fast]);
-    const mixTxt=o=>`${MIXT[o.base.mix]||o.base.mix}${o.base.battery?` + ${o.base.battery} MW battery`:''}; ${fmt(gasOf(o.caps))} MW onsite gas`;
-    const rel=o=>o.z.rel!=null?o.z.rel:(o.base.relocated_local_equivalent_mwh||0);
-    const R=(lab,f,note)=>`<tr><th scope="row">${lab}${note?`<small>${note}</small>`:''}</th>${cols.map(k=>`<td>${f(k[2])}</td>`).join('')}</tr>`;
-    const dl=o=>({dc:o.z.total-c.z.total,dk:o.z.kg-c.z.kg,dt:c.z.co2-o.z.co2});
-    const tbl=`<div class="tblwrap"><table class="tbl alt"><thead><tr><th></th>${cols.map(k=>`<th>${k[0]}<small>${k[1]}</small></th>`).join('')}</tr></thead><tbody>`+
-      R('Initial service / full demand',o=>`month ${o.open} / ${o.open+10}`)+
-      R('Portfolio',mixTxt)+
-      R('Power cost, 10 years',o=>money(o.z.total),'local energy + relocation + interruption')+
-      R('Cost per MWh',o=>'$'+fmt(o.z.usdPerMWh,1))+
-      R('CO₂ intensity',o=>fmt(o.z.kg,0)+' kg/MWh')+
-      R('Clean energy share',o=>fmt(100*o.z.cleanShare,0)+'%')+
-      R('Work moved / paused in grid stress',o=>`${fmt(rel(o),0)} MWh moved · ${fmt(o.z.cur,0)} MWh paused`,'protected load always served locally')+
-      R('Reliability test',o=>o.z.uns<0.5?'<span class="up">Passes</span>':'<span class="down">Fails</span>')+
-      R('10-year profit',o=>money(o.e.profit),'business assumption, kept apart from power cost')+`</tbody></table></div>`;
-    let why='';
-    if(clean){const d=dl(clean);
-      why+=`<div class="altnote"><b>Cleaner alternative:</b> power cost <b class="${d.dc>0?'down':'up'}">${sgn(d.dc)}</b> over 10 years for <b>${fmt(-d.dk,0)} kg/MWh</b> less carbon (${fmt(d.dt/1e3,0)}k tonnes CO₂ avoided${d.dc>0&&d.dt>0?`, about <b>$${fmt(d.dc/d.dt,0)} per tonne</b>`:''}). <b>Choose it when</b> the customer has a carbon target, or values avoided CO₂ above that price per tonne.</div>`;}
-    else why+=`<div class="altnote">No cleaner plan passes the reliability test at month ${c.open} under the current limits, so the recommended plan is already the lowest-carbon option that fits.</div>`;
-    if(cheap){const d=dl(cheap),sv=-d.dc,dk=d.dk;
-      why+=`<div class="altnote"><b>${cheapLab}:</b> saves <b class="up">${money(sv)}</b> of power cost over 10 years but emits <b>${fmt(dk,0)} kg/MWh</b> more (${fmt(-d.dt/1e3,0)}k tonnes CO₂ more) and changes 10-year profit by ${sgn(cheap.e.profit-c.e.profit)}. ${F.cap?`That is what the carbon limit costs: about <b>$${fmt(sv/Math.max(1,-d.dt),0)} per tonne</b> avoided. <b>Choose it when</b> the customer can relax the limit.`:`<b>Choose it when</b> power cost matters more than carbon and the extra emissions are acceptable.`}</div>`;}
-    if(fast){const d=dl(fast),n=c.open-fast.open;why+=`<div class="altnote"><b>Faster alternative:</b> opens ${n} month${n===1?'':'s'} earlier (month ${fast.open}) at <b>${sgn(d.dc)}</b> power cost and ${sgn(fast.e.profit-c.e.profit)} profit versus the recommendation. <b>Choose it when</b> speed to power is worth more than that.</div>`;}
-    const html=`<div class="boxh"><p class="eyebrow" style="margin:0">Recommended plan and alternatives</p><button type="button" class="btn" data-how>How the answers become this result</button></div>${tbl}${why}<p class="muted sm" style="margin-top:6px">Every plan comes from the 384-plan library, each replayed through the packet's official checker${isDefault()?'':', then re-sized and re-simulated for the current settings'}. Screening estimates, not quotes.</p>`;
-    ALTC.set(key,html);box.innerHTML=html;},30);}
+
 
 function howHTML(){
   const c=chosen!=null&&rows.length&&rows.every(r=>r.done)?(rows.find(r=>r.o===chosen)||{}).r:null,st=curSite(),G=effGrid();
@@ -1460,7 +1420,7 @@ function howHTML(){
    <tr><td><b>2. Screen</b></td><td>Library of 384 plans (contract mix × battery × stress policy × cost or carbon operating mode × opening month). Hard requirements remove plans. Gas only counts once delivered and permitted.</td></tr>
    <tr><td><b>3. Simulate</b></td><td>Each surviving plan is replayed hour by hour for 87,600 hours: contracts and merchant power share the grid limit; the battery charges and discharges; in stress events imports drop to 60%, protected load stays local, movable work relocates, batch work pauses.</td></tr>
    <tr><td><b>4. Account</b></td><td>Power cost (capacity, contract, fuel, merchant), relocation cost and interruption cost are totalled, then CO₂ and clean share. Business revenue is added separately.</td></tr>
-   <tr><td><b>5. Recommend</b></td><td>Highest 10-year profit among plans that meet every hard requirement, shown next to a cleaner and a faster alternative with what each costs and when it wins.</td></tr></tbody></table>
+   <tr><td><b>5. Recommend</b></td><td>Highest 10-year profit among plans that meet every hard requirement, with the neighbouring opening months shown beside it.</td></tr></tbody></table>
    <p class="op-b" style="margin:10px 0 3px"><b>THE ANSWERS RIGHT NOW</b></p>
    <table class="op-t"><thead><tr><th>Answer</th><th>Value</th><th>Treated as</th><th>Effect</th></tr></thead><tbody>${rowsA}</tbody></table>${res}
    <p class="op-b" style="margin:10px 0 3px"><b>ASSUMPTIONS YOU CAN CHALLENGE</b></p>

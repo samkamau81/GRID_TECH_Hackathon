@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="css/prototype.css">
 <link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/chatbot.css">
 </head>
 <body>
 <div class="wrap">
@@ -67,7 +68,6 @@
   <!-- ============ STEP 1 ============ -->
   <section class="view" id="v-1" role="tabpanel" aria-labelledby="tab-1">
     <div class="box" id="psum"></div>
-    <div class="box" id="alt-box" hidden></div>
     <div class="subtabs" role="group" aria-label="Project sections" id="ptabs"><button type="button" data-ptab="fin" aria-pressed="true">Finance</button><button type="button" data-ptab="energy" aria-pressed="false">Energy</button></div>
     <section class="view psec" id="p-fin">
       <div class="box">
@@ -214,5 +214,6 @@
 <script src="js/data/site-counties.js"></script>
 <script src="js/engine.js"></script>
 <script src="js/prototype.js"></script>
+<script src="js/chatbot.js" defer></script>
 </body>
 </html>

@@ -20,15 +20,12 @@ try {
   ok(/Plant running/.test(await text('#pp-status')), 'status line says the plant is running');
   ok(await p.ev(`!!document.querySelector('#site svg')`), 'Live Operations site diagram is drawn');
 
-  // 2. comparison box on the project plan
+  // 2. the Recommended plan / Alternative box is gone; the Project plan still shows its finance and energy tabs and the best opening month
   await p.ev(`document.getElementById('tab-1').click()`);
-  ok(await p.waitFor(`!document.getElementById('alt-box').hidden && !!document.querySelector('#alt-box table.alt')`, 120000), 'recommended plan and alternatives table is shown');
-  const alt = await text('#alt-box');
-  ok(/Recommended/.test(alt) && /Power cost, 10 years/.test(alt) && /CO₂ intensity/.test(alt) && /Clean energy share/.test(alt), 'comparison shows cost, carbon and clean share');
-  ok(/Cleaner alternative|No cleaner plan/.test(alt), 'a cleaner alternative (or why none exists) is stated');
-  ok(/Choose it when|already the lowest-carbon/.test(alt), 'says when the alternative is the better choice');
-  ok(/10-year profit/.test(alt) && /business assumption/.test(alt), 'business profit is labelled separately from power cost');
-  console.log('INFO ' + alt.slice(0, 900));
+  ok(await p.waitFor(`/Open at month/.test(document.getElementById('rec').innerText)`, 120000), 'project plan still recommends an opening month');
+  ok(await p.ev(`!document.getElementById('alt-box')`), 'no Recommended plan / Alternative box in the page');
+  ok(await p.ev(`!/Recommended plan and alternatives|Cleaner alternative|Faster alternative/.test(document.getElementById('v-1').innerText)`), 'no recommended-plan or alternative text on Project plan');
+  ok(await p.ev(`[...document.querySelectorAll('#ptabs [data-ptab]')].map(b=>b.textContent).join()==='Finance,Energy'`), 'Project plan sub-tabs are Finance and Energy only');
 
   // 3. How it works page
   await p.ev(`document.querySelector('[data-how]').click()`);
@@ -40,17 +37,11 @@ try {
   await p.ev(`document.getElementById('op-close').click()`);
   ok(await p.ev(`document.getElementById('onepager').hidden`), 'page closes');
 
-  // 4. changing an answer updates the comparison
-  const before = await text('#alt-box');
+  // 4. changing an answer still re-runs the start-month analysis
   await p.ev(`(() => { const s = document.getElementById('s-cap'); s.value = '200'; s.dispatchEvent(new Event('change', { bubbles: true })); })()`);
   await sleep(500);
-  ok(await p.waitFor(`!document.getElementById('alt-box').hidden && !!document.querySelector('#alt-box table.alt')`, 180000), 'comparison redraws after a carbon limit is set');
-  await sleep(2500);
-  const altL = await text('#alt-box');
-  ok(/Without the carbon limit/.test(altL) && /per tonne/.test(altL), 'with a 200 kg/MWh limit the table shows what the limit costs (cheaper alternative, $ per tonne)');
-  ok(!/Cleaner alternative:/.test(altL), 'no cleaner alternative is offered once the cleanest plan is already recommended');
+  ok(await p.waitFor(`/Open at month/.test(document.getElementById('rec').innerText)`, 180000), 'start-month recommendation redraws after a carbon limit is set');
 ok(p.errors.length === 0, 'no JavaScript errors ' + p.errors.slice(0, 2).join(' ; '));
-  await p.shotEl('alt-box', '#alt-box', 8).catch(() => {});
 } finally { b.close(); }
 console.log(bad ? `\n${bad} check(s) failed` : '\nAll checks passed');
 process.exit(bad ? 1 : 0);

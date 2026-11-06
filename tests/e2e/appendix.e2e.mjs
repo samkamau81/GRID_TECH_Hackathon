@@ -7,7 +7,7 @@ try {
   await sleep(600);
   ok((await p.ev(`[...document.querySelectorAll('header.nav nav a')].map(a=>a.getAttribute('href')).join()`)) === 'index.html,prototype.html,appendix.html', 'navigation has exactly Introduction, Prototype, Appendix');
   ok(await p.ev(`document.querySelector('header.nav nav a[aria-current=page]').textContent==='Appendix'`), 'Appendix is the current page');
-  ok(await p.ev(`document.querySelectorAll('#atabs [role=tab]').length===4 && !document.getElementById('s-model').hidden`), 'four sections, model section visible first');
+  ok(await p.ev(`document.querySelectorAll('#atabs [role=tab]').length===5 && !document.getElementById('s-model').hidden`), 'five sections, model section visible first');
   ok(await p.ev(`document.querySelectorAll('#dim-table tbody tr').length===9`), 'nine comparison dimensions listed');
   ok(!(await p.ev(`!!window.PEAKPOWER_APPENDIX_STATS`)), 'statistics are not loaded until needed');
   await p.click('#t-data'); ok(await p.waitFor(`document.querySelectorAll('#ds-list .ds').length===8`), 'dataset inventory lists 8 datasets');

@@ -8,7 +8,8 @@ It is a static site: plain HTML, CSS and JavaScript, no build step and no framew
 | --- | --- | --- |
 | Introduction | `index.html` | Welcome page. Its **Next →** button opens the prototype. |
 | Prototype | `prototype.html` | Four steps: Portfolio (projects, timeline, Find a site county map), Project plan (finance, energy), Run the plant, Live Operations. Runs entirely in the browser. Details: [`../docs/PROTOTYPE_INTEGRATION.md`](../docs/PROTOTYPE_INTEGRATION.md). |
-| Appendix | `appendix.html` | Four sections: model and methodology, data inventory and integrity, correlations and insights (statistics from `js/data/appendix-stats.js`, built by `../scripts/build_appendix_stats.mjs`), limitations. |
+| Appendix | `appendix.html` | Five sections: model and methodology, data inventory and integrity, correlations and insights (statistics from `js/data/appendix-stats.js`, built by `../scripts/build_appendix_stats.mjs`), business model (all assumptions in `js/data/business-model.js`, labelled as proposals), and limitations with a hardware and infrastructure roadmap. |
+| FAQ assistant | `js/chatbot.js`, `js/data/faq.js`, `css/chatbot.css` | A floating "Ask Peak Power" helper on all three pages. It matches questions against curated, verified answers (keyword and phrase matching, no network, no AI model). `PeakPowerAssistant.setRetriever()` is the hook for a future retrieval-augmented assistant. The FAQ file loads on first open. |
 
 The Data Center Climate Explorer was retired from the navigation; its files are kept in `archive/climate-explorer/` (tests in `../tests/archive/climate-explorer/`). The app has exactly these three tabs, and all three link to each other. The Prototype was supplied as a Claude Artifact
 (`Peak Power (Copy).html`, kept unchanged as the reference) and split into files by `../scripts/split_prototype_artifact.py`. The previous

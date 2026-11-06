@@ -1,0 +1,46 @@
+    <div class="card">
+      <h2>Hardware and infrastructure roadmap</h2>
+      <p>This separates what exists today from what could be added. <b>Nothing in the proposed column is built.</b> Specifications are given only where a measurement or simple arithmetic supports them.</p>
+      <div class="two">
+        <div class="baseline">
+          <h3><span class="badge built">Built</span> Today</h3>
+          <ul class="tick">
+            <li>The whole simulation runs in the user's own browser. There is no server, database or account.</li>
+            <li>Measured in Node on a 4-core, 16 GB laptop: one 10-year plan simulation (87,600 hours) takes about <b>0.26 to 0.89 s</b> (median 0.42 s).</li>
+            <li>One run holds 41 hourly data series, about <b>24 MB</b> of memory. The Prototype keeps recent runs cached.</li>
+            <li>Measured in headless Chrome: about 205 MB of JavaScript memory after load, rising to 350 to 600 MB after exploring several projects.</li>
+            <li>The 384-plan library was pre-computed offline, so opening the app does not re-run it.</li>
+          </ul>
+        </div>
+        <div class="baseline">
+          <h3><span class="badge prop">Proposed</span> Where limits will appear</h3>
+          <ul class="tick">
+            <li>Many scenarios at once, or many years of weather, will outgrow one browser tab: 384 runs would take about 2.7 minutes on one core (384 × 0.42 s).</li>
+            <li>Portfolio and enterprise use needs shared, saved projects, which need a server.</li>
+            <li>Real-time monitoring needs data from physical equipment, which the Prototype cannot receive.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tscroll"><table class="dt" id="hw-table">
+        <thead><tr><th>Technology</th><th>What it would improve</th><th>Indicative specification and rationale</th><th>Phase</th></tr></thead>
+        <tbody>
+          <tr><td>CPU (cloud or server)</td><td>Simulation speed and scenario volume</td><td>The engine is sequential per run but independent across runs, so a batch of scenarios should spread across cores (expected, not yet measured). A 16-core worker would be a reasonable starting point; 384 runs at 0.42 s would be roughly 10 s of compute if cores scale. Right-size after profiling.</td><td>2</td></tr>
+          <tr><td>GPU</td><td>Only if machine-learning or very large Monte Carlo work is added</td><td><b>Not needed today:</b> the model is rule-based and not ML. A GPU would be justified only for a future surrogate model of the simulator or probabilistic studies over thousands of weather and price years.</td><td>4+</td></tr>
+          <tr><td>RAM</td><td>Scenario analysis without slowdowns</td><td>About 24 MB per cached run (measured). A worker running 16 simulations at once needs roughly 0.4 GB for series data plus the shared reference data, so 8 GB per worker leaves ample room; large weather-year sweeps would raise this.</td><td>2</td></tr>
+          <tr><td>Storage</td><td>Saved projects, datasets, results, and later telemetry</td><td>Today's datasets total about 3 MB of data files. Telemetry is the real driver: 1,000 sensor points sampled once a second at 8 bytes is about 0.7 GB a day (about 250 GB a year) before compression. Plan on a time-series store with retention rules.</td><td>1, 4</td></tr>
+          <tr><td>Cloud computing</td><td>Scalable processing, saved projects, collaboration, enterprise deployment</td><td>A small hosted API (simulation endpoint, project storage, authentication) and a job queue for batches. Start on a managed platform; avoid buying hardware before demand exists.</td><td>1 to 3</td></tr>
+          <tr><td>IoT sensors</td><td>Data accuracy and operational intelligence</td><td>Power meters on feeders and distribution units, temperature and humidity, cooling-loop flow and temperature, generator and battery state. Their readings would let the model be compared with what a real site does.</td><td>4</td></tr>
+          <tr><td>Edge gateways</td><td>Safe connection to site equipment</td><td>One gateway per site reading equipment over common industrial protocols (for example Modbus, BACnet, SNMP, OPC UA) and forwarding over MQTT or HTTPS. Read-only at first.</td><td>4</td></tr>
+          <tr><td>Digital twin</td><td>Operational intelligence: compare the plan with measured behaviour</td><td>Calibrate the simulator with measured power and cooling data, then use gaps to flag drift or equipment problems. Depends on sensors, gateways and storage above.</td><td>5</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Phased priorities</h3>
+      <ol class="phases">
+        <li><span class="ph">Phase 1</span><b>Hosted foundation.</b> Accounts, saved projects and a hosted copy of the Prototype. Needs cloud storage and authentication, no special hardware.</li>
+        <li><span class="ph">Phase 2</span><b>Scale the simulation.</b> A simulation API and job queue so batches run in parallel on cloud CPUs. Profile first, then size.</li>
+        <li><span class="ph">Phase 3</span><b>Customer data in.</b> Upload and validation of customer meter and cost files (read-only), so projects use real numbers. This reuses the same cloud pieces.</li>
+        <li><span class="ph">Phase 4</span><b>Pilot-site telemetry.</b> Sensors and one edge gateway at a willing pilot site, feeding a time-series store.</li>
+        <li><span class="ph">Phase 5</span><b>Digital twin.</b> Calibrate the model to measured data and add monitoring and alerts.</li>
+      </ol>
+      <p class="muted sm">Order reflects dependencies and cost: each phase uses what the previous one built, and hardware is deferred until a pilot partner exists.</p>
+    </div>

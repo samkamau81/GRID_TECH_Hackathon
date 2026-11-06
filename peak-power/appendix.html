@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="css/main.css">
 <link rel="stylesheet" href="css/appendix.css">
 <link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/chatbot.css">
 </head>
 <body>
 <a class="skip" href="#appx">Skip to content</a>
@@ -37,7 +38,8 @@
     <button role="tab" id="t-model" aria-controls="s-model" aria-selected="true" data-sec="model"><span class="k">A</span>Model and methodology</button>
     <button role="tab" id="t-data" aria-controls="s-data" aria-selected="false" data-sec="data" tabindex="-1"><span class="k">B</span>Data sources and integrity</button>
     <button role="tab" id="t-insights" aria-controls="s-insights" aria-selected="false" data-sec="insights" tabindex="-1"><span class="k">C</span>Correlations and insights</button>
-    <button role="tab" id="t-limits" aria-controls="s-limits" aria-selected="false" data-sec="limits" tabindex="-1"><span class="k">D</span>Limitations and next steps</button>
+    <button role="tab" id="t-business" aria-controls="s-business" aria-selected="false" data-sec="business" tabindex="-1"><span class="k">D</span>Business model</button>
+    <button role="tab" id="t-limits" aria-controls="s-limits" aria-selected="false" data-sec="limits" tabindex="-1"><span class="k">E</span>Limitations, roadmap and hardware</button>
   </div>
 
   <!-- ============ A. MODEL ============ -->
@@ -122,7 +124,7 @@
         <li><b>Each project</b> is a site with its own grid delay, acres, permit assumption and stress case. State is kept per project, so switching projects does not carry settings across.</li>
         <li><b>For every possible opening month</b> the app picks the plan with the best 10-year profit that fits the land, meets the carbon limit and the wind-and-solar share cap, and serves the load.</li>
         <li><b>The recommendation</b> is the feasible opening month with the highest profit within the deadline. Neighbouring months are shown beside it so the trade (earlier revenue against more gas cost) is visible.</li>
-        <li><b>The alternatives table</b> shows the recommended plan next to a cleaner plan (same opening month, lowest carbon that passes), a faster plan (earliest credible opening) and, when a carbon limit is set, a cheaper plan without that limit. It states the dollars per tonne of CO₂ the limit costs.</li>
+        <li><b>Comparing options.</b> Changing the carbon limit, deadline, grid delay or land re-runs every opening month, so a team can compare scenarios by changing one input at a time. The Prototype no longer shows a separate recommended-versus-alternative table.</li>
         <li><b>Relocation and interruption costs</b> are reported separately from the business assumptions (rent, markup, price).</li>
       </ul>
     </div>
@@ -153,7 +155,7 @@
         <thead><tr><th>Dataset</th><th>Join key</th><th>Feeds</th></tr></thead>
         <tbody>
           <tr><td>Packet reference year and resource catalogue</td><td>Hour of year (0 to 8,759); resource id</td><td>Dispatch engine → every cost, carbon and reliability figure on Project Plan, Run the plant and Live operations</td></tr>
-          <tr><td>Plan library (384 plans)</td><td>Opening month, contract mix, battery size, policy, mode</td><td>Start-month chart, recommendation, alternatives table</td></tr>
+          <tr><td>Plan library (384 plans)</td><td>Opening month, contract mix, battery size, policy, mode</td><td>Start-month chart and the best-opening recommendation</td></tr>
           <tr><td>County attributes</td><td>5-digit county FIPS (state 2 digits + county 3 digits)</td><td>Find a site map, county grades, the nine project dimensions, Appendix correlations</td></tr>
           <tr><td>County grades (generated)</td><td>County FIPS</td><td>Appendix grade distribution and grade-agreement matrix; produced by running the Prototype's own grading code</td></tr>
           <tr><td>EIA-860 plants</td><td>State abbreviation</td><td>Appendix state-level capacity analysis</td></tr>
@@ -211,7 +213,78 @@
     </div>
   </section>
 
-  <!-- ============ D. LIMITS ============ -->
+  <!-- ============ D. BUSINESS MODEL ============ -->
+  <section class="asec" id="s-business" role="tabpanel" aria-labelledby="t-business" hidden>
+    <div class="card callout">
+      <h2>How Peak Power could become a business</h2>
+      <p><b>This section is a proposal, not evidence.</b> Peak Power has no customers, no revenue, no signed partners and no market sizing today. Prices, customer counts and rates below are assumptions the team made to show how a business could work, so they can be tested. They live in one file (<code>js/data/business-model.js</code>) and every table and chart on this page is computed from it.</p>
+      <div class="legend" aria-label="Status labels">
+        <span><span class="badge built">Built</span> exists in the Prototype today</span>
+        <span><span class="badge prop">Proposed</span> a team assumption</span>
+        <span><span class="badge todo">Not validated</span> needs customer or market evidence</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>A hybrid revenue model: four streams</h2>
+      <div class="tscroll"><table class="dt">
+        <thead><tr><th>Stream</th><th>What the customer buys</th><th>Proposed pricing</th><th>Type</th><th>Main revenue driver</th></tr></thead>
+        <tbody>
+          <tr><td>1. Tiered subscriptions</td><td>Access for individuals, teams and companies at three levels</td><td>$3,600 / $18,000 / about $120,000 a year</td><td><span class="badge rec">Recurring</span></td><td>Number of paying accounts and tier mix</td></tr>
+          <tr><td>2. Enterprise licensing</td><td>Annual contract for portfolio planning, collaboration, advanced simulation, integrations</td><td>$75,000 to $250,000 a year (the Enterprise tier above)</td><td><span class="badge rec">Recurring</span></td><td>Number of enterprise contracts, sites per portfolio</td></tr>
+          <tr><td>3. Usage-based services</td><td>Extra simulation runs, specialised reports, API calls</td><td id="usage-prices"></td><td><span class="badge rec">Recurring, variable</span></td><td>Customer activity beyond the plan allowance</td></tr>
+          <tr><td>4. Consulting and implementation</td><td>Custom feasibility studies, onboarding, data integration</td><td id="svc-prices"></td><td><span class="badge one">One-time</span></td><td>Number of engagements; also a route to new licences</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <h2>Customer segments and pricing tiers</h2>
+      <div class="tiers" id="tiers"></div>
+      <p class="muted sm">Segments follow the people the landing page describes: developers, operators and investors. Which segment pays most, and for what, is not validated.</p>
+    </div>
+
+    <div class="card">
+      <h2>Unit economics (assumptions)</h2>
+      <p>Lifetime value is annual price × gross margin ÷ annual churn. Payback is acquisition cost ÷ monthly gross profit. These ratios follow mechanically from the assumed inputs; they are <b>targets to test in pilots</b>, not results.</p>
+      <div class="tscroll"><table class="dt" id="unit-table"></table></div>
+    </div>
+
+    <div class="card">
+      <h2>Illustrative annual revenue scenarios</h2>
+      <p>Three adoption paths over three years. Customer counts are assumed paying accounts at the end of each year; revenue uses the average over the year. These are not forecasts.</p>
+      <div class="seg" role="group" aria-label="Choose scenario" id="scn"></div>
+      <p class="muted" id="scn-blurb"></p>
+      <div class="insgrid revgrid">
+        <div><div id="rev-chart" class="revchart" role="img" aria-label="Stacked bar chart of illustrative annual revenue by stream"></div><div class="legend" id="rev-legend"></div></div>
+        <div class="tscroll"><table class="dt" id="rev-table"></table></div>
+      </div>
+      <details class="fold"><summary>Customer-count assumptions behind this scenario</summary><div class="tscroll"><table class="dt" id="cust-table"></table></div></details>
+      <p class="muted sm" id="rev-note"></p>
+    </div>
+
+    <div class="card">
+      <h2>Go-to-market: five phases</h2>
+      <ol class="phases" id="phases"></ol>
+      <p class="muted sm">Time ranges are planning assumptions counted from the start of a funded effort. Each phase ends on an evidence gate, so spending follows what has been proven.</p>
+    </div>
+
+    <div class="card">
+      <h2>What is evidence and what is assumption</h2>
+      <div class="tscroll"><table class="dt">
+        <thead><tr><th>Statement</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>The Prototype screens counties on nine dimensions and simulates a plan hour by hour over ten years</td><td><span class="badge built">Built</span> (sections A to C)</td></tr>
+          <tr><td>Revenue-model logic (lease, pass-through, bundled, hybrid) for the campus operator's own profit</td><td><span class="badge built">Built</span>, a different thing from Peak Power's own pricing</td></tr>
+          <tr><td>Peak Power's prices, tiers, customer counts, churn, acquisition costs, gross margins</td><td><span class="badge prop">Proposed</span> assumptions</td></tr>
+          <tr><td>Willingness to pay, market size, competitors' pricing</td><td><span class="badge todo">Not validated</span>, no research done</td></tr>
+          <tr><td>Customers, pilots, revenue, partners</td><td><span class="badge todo">None exist today</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <!-- ============ E. LIMITS, ROADMAP, HARDWARE ============ -->
   <section class="asec" id="s-limits" role="tabpanel" aria-labelledby="t-limits" hidden>
     <div class="card">
       <h2>Technical limitations</h2>
@@ -251,7 +324,7 @@
       </div>
     </div>
     <div class="card">
-      <h2>Areas for additional research and future improvements</h2>
+      <h2>Areas for additional research and data improvements</h2>
       <div class="tscroll"><table class="dt">
         <thead><tr><th>Improvement</th><th>What it would add</th><th>Candidate public source</th></tr></thead>
         <tbody>
@@ -265,11 +338,58 @@
         </tbody>
       </table></div>
     </div>
+    <div class="card">
+      <h2>Hardware and infrastructure roadmap</h2>
+      <p>This separates what exists today from what could be added. <b>Nothing in the proposed column is built.</b> Specifications are given only where a measurement or simple arithmetic supports them.</p>
+      <div class="two">
+        <div class="baseline">
+          <h3><span class="badge built">Built</span> Today</h3>
+          <ul class="tick">
+            <li>The whole simulation runs in the user's own browser. There is no server, database or account.</li>
+            <li>Measured in Node on a 4-core, 16 GB laptop: one 10-year plan simulation (87,600 hours) takes about <b>0.26 to 0.89 s</b> (median 0.42 s).</li>
+            <li>One run holds 41 hourly data series, about <b>24 MB</b> of memory. The Prototype keeps recent runs cached.</li>
+            <li>Measured in headless Chrome: roughly 200 to 250 MB of JavaScript memory after load, rising to 350 to 600 MB after exploring several projects.</li>
+            <li>The 384-plan library was pre-computed offline, so opening the app does not re-run it.</li>
+          </ul>
+        </div>
+        <div class="baseline">
+          <h3><span class="badge prop">Proposed</span> Where limits will appear</h3>
+          <ul class="tick">
+            <li>Many scenarios at once, or many years of weather, will outgrow one browser tab: 384 runs would take about 2.7 minutes on one core (384 × 0.42 s).</li>
+            <li>Portfolio and enterprise use needs shared, saved projects, which need a server.</li>
+            <li>Real-time monitoring needs data from physical equipment, which the Prototype cannot receive.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tscroll"><table class="dt" id="hw-table">
+        <thead><tr><th>Technology</th><th>What it would improve</th><th>Indicative specification and rationale</th><th>Phase</th></tr></thead>
+        <tbody>
+          <tr><td>CPU (cloud or server)</td><td>Simulation speed and scenario volume</td><td>The engine is sequential per run but independent across runs, so a batch of scenarios should spread across cores (expected, not yet measured). A 16-core worker would be a reasonable starting point; 384 runs at 0.42 s would be roughly 10 s of compute if cores scale. Right-size after profiling.</td><td>2</td></tr>
+          <tr><td>GPU</td><td>Only if machine-learning or very large Monte Carlo work is added</td><td><b>Not needed today:</b> the model is rule-based and not ML. A GPU would be justified only for a future surrogate model of the simulator or probabilistic studies over thousands of weather and price years.</td><td>4+</td></tr>
+          <tr><td>RAM</td><td>Scenario analysis without slowdowns</td><td>About 24 MB per cached run (measured). A worker running 16 simulations at once needs roughly 0.4 GB for series data plus the shared reference data, so 8 GB per worker leaves ample room; large weather-year sweeps would raise this.</td><td>2</td></tr>
+          <tr><td>Storage</td><td>Saved projects, datasets, results, and later telemetry</td><td>The shipped data files are a few megabytes. Telemetry is the real driver: 1,000 sensor points sampled once a second at 8 bytes is about 0.7 GB a day (about 250 GB a year) before compression. Plan on a time-series store with retention rules.</td><td>1, 4</td></tr>
+          <tr><td>Cloud computing</td><td>Scalable processing, saved projects, collaboration, enterprise deployment</td><td>A small hosted API (simulation endpoint, project storage, authentication) and a job queue for batches. Start on a managed platform; avoid buying hardware before demand exists.</td><td>1 to 3</td></tr>
+          <tr><td>IoT sensors</td><td>Data accuracy and operational intelligence</td><td>Power meters on feeders and distribution units, temperature and humidity, cooling-loop flow and temperature, generator and battery state. Their readings would let the model be compared with what a real site does.</td><td>4</td></tr>
+          <tr><td>Edge gateways</td><td>Safe connection to site equipment</td><td>One gateway per site reading equipment over common industrial protocols (for example Modbus, BACnet, SNMP, OPC UA) and forwarding over MQTT or HTTPS. Read-only at first.</td><td>4</td></tr>
+          <tr><td>Digital twin</td><td>Operational intelligence: compare the plan with measured behaviour</td><td>Calibrate the simulator with measured power and cooling data, then use gaps to flag drift or equipment problems. Depends on sensors, gateways and storage above.</td><td>5</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Phased priorities</h3>
+      <ol class="phases">
+        <li><span class="ph">Phase 1</span><b>Hosted foundation.</b> Accounts, saved projects and a hosted copy of the Prototype. Needs cloud storage and authentication, no special hardware.</li>
+        <li><span class="ph">Phase 2</span><b>Scale the simulation.</b> A simulation API and job queue so batches run in parallel on cloud CPUs. Profile first, then size.</li>
+        <li><span class="ph">Phase 3</span><b>Customer data in.</b> Upload and validation of customer meter and cost files (read-only), so projects use real numbers. This reuses the same cloud pieces.</li>
+        <li><span class="ph">Phase 4</span><b>Pilot-site telemetry.</b> Sensors and one edge gateway at a willing pilot site, feeding a time-series store.</li>
+        <li><span class="ph">Phase 5</span><b>Digital twin.</b> Calibrate the model to measured data and add monitoring and alerts.</li>
+      </ol>
+      <p class="muted sm">Order reflects dependencies and cost: each phase uses what the previous one built, and hardware is deferred until a pilot partner exists.</p>
+    </div>
   </section>
 
   <footer class="afoot"><span>Peak Power · Appendix</span><span id="built" class="muted"></span></footer>
 </main>
 
 <script src="js/appendix.js"></script>
+<script src="js/chatbot.js" defer></script>
 </body>
 </html>

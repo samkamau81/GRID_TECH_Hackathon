@@ -1,0 +1,109 @@
+  <!-- Section 1: Hero -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-in">
+      <div class="hero-copy">
+        <p class="eyebrow hero-a1">Data center planning and operations</p>
+        <h1 id="hero-title" class="hero-a2">PEAK <span>POWER</span></h1>
+        <p class="tagline hero-a3">Decide where to build, how to power it, and how it holds up.</p>
+        <p class="lede hero-a4">Peak Power is a data center planning and operations simulation platform. It helps developers, operators and investors screen sites, simulate power and infrastructure decisions, compare scenarios, and see the cost, energy and reliability trade-offs before capital is committed.</p>
+        <div class="hero-actions hero-a5">
+          <a class="btn btn-primary" href="prototype.html">Open the prototype <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#about">Why Peak Power?</a>
+        </div>
+        <ul class="caps hero-a5" aria-label="What Peak Power does">
+          <li>Site screening</li><li>Power and cost simulation</li><li>Reliability and carbon trade-offs</li>
+        </ul>
+      </div>
+
+      <figure class="hero-visual hero-a3">
+        <svg viewBox="0 0 480 400" role="img" aria-labelledby="viz-t viz-d">
+          <defs><linearGradient id="vgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand-blue)"/><stop offset="1" style="stop-color:var(--brand-green)"/></linearGradient></defs>
+          <title id="viz-t">Planning considerations around a data center</title>
+          <desc id="viz-d">An illustration of the considerations Peak Power brings together for a data center: grid connection, power supply, land and permits, fiber and network, water and hazard risk, and policy.</desc>
+          <g class="viz-links" fill="none" stroke-width="3" stroke-linecap="round">
+            <path d="M150 50 C240 50 240 200 330 200"  style="stroke:var(--s-grid)"/>
+            <path d="M150 115 C240 115 240 200 330 200" style="stroke:var(--s-solar)"/>
+            <path d="M150 180 C240 180 240 200 330 200" style="stroke:var(--s-rel)"/>
+            <path d="M150 245 C240 245 240 200 330 200" style="stroke:var(--s-bat)"/>
+            <path d="M150 310 C240 310 240 200 330 200" style="stroke:var(--s-wind)"/>
+            <path d="M150 375 C240 375 240 200 330 200" style="stroke:var(--s-gas)"/>
+          </g>
+          <g class="viz-nodes">
+            <rect x="0" y="30"  width="150" height="40" rx="8"/><text x="14" y="55">Grid connection</text>
+            <rect x="0" y="95"  width="150" height="40" rx="8"/><text x="14" y="120">Power supply</text>
+            <rect x="0" y="160" width="150" height="40" rx="8"/><text x="14" y="185">Land and permits</text>
+            <rect x="0" y="225" width="150" height="40" rx="8"/><text x="14" y="250">Fiber and network</text>
+            <rect x="0" y="290" width="150" height="40" rx="8"/><text x="14" y="315">Water and hazards</text>
+            <rect x="0" y="355" width="150" height="40" rx="8"/><text x="14" y="380">Policy</text>
+          </g>
+          <g class="viz-campus">
+            <rect x="330" y="140" width="150" height="120" rx="12"/>
+            <text x="405" y="206" text-anchor="middle" class="big">Data Center</text>
+          </g>
+        </svg>
+        <figcaption>Illustrative: the considerations Peak Power brings into one planning view.</figcaption>
+      </figure>
+    </div>
+    <a class="scroll-hint" href="#about" aria-label="Scroll to the next section"><span aria-hidden="true">↓</span></a>
+  </section>
+
+  <!-- Section 2: About -->
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="eyebrow">About Peak Power</p>
+        <h2 id="about-title">What Is Peak Power?</h2>
+        <p class="section-lede">Peak Power turns the biggest data center planning question, where to build and how to power it, into something you can explore. It combines site screening, power-plan simulation and operating scenarios in one place, so a team can compare options and understand the trade-offs behind each one. Today it is a working prototype: a screening and decision-support tool, not a quote or a guarantee.</p>
+      </div>
+      <ul class="who">
+        <li class="card reveal"><h3>Developers</h3><p>Screen counties and compare projects before spending on land, studies and interconnection requests.</p></li>
+        <li class="card reveal"><h3>Operators</h3><p>Test how a power plan behaves through stress: grid events, wind and solar lulls, equipment outages.</p></li>
+        <li class="card reveal"><h3>Investors</h3><p>See what a plan costs, how clean it is and what it gives up, with the assumptions shown rather than hidden.</p></li>
+      </ul>
+
+      <div class="grid-2">
+        <article class="card reveal">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 2 21h20L12 3Z"/><path d="M12 10v5M12 18v.5"/></svg></span>
+          <h3>The problem</h3>
+          <ul class="ticks">
+            <li><strong>Fragmented data.</strong> Grid queues, water, hazard, fiber and policy information sit in different sources, formats and years.</li>
+            <li><strong>Costly decisions.</strong> Land, interconnection and equipment commitments are hard to reverse.</li>
+            <li><strong>Uncertain energy.</strong> When power arrives, and how much, drives when revenue can start.</li>
+            <li><strong>Operating limits.</strong> Grid stress and variable renewables constrain what can run, and when.</li>
+            <li><strong>Hard comparisons.</strong> Few tools put sites and power plans side by side on cost, carbon and reliability.</li>
+          </ul>
+        </article>
+        <article class="card reveal">
+          <span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg></span>
+          <h3>Our solution</h3>
+          <p>One planning environment that brings three things together:</p>
+          <ul class="ticks">
+            <li><strong>Data.</strong> County-level screening across nine comparison dimensions, with sources and gaps listed in the Appendix.</li>
+            <li><strong>Simulation.</strong> An hour-by-hour model of the power plan over ten years, including stress events.</li>
+            <li><strong>Decision support.</strong> Start-month, cost, carbon and reliability results, with the reasoning shown.</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="reveal">
+        <h3 class="sub-h">Objectives, and where you can see them</h3>
+        <p class="section-lede narrow">Each objective maps to something you can try in the prototype today.</p>
+      </div>
+      <div class="tscroll reveal"><table class="obj">
+        <thead><tr><th>Objective</th><th>In the prototype</th></tr></thead>
+        <tbody>
+          <tr><td>Screen and compare sites</td><td><b>Portfolio</b>: project cards graded on nine dimensions, a timeline, and a county map to find a site.</td></tr>
+          <tr><td>Recommend a feasible power plan</td><td><b>Project plan</b>: revenue model, the best start month, and the energy and reliability tests behind it.</td></tr>
+          <tr><td>Show cost, carbon and trade-offs</td><td><b>Run the plant</b>: 10-year cost, carbon limits and the decisions a board would weigh.</td></tr>
+          <tr><td>Test operations under stress</td><td><b>Live operations</b>: hour-by-hour dispatch and simulated events such as an outage or a wind lull.</td></tr>
+          <tr><td>Be transparent about evidence</td><td><b>Appendix</b>: methodology, data sources, correlations, limitations and the business model.</td></tr>
+        </tbody>
+      </table></div>
+
+      <aside class="expect reveal" aria-label="What to expect">
+        <h3>What to expect</h3>
+        <p>Peak Power is a screening tool built from benchmark assumptions. Results compare options; they are not a project quote or a guarantee of uptime. The Appendix is explicit about what is modelled, what is not, and what would need validating.</p>
+      </aside>
+    </div>
+  </section>
+

@@ -1,0 +1,29 @@
+PASS navigation has exactly Introduction, Prototype, Appendix
+PASS Appendix is the current page
+PASS five sections, model section visible first
+PASS nine comparison dimensions listed
+PASS statistics are not loaded until needed
+PASS dataset inventory lists 8 datasets
+PASS missing-value counts are computed from data (62 water, 9 hazard)
+PASS dataset filter narrows the list
+PASS correlation matrix has 25 cells
+PASS default pair reports n = 3,142
+PASS clicking a cell changes the pair (water vs hazard, n = 3,071)
+PASS scatter canvas has plotted points
+PASS state analysis reports n = 47
+PASS grade view mat renders
+PASS grade view inp renders
+PASS grade view dist renders
+PASS model-generated and causation caveats are present
+PASS limitations section opens
+PASS tab is focusable
+PASS no console errors
+PASS no failed requests
+PASS no horizontal overflow at 1400px
+PASS no errors at 1400
+PASS no horizontal overflow at 1400px dark
+PASS no errors at 1400
+PASS no horizontal overflow at 390px
+PASS no errors at 390
+
+27 passed, 0 failed

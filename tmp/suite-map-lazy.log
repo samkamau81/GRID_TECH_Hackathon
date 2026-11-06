@@ -1,0 +1,4 @@
+PASS Texas map draws 254 county paths
+PASS US shapes not requested on load
+PASS Texas shapes requested once
+PASS paths carry real geometry
