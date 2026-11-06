@@ -101,21 +101,15 @@ h1 span { color: var(--accent); }
 @media (max-width: 1000px) { .who { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .who { grid-template-columns: minmax(0, 1fr); } }
 
-/* QR card: top-right of the hero, stacked above the illustration (no overlap); static, so it scans cleanly */
-.hero-copy { grid-row: 1 / span 2; }
-.hero-in { row-gap: 16px; }
-.qr-card { grid-column: 2; grid-row: 1; justify-self: end; display: flex; align-items: center; gap: 16px; padding: 12px 18px 12px 12px; background: var(--panel); border: 1px solid var(--rule); border-top: 3px solid var(--gold); border-radius: 12px; box-shadow: var(--shadow); }
-.hero-visual { grid-column: 2; grid-row: 2; }
-.qr-link { display: block; flex: none; line-height: 0; background: #fff; padding: 8px; border-radius: 6px; }
-.qr-link img { width: 164px; height: 164px; display: block; image-rendering: pixelated; }
-.qr-text { max-width: 150px; }
-.qr-cap { font-family: var(--f-display); font-weight: 600; font-size: 1.05rem; line-height: 1.2; color: var(--ink); }
-.qr-sub { font-size: 12.5px; color: var(--ink-2); margin-top: 6px; }
+
+/* QR card: pinned to the top-right of the hero, out of normal flow (position:absolute), so it takes no grid space and moves nothing.
+   It sits in the empty corner above the DATA CENTER box; static, no effects, so it scans cleanly. */
+.hero-in { position: relative; }
+.qr-card { position: absolute; top: -26px; right: 20px; z-index: 2; box-sizing: border-box; width: 180px; padding: 6px 6px 8px; text-align: center; background: var(--panel); border: 1px solid var(--rule); border-top: 3px solid var(--gold); border-radius: 12px; box-shadow: var(--shadow); }
+.qr-link { display: block; line-height: 0; }
+.qr-link img { width: 164px; height: 164px; display: block; margin: 0 auto; }
+.qr-cap { font-family: var(--f-display); font-weight: 600; font-size: .85rem; line-height: 1.25; color: var(--ink); margin-top: 4px; }
+/* one-column layout: no free corner, so the card follows the illustration as a normal block (nothing above it moves) */
 @media (max-width: 880px) {
-  .hero-copy, .qr-card, .hero-visual { grid-column: auto; grid-row: auto; }
-  .qr-card { justify-self: center; }
-}
-@media (max-width: 560px) {
-  .qr-card { flex-direction: column; text-align: center; padding: 12px 16px 14px; }
-  .qr-text { max-width: none; }
+  .qr-card { position: static; margin: 0 auto; }
 }
