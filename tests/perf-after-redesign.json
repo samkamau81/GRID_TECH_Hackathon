@@ -1,0 +1,138 @@
+{
+ "label": "after-redesign",
+ "when": "2026-11-06T05:09:01.314Z",
+ "runs": 3,
+ "pages": {
+  "index.html": {
+   "load_ms_median": 316,
+   "load_ms_all": [
+    325,
+    297,
+    316
+   ],
+   "heap_mb_median": 0.8,
+   "requests": 11,
+   "same_origin_bytes": 555006,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/assets/images/Mridul.jpeg",
+     "b": 267553,
+     "ms": 59
+    },
+    {
+     "u": "/assets/images/md_joy.jpeg",
+     "b": 190589,
+     "ms": 55
+    },
+    {
+     "u": "/assets/images/Aleya.jpg",
+     "b": 38805,
+     "ms": 47
+    },
+    {
+     "u": "/assets/images/samwel.jpg",
+     "b": 19609,
+     "ms": 53
+    }
+   ],
+   "errors": [],
+   "failed": []
+  },
+  "prototype.html": {
+   "load_ms_median": 1297,
+   "load_ms_all": [
+    1231,
+    1297,
+    1352
+   ],
+   "heap_mb_median": 252.1,
+   "requests": 10,
+   "same_origin_bytes": 1950484,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/js/data/reference-data.js",
+     "b": 744745,
+     "ms": 175
+    },
+    {
+     "u": "/js/data/site-counties.js",
+     "b": 555482,
+     "ms": 169
+    },
+    {
+     "u": "/js/data/scenarios.js",
+     "b": 262029,
+     "ms": 162
+    },
+    {
+     "u": "/js/prototype.js",
+     "b": 246901,
+     "ms": 168
+    }
+   ],
+   "errors": [],
+   "failed": []
+  },
+  "data-centers.html": {
+   "load_ms_median": 42,
+   "load_ms_all": [
+    42,
+    46,
+    30
+   ],
+   "heap_mb_median": 0.7,
+   "requests": 0,
+   "same_origin_bytes": 0,
+   "duplicate_requests": [],
+   "biggest": [],
+   "errors": [],
+   "failed": [
+    "404 http://127.0.0.1:60375/data-centers.html"
+   ]
+  },
+  "appendix.html": {
+   "load_ms_median": 432,
+   "load_ms_all": [
+    432,
+    486,
+    367
+   ],
+   "heap_mb_median": 0.9,
+   "requests": 7,
+   "same_origin_bytes": 78582,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/js/appendix.js",
+     "b": 40402,
+     "ms": 20
+    },
+    {
+     "u": "/css/appendix.css",
+     "b": 10731,
+     "ms": 32
+    },
+    {
+     "u": "/js/chatbot.js",
+     "b": 9793,
+     "ms": 23
+    },
+    {
+     "u": "/css/theme.css",
+     "b": 7377,
+     "ms": 32
+    }
+   ],
+   "errors": [],
+   "failed": []
+  }
+ },
+ "prototype_interactions_ms": {
+  "portfolio_to_plan": 309,
+  "plan_to_portfolio": 279,
+  "find_site_first_view": 429
+ },
+ "prototype_heap_after_mb": 473.5
+}

@@ -5,7 +5,7 @@
    Palette: primary gold #D4AF37, deep gold #B8860B, charcoal #171717, warm white #FAF9F6, light gold #F3E5AB, neutral gray #6B7280.
    Gold is for primary actions, the selected state and key highlights. Gold on a light page cannot carry small text, so text and
    outlines use --accent (a darker gold, #8a6508, 5.1:1 on warm white); the bright gold is used as a fill with charcoal text on it
-   (#171717 on #D4AF37 is 8.6:1). Dark mode flips --accent to the bright gold (8.6:1 on charcoal).
+   (#171717 on #D4AF37 is 8.6:1). The theme is fixed: there is no dark mode and nothing follows prefers-color-scheme.
    Data colours (--s-* generation sources, --cost, --rev, --bad, --good, warn) are NOT changed, so charts and grades keep their meaning;
    the three demand tiers (--t0..t2) use a gold ramp from tokens.css. */
 
@@ -15,6 +15,8 @@
   --accent:#8a6508; --accent-ink:#171717; --accent-soft:#f8f0d2; --warn-bg:#fff4dc; --warn-ink:#6b4a00; --bad-bg:#fde8e6;
   --bad:#b3261e; --good:#0b7a0b; --good-bg:#e5f4e5;
   --t0:#6b4f06; --t1:#B8860B; --t2:#ecd689;
+  --blue:#3B82F6; --blue-deep:#1D4ED8; --blue-soft:color-mix(in srgb,#3B82F6 14%,#FAF9F6);   /* accent blue: infrastructure links, technical indicators */
+  color-scheme:light;
   --brand-blue:var(--gold-deep); --brand-green:var(--gold);   /* legacy names kept so older rules and the logo gradient follow the theme */
   --grad:linear-gradient(100deg,var(--gold),#c79a1c);
   --grad-text:linear-gradient(100deg,#8a6508,#b8860b);
@@ -22,28 +24,11 @@
   --shadow:0 1px 2px rgb(23 23 23 / .06),0 12px 26px -16px rgb(23 23 23 / .25);
   --ring:0 0 0 3px color-mix(in srgb,var(--gold) 55%,transparent);
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#171717; --panel:#201f1c; --ink:#FAF9F6; --ink-2:#d2cdc0; --ink-3:#9ca3af; --rule:#38342b; --rule-2:#2a2823;
-  --accent:#D4AF37; --accent-ink:#171717; --accent-soft:#2f2914; --warn-bg:#3a2f12; --warn-ink:#f3d48c; --bad-bg:#3d1d1a;
-  --bad:#e66767; --good:#4cc34c; --good-bg:#1b3220; --t0:#f3e5ab; --t1:#D4AF37; --t2:#6b5410; color-scheme:dark;
-  --grad-text:linear-gradient(100deg,#F3E5AB,#D4AF37);
-  --shadow:0 1px 2px rgb(0 0 0 / .45),0 14px 30px -16px rgb(0 0 0 / .75);
-}}
-:root[data-theme="dark"]{
-  --bg:#171717; --panel:#201f1c; --ink:#FAF9F6; --ink-2:#d2cdc0; --ink-3:#9ca3af; --rule:#38342b; --rule-2:#2a2823;
-  --accent:#D4AF37; --accent-ink:#171717; --accent-soft:#2f2914; --warn-bg:#3a2f12; --warn-ink:#f3d48c; --bad-bg:#3d1d1a;
-  --bad:#e66767; --good:#4cc34c; --good-bg:#1b3220; --t0:#f3e5ab; --t1:#D4AF37; --t2:#6b5410; color-scheme:dark;
-  --grad-text:linear-gradient(100deg,#F3E5AB,#D4AF37);
-  --shadow:0 1px 2px rgb(0 0 0 / .45),0 14px 30px -16px rgb(0 0 0 / .75);
-}
-
 /* ---------- every page ---------- */
 body{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 9%,var(--bg)) 0,var(--bg) 360px) top/100% 360px no-repeat,var(--bg)}
 ::selection{background:color-mix(in srgb,var(--gold) 38%,transparent)}
 html{scrollbar-color:color-mix(in srgb,var(--gold-deep) 55%,var(--rule)) transparent}
 :focus-visible{outline:3px solid var(--gold-deep);outline-offset:3px;border-radius:4px}
-:root[data-theme="dark"] :focus-visible{outline-color:var(--gold)}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) :focus-visible{outline-color:var(--gold)}}
 
 /* a thin gold rule across the top edge of every page */
 body::before{content:"";position:fixed;inset:0 0 auto 0;height:3px;z-index:200;pointer-events:none;background:linear-gradient(90deg,var(--gold-deep),var(--gold),var(--gold-light),var(--gold),var(--gold-deep))}
@@ -72,20 +57,12 @@ body::before{content:"";position:fixed;inset:0 0 auto 0;height:3px;z-index:200;p
   -webkit-mask-image:radial-gradient(ellipse 70% 75% at 72% 38%,#000 15%,transparent 75%);mask-image:radial-gradient(ellipse 70% 75% at 72% 38%,#000 15%,transparent 75%)}
 .hero-in{position:relative;z-index:1}
 h1 span{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
-.stats{border-top-color:color-mix(in srgb,var(--gold-deep) 40%,var(--rule))}
-.stats dd{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
-.viz-campus rect{fill:url(#vgrad)}
-.viz-campus{filter:drop-shadow(0 12px 22px color-mix(in srgb,var(--gold-deep) 35%,transparent))}
-.viz-nodes rect{stroke:color-mix(in srgb,var(--gold-deep) 28%,var(--rule))}
 .section .card{position:relative;box-shadow:var(--shadow)}
 .section .card::before{content:"";position:absolute;left:-1px;right:-1px;top:-1px;height:4px;border-radius:14px 14px 0 0;background:var(--grad);opacity:0;transition:opacity .25s ease}
 .section .card:hover::before{opacity:1}
 .section .card:hover{box-shadow:0 18px 38px -18px color-mix(in srgb,var(--gold-deep) 55%,transparent)}
 .icon{background:var(--grad-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold-deep) 25%,transparent)}
 .ticks li::before{border-color:var(--gold-deep)}
-.step-n{background:var(--grad);color:var(--charcoal)}
-.expect{position:relative;overflow:hidden;border-left:0;padding-left:33px;background:var(--grad-soft)}
-.expect::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--gold-deep),var(--gold))}
 .avatar{background:var(--grad);color:var(--charcoal)}
 img.avatar{box-shadow:0 0 0 3px var(--panel),0 0 0 5px color-mix(in srgb,var(--gold-deep) 60%,transparent)}
 .cta{background:radial-gradient(820px 380px at 50% 0%,color-mix(in srgb,var(--gold) 18%,transparent),transparent 70%),

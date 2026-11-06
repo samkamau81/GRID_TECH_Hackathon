@@ -1,5 +1,6 @@
-/* Design tokens: colours, fonts, and the light/dark themes. */
+/* Design tokens: colours and fonts. One fixed light theme: Peak Power does not follow the browser or OS light/dark setting. */
 :root{
+  color-scheme:light;
   --bg:#FAF9F6; --panel:#ffffff; --ink:#171717; --ink-2:#44403a; --ink-3:#6B7280; --rule:#e6e1d3; --rule-2:#f1ede1;
   --accent:#8a6508; --accent-ink:#171717; --accent-soft:#f8f0d2; --warn-bg:#fff4dc; --warn-ink:#6b4a00; --bad-bg:#fde8e6;
   --bad:#c0392b; --good:#0b7a0b; --good-bg:#e5f4e5; --cost:#eb6834; --rev:#2a78d6;
@@ -9,15 +10,3 @@
   --f-body:"IBM Plex Sans",-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#171717; --panel:#201f1c; --ink:#FAF9F6; --ink-2:#d2cdc0; --ink-3:#9ca3af; --rule:#38342b; --rule-2:#2a2823;
-  --accent:#D4AF37; --accent-ink:#171717; --accent-soft:#2f2914; --warn-bg:#3a2f12; --warn-ink:#f3d48c; --bad-bg:#3d1d1a;
-  --bad:#e66767; --good:#4cc34c; --good-bg:#1b3220; --cost:#d95926; --rev:#3987e5;
-  --s-gas:#d95926; --s-grid:#3987e5; --s-wind:#199e70; --s-solar:#c98500; --s-nuc:#008300; --s-bat:#d55181; --s-rel:#9085e9; --s-int:#e66767; --s-uns:#f0efec; --s-dsl:#c08a55;
-  --t0:#f3e5ab; --t1:#D4AF37; --t2:#6b5410; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#171717; --panel:#201f1c; --ink:#FAF9F6; --ink-2:#d2cdc0; --ink-3:#9ca3af; --rule:#38342b; --rule-2:#2a2823;
-  --accent:#D4AF37; --accent-ink:#171717; --accent-soft:#2f2914; --warn-bg:#3a2f12; --warn-ink:#f3d48c; --bad-bg:#3d1d1a;
-  --bad:#e66767; --good:#4cc34c; --good-bg:#1b3220; --cost:#d95926; --rev:#3987e5;
-  --s-gas:#d95926; --s-grid:#3987e5; --s-wind:#199e70; --s-solar:#c98500; --s-nuc:#008300; --s-bat:#d55181; --s-rel:#9085e9; --s-int:#e66767; --s-uns:#f0efec; --s-dsl:#c08a55;
-  --t0:#f3e5ab; --t1:#D4AF37; --t2:#6b5410; color-scheme:dark}

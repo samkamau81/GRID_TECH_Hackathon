@@ -294,7 +294,6 @@
   }
 
   function redrawCharts() { if (!S0) return; drawScatter(); buildState(S0); }
-  if (window.matchMedia) { var mq = window.matchMedia('(prefers-color-scheme: dark)'); (mq.addEventListener || mq.addListener).call(mq, 'change', function () { if (!$('s-insights').hidden) { redrawCharts(); } }); }
 
   show(location.hash.slice(1) || 'model');
 })();
