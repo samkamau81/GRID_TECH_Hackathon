@@ -90,15 +90,8 @@
     
     </section>
     <section class="view psec" id="p-energy" hidden>
-      <div class="box" id="gate">
-      <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">1</span>Reliability · how far the plan can be pushed</p></div>
-      <div class="subtabs" role="group" aria-label="Reliability views" id="gtabs"><button type="button" data-gtab="ten" aria-pressed="true">Over 10 years</button><button type="button" data-gtab="hour" aria-pressed="false">One bad hour</button></div>
-      <div id="g-ten"><p class="sub gintro" id="gate-intro"></p><div id="gate-body"></div><div id="flex-sens"></div><div class="gcharts"><div id="gate-lad"></div><div id="gate-tl"></div></div><div id="gate-rulesbar"></div></div>
-      <div id="g-hour" hidden><div id="hour-body"></div></div>
-            <details class="fold" id="gate-why"><summary><span class="sm" style="font-weight:600">Why we cap wind and solar</span></summary><p class="muted sm" style="margin-top:6px">A plan that gets 80% or 90% of its energy from wind and solar looks cheap on paper, but real systems do not run that way without very large storage or firm backup. For scale, EIA hourly data for 2025 shows ERCOT, SPP and CAISO each got 37% of their energy from wind and solar. Among the 31 US grid operators above 15 TWh, the highest was Colorado's Xcel area at 45%, and the only one above that was a small New Mexico utility (PNM, 71%), which leans on its neighbors. Plans above the cap are removed before anything is ranked, and a plan within the cap still has to ride through a 5 day drought and the site's own grid stress case without leaving load unserved. The stress case can be made harsher but not softer than the site's own.</p></details>
-    </div>
     <div class="box">
-      <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">2</span>Site analysis · power and grid infrastructure</p></div>
+      <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">1</span>Site analysis · power and grid infrastructure</p></div>
       <div class="ppwrap ctl" aria-label="Site options"><div class="pp"><div class="pph">Grid connection</div><div class="pseg" id="q-delay"></div><div class="hint">When the grid connection arrives. On time is month 18.</div></div><div class="pp"><div class="pph">Carbon cap <em>kg CO₂ per MWh</em></div><div class="pseg" id="q-cap"></div><div class="hint">The US grid averages 384.</div></div><div class="pp"><div class="pph">Cap applies to</div><div class="pseg" id="q-capmode"></div><div class="hint">Measure the cap as a 10 year average, or in every single year.</div></div></div>
       <p class="mlab" style="margin-top:12px">What you can build, and when it comes online</p>
       <div class="legend"><span><i style="background:var(--ink);opacity:.9"></i>In your plan</span><span><i style="background:var(--ink);opacity:.25"></i>Available, not in your plan</span><span><i style="background:var(--s-grid);opacity:.35"></i>Grid import limit</span><span><i style="background:var(--ink);width:2px;height:12px"></i>Your start month</span></div>
@@ -107,6 +100,13 @@
 
       <p class="mlab" style="margin-top:12px">Your plan on this site</p>
       <div id="infra"></div>
+    </div>
+      <div class="box" id="gate">
+      <div class="boxh"><p class="eyebrow" style="margin:0"><span class="k">2</span>Reliability · how far the plan can be pushed</p></div>
+      <div class="subtabs" role="group" aria-label="Reliability views" id="gtabs"><button type="button" data-gtab="ten" aria-pressed="true">Over 10 years</button><button type="button" data-gtab="hour" aria-pressed="false">One bad hour</button></div>
+      <div id="g-ten"><p class="sub gintro" id="gate-intro"></p><div id="gate-body"></div><div id="flex-sens"></div><div class="gcharts"><div id="gate-lad"></div><div id="gate-tl"></div></div><div id="gate-rulesbar"></div></div>
+      <div id="g-hour" hidden><div id="hour-body"></div></div>
+            <details class="fold" id="gate-why"><summary><span class="sm" style="font-weight:600">Why we cap wind and solar</span></summary><p class="muted sm" style="margin-top:6px">A plan that gets 80% or 90% of its energy from wind and solar looks cheap on paper, but real systems do not run that way without very large storage or firm backup. For scale, EIA hourly data for 2025 shows ERCOT, SPP and CAISO each got 37% of their energy from wind and solar. Among the 31 US grid operators above 15 TWh, the highest was Colorado's Xcel area at 45%, and the only one above that was a small New Mexico utility (PNM, 71%), which leans on its neighbors. Plans above the cap are removed before anything is ranked, and a plan within the cap still has to ride through a 5 day drought and the site's own grid stress case without leaving load unserved. The stress case can be made harsher but not softer than the site's own.</p></details>
     </div>
 
     <div class="box" id="gas">
