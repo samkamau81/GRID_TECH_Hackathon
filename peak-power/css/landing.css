@@ -123,3 +123,9 @@ h1 span { color: var(--accent); }
   .qr-link img { width: 136px; height: 136px; }
   .qr-cap { display: block; font-size: 12px; margin-top: 4px; }
 }
+
+/* wide screens: nudge the QR card 1 inch (96px) right and 1 inch down from its spot under the DATA CENTER box.
+   Still out of flow, so nothing else moves; narrower two-column layouts keep the original spot so the card is never clipped. */
+@media (min-width: 1230px) {
+  .qr-card { left: calc(84.375% - 58px + 1in); top: calc(65% + 6px + 1in); }
+}
