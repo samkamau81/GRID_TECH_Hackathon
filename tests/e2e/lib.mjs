@@ -36,8 +36,11 @@ process.on('exit', () => { try { server.close(); } catch {} });
 
 export async function launch() {
   const port = 9700 + Math.floor(Math.random() * 250);
-  const chrome = spawn(findChrome(), ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${fs.mkdtempSync(path.join(os.tmpdir(), 'pp-chrome-'))}`,
+  const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'pp-chrome-'));   // throwaway profile; removed again when the browser closes
+  const chrome = spawn(findChrome(), ['--headless=new', `--remote-debugging-port=${port}`, `--user-data-dir=${profile}`,
     '--no-first-run', '--disable-gpu', '--hide-scrollbars', 'about:blank'], { stdio: 'ignore' });
+  const cleanup = () => { try { fs.rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); } catch {} };
+  chrome.on('exit', cleanup); process.on('exit', cleanup);
   let wsUrl; for (let i = 0; i < 80 && !wsUrl; i++) { try { wsUrl = (await (await fetch(`http://127.0.0.1:${port}/json/version`)).json()).webSocketDebuggerUrl; } catch { await sleep(250); } }
   if (!wsUrl) throw new Error('Chrome did not start');
   const ws = new WebSocket(wsUrl); await new Promise((r) => (ws.onopen = r));
