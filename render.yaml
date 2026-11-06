@@ -1,0 +1,26 @@
+# Render Blueprint: deploys peak-power/ as a static site (no build step, no environment variables or secrets).
+# Branch below is the one with the current work; change it to main after merging.
+services:
+  - type: web
+    name: peak-power
+    runtime: static
+    repo: https://github.com/samkamau81/GRID_TECH_Hackathon
+    branch: prototype-sync-from-copy
+    buildCommand: echo "static site, nothing to build"
+    staticPublishPath: ./peak-power
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /js/*
+        name: Cache-Control
+        value: public, max-age=3600, stale-while-revalidate=86400
+      - path: /css/*
+        name: Cache-Control
+        value: public, max-age=3600, stale-while-revalidate=86400
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=3600, stale-while-revalidate=86400
