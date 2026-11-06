@@ -23,7 +23,7 @@ try {
   ok(await p.ev(`document.getElementById('state-find').textContent.includes('n = 47')`), 'state analysis reports n = 47');
   for (const v of ['mat', 'inp', 'dist']) { await p.click(`#g-view [data-v=${v}]`); ok(await p.ev(`document.getElementById('g-out').children.length>0`), 'grade view ' + v + ' renders'); }
   ok(await p.ev(`/model-generated/i.test(document.getElementById('s-insights').textContent) && /not causation|does not show|do not show/i.test(document.getElementById('s-insights').textContent)`), 'model-generated and causation caveats are present');
-  await p.click('#t-limits'); ok(await p.ev(`!document.getElementById('s-limits').hidden && document.getElementById('s-model').hidden`), 'limitations section opens');
+  await p.click('#t-limits'); ok(await p.ev(`!document.getElementById('s-limits').hidden && document.getElementById('s-model').hidden`), 'scope section opens');
   ok(await p.ev(`(()=>{const t=document.getElementById('t-limits');t.focus();return true})()`), 'tab is focusable');
   ok(p.errors.length === 0, 'no console errors' + (p.errors.length ? ': ' + p.errors.join(' | ') : '')); ok(p.failed.length === 0, 'no failed requests' + (p.failed.length ? ': ' + p.failed.join(' | ') : ''));
   for (const [w, dark] of [[1400, false], [1400, true], [390, false]]) {

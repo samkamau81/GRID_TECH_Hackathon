@@ -41,7 +41,7 @@
     <button role="tab" id="t-data" aria-controls="s-data" aria-selected="false" data-sec="data" tabindex="-1"><span class="k">B</span>Data sources and integrity</button>
     <button role="tab" id="t-insights" aria-controls="s-insights" aria-selected="false" data-sec="insights" tabindex="-1"><span class="k">C</span>Correlations and insights</button>
     <button role="tab" id="t-business" aria-controls="s-business" aria-selected="false" data-sec="business" tabindex="-1"><span class="k">D</span>Business model</button>
-    <button role="tab" id="t-limits" aria-controls="s-limits" aria-selected="false" data-sec="limits" tabindex="-1"><span class="k">E</span>Limitations, roadmap and hardware</button>
+    <button role="tab" id="t-limits" aria-controls="s-limits" aria-selected="false" data-sec="limits" tabindex="-1"><span class="k">E</span>Scope, roadmap and hardware</button>
   </div>
 
   <!-- ============ A. MODEL ============ -->
@@ -132,7 +132,7 @@
     </div>
 
     <div class="card">
-      <h2>Assumptions and limitations of the model</h2>
+      <h2>Assumptions and scope of the model</h2>
       <ul class="tick">
         <li>One weather and price year (ERCOT 2023, from the packet) is repeated for ten years; the "weather year" setting scales wind and solar, it does not load other years.</li>
         <li>Only ERCOT has an hourly model. Counties elsewhere are screened with the grade rules above, not simulated.</li>
@@ -286,10 +286,10 @@
     </div>
   </section>
 
-  <!-- ============ E. LIMITS, ROADMAP, HARDWARE ============ -->
+  <!-- ============ E. SCOPE, ROADMAP, HARDWARE ============ -->
   <section class="asec" id="s-limits" role="tabpanel" aria-labelledby="t-limits" hidden>
     <div class="card">
-      <h2>Technical limitations</h2>
+      <h2>Technical scope and open items</h2>
       <div class="two">
         <div>
           <h3>Data availability</h3>
@@ -315,7 +315,7 @@
             <li>Business inputs (rent, markup, price) are assumptions.</li>
             <li>The plan library is a pre-simulated search space, not a global optimum.</li>
           </ul>
-          <h3>Validation still required</h3>
+          <h3>Next validation steps</h3>
           <ul class="tick">
             <li>Compare grades with outcomes at real sites (queue-to-energisation times, utility load studies).</li>
             <li>Sensitivity analysis of the grade weights and cut-offs.</li>

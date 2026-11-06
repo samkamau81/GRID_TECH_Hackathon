@@ -100,7 +100,7 @@
       var t = q.value.trim().toLowerCase(), vis = DS.filter(function (d) { return !t || JSON.stringify(d).toLowerCase().indexOf(t) >= 0; });
       list.innerHTML = vis.map(function (d, i) {
         return '<details class="ds"' + (vis.length === 1 || (i === 0 && !t) ? ' open' : '') + '><summary><b>' + esc(d.n) + '</b><span class="tag">' + esc(d.tag) + '</span><span class="src">' + esc(d.src) + '</span></summary><dl>' +
-          [['File', '<code>' + esc(d.file) + '</code>'], ['Geographic coverage', d.geo], ['Temporal coverage', d.time], ['Variables', d.vars], ['Units', d.units], ['Processing', d.proc], ['Missing values', d.miss], ['Known limitations', d.lim], ['References', d.refs ? esc(d.refs) : 'None'], ['Used by', d.use]]
+          [['File', '<code>' + esc(d.file) + '</code>'], ['Geographic coverage', d.geo], ['Temporal coverage', d.time], ['Variables', d.vars], ['Units', d.units], ['Processing', d.proc], ['Missing values', d.miss], ['Scope notes', d.lim], ['References', d.refs ? esc(d.refs) : 'None'], ['Used by', d.use]]
             .map(function (r) { return '<dt>' + r[0] + '</dt><dd>' + (r[0] === 'File' ? r[1] : esc(r[1])) + '</dd>'; }).join('') + '</dl></details>';
       }).join('') || '<p class="nodata">No dataset matches that filter.</p>';
       $('ds-count').textContent = vis.length + ' of ' + DS.length + ' datasets';
