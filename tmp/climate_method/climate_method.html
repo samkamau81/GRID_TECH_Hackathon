@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>How the Peak Power model reads climate, and how it fits the site decision</title>
+<style>
+  @page { size: Letter; margin: 16mm 16mm 18mm; }
+  :root { --ink:#0b2230; --ink2:#3b5362; --rule:#d3e2e6; --accent:#0b6f86; --blue:#1456b8; --green:#0a8250; --soft:#eef6f7; --warn:#fff4dc; --warnink:#6b4a00; --bad:#fde8e6; --badink:#a52a1d; --good:#e0f3e9; --goodink:#0a6b42; }
+  * { box-sizing: border-box; }
+  body { font: 10.4pt/1.5 "Segoe UI", "IBM Plex Sans", Arial, sans-serif; color: var(--ink); margin: 0; }
+  h1 { font-size: 21pt; line-height: 1.15; margin: 0 0 4px; }
+  h1 span { color: var(--blue); }
+  h2 { font-size: 13.5pt; margin: 18px 0 6px; padding-top: 10px; border-top: 2px solid var(--rule); break-after: avoid; }
+  h3 { font-size: 10.6pt; margin: 12px 0 4px; break-after: avoid; }
+  p { margin: 5px 0; }
+  .sub { color: var(--ink2); font-size: 10.5pt; margin-bottom: 10px; }
+  .eyebrow { font-size: 8.5pt; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin: 0 0 4px; }
+  .answer { background: var(--soft); border-left: 5px solid var(--green); border-radius: 6px; padding: 10px 14px; margin: 10px 0 4px; }
+  .answer p { margin: 3px 0; }
+  .callout { background: var(--warn); color: var(--warnink); border-radius: 6px; padding: 8px 12px; margin: 8px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 6px 0 8px; font-size: 9.4pt; }
+  tr { break-inside: avoid; }
+  th, td { border-bottom: 1px solid var(--rule); padding: 5px 7px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 700; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  code, .mono { font-family: Consolas, "IBM Plex Mono", monospace; font-size: 9pt; background: var(--soft); padding: 1px 4px; border-radius: 3px; }
+  .formula { font-family: Consolas, monospace; font-size: 9.2pt; background: var(--soft); border-radius: 6px; padding: 8px 12px; margin: 6px 0; white-space: pre-wrap; break-inside: avoid; }
+  .pill { display: inline-block; font-weight: 700; font-size: 8.8pt; padding: 0 8px; border-radius: 99px; border: 1px solid transparent; }
+  .g { background: var(--good); color: var(--goodink); border-color: #9fd3b9; }
+  .m { background: var(--warn); color: var(--warnink); border-color: #e3c37a; }
+  .b { background: var(--bad); color: var(--badink); border-color: #eeaaa3; }
+  .pill.gn { background: #e8f1f3; color: var(--ink2); }
+  .flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; padding-right: 2px; margin: 8px 0; break-inside: avoid; }
+  .flow div { border: 1px solid var(--rule); border-radius: 8px; padding: 7px 8px; font-size: 8.8pt; line-height: 1.35; background: #fff; }
+  .flow b { display: block; color: var(--accent); font-size: 8.5pt; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+  .bar { display: flex; gap: 2px; height: 11px; margin-top: 3px; }
+  .bar i { display: block; border-radius: 2px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .box { border: 1px solid var(--rule); border-radius: 8px; padding: 8px 12px; break-inside: avoid; }
+  .box h3 { margin-top: 2px; }
+  ul { margin: 4px 0 4px 18px; padding: 0; } li { margin: 2px 0; }
+  .small { font-size: 8.8pt; color: var(--ink2); }
+  .foot { margin-top: 16px; padding-top: 8px; border-top: 1px solid var(--rule); font-size: 8.4pt; color: var(--ink2); }
+</style></head><body>
+
+<p class="eyebrow">Peak Power · Method note</p>
+<h1>How the model reads <span>climate</span>, and how it fits the site decision</h1>
+<p class="sub">For a data center investor screening a 75 MW campus. Based on the Data Center Climate Explorer as built on 5 Nov 2026.</p>
+
+<div class="answer">
+  <p><b>The short version.</b> For any point the model downloads three years of hourly temperature and humidity, turns them into five plain cooling measures, and grades the result <b>Mild, Moderate or Demanding</b>.</p>
+  <p><b>Important:</b> that climate grade is <b>shown next to</b> the Prototype's overall site grade. It is <b>not</b> an input to it, and it does <b>not</b> change the grid-delay cost and carbon figures. It tells you how hard the site is to cool, and you weigh it yourself. Section 4 explains how.</p>
+</div>
+
+<h2>1. From weather to a climate grade</h2>
+<div class="flow">
+  <div><b>1 · Fetch</b>Three full calendar years (2023–2025) of hourly temperature and relative humidity for the clicked point. ERA5 reanalysis via Open-Meteo, ~10 km grid.</div>
+  <div><b>2 · Wet-bulb</b>Each hour's wet-bulb temperature is calculated from temperature and humidity (Stull 2011).</div>
+  <div><b>3 · Measure</b>Five measures per year: degree days, 95th-percentile temperature, hot hours, humid hours, free-cooling share.</div>
+  <div><b>4 · Grade</b>Two simple rules turn the measures into Mild, Moderate or Demanding.</div>
+  <div><b>5 · Show</b>The grade appears as a chip in the site brief, with its reasons and thresholds.</div>
+</div>
+
+<h3>The five measures</h3>
+<table>
+  <tr><th>Measure</th><th>How it is calculated</th><th>Why an investor cares</th></tr>
+  <tr><td><b>Cooling degree days</b> (base 65 °F)</td><td>For each day: mean temperature minus 65 °F, floored at zero. Summed over the year and averaged across the three years.</td><td>A single number for the total cooling burden. More degree days means more cooling energy and a higher power bill.</td></tr>
+  <tr><td><b>95th-percentile temperature</b></td><td>The temperature that 95% of hours fall below (sorted hourly values).</td><td>The "typical hot day" the cooling plant must handle, without being skewed by one freak hour.</td></tr>
+  <tr><td><b>Hot hours</b> (≥ 95 °F)</td><td>Share of valid hours at or above 95 °F, times 8,760.</td><td>Hours that stress air-cooled chillers and reduce their capacity.</td></tr>
+  <tr><td><b>Humid hours</b> (wet-bulb ≥ 75 °F)</td><td>Share of valid hours with calculated wet-bulb at or above 75 °F, times 8,760.</td><td>Wet-bulb sets how far evaporative cooling can chill water. Many humid hours mean less free capacity and more mechanical help.</td></tr>
+  <tr><td><b>Free-cooling share</b> (&lt; 65 °F)</td><td>Share of hours with outside air below 65 °F.</td><td>Hours when outside air does most of the cooling, so the chillers can rest.</td></tr>
+</table>
+<div class="formula">Wet-bulb (Stull 2011), T in °C, RH in %  (RH limited to 5–99%):
+Tw = T·atan[0.151977·√(RH + 8.313659)] + atan(T + RH) − atan(RH − 1.676331)
+     + 0.00391838·RH^1.5·atan(0.023101·RH) − 4.686035
+Check: 68 °F (20 °C) at 50% humidity → 13.7 °C = 56.7 °F</div>
+<p class="small">"Hours a year" is the share of valid hours times 8,760, so a partly missing year does not understate it. Hours with missing readings are skipped, not guessed.</p>
+
+<h3>The grading rule</h3>
+<table>
+  <tr><th style="width:17%">Grade</th><th>Rule</th></tr>
+  <tr><td><span class="pill g">Mild</span></td><td><b>All three</b> must hold: at least <b>55%</b> of hours below 65 °F, <b>and</b> at most <b>300</b> humid hours a year, <b>and</b> at most <b>100</b> hot hours a year.</td></tr>
+  <tr><td><span class="pill b">Demanding</span></td><td><b>Any one</b> is enough: under <b>35%</b> of hours below 65 °F, <b>or</b> more than <b>1,500</b> humid hours, <b>or</b> more than <b>1,000</b> hot hours.</td></tr>
+  <tr><td><span class="pill m">Moderate</span></td><td>Everything else. The brief names which measure held it back.</td></tr>
+</table>
+<p class="small">These thresholds are a <b>team screening assumption</b>, set in <span class="mono">CLIMATE_RULES</span> in <span class="mono">js/climate-weather.js</span>. They are shown in the panel so a judge or investor can challenge them. They were tuned against real data for five cities (next section), not taken from an engineering standard.</p>
+
+<h2>2. Worked example: five real locations</h2>
+<p>Real 2023–2025 ERA5 hourly data, run through the same code the Explorer uses. All values are per year, averaged over the three years.</p>
+<table>
+  <tr><th style="width:11%">Location</th><th class="n">Degree days</th><th class="n">95th pct temp</th><th class="n">Hours ≥ 95 °F</th><th class="n">Humid hours</th><th class="n">Below 65 °F</th><th style="width:36%">Grade and why</th></tr>
+  <tr><td>Seattle, WA</td><td class="n">201</td><td class="n">73 °F</td><td class="n">0</td><td class="n">0</td><td class="n">85%</td><td><span class="pill g">Mild</span> 85% free cooling, almost no heat or humidity</td></tr>
+  <tr><td>Ashburn, VA</td><td class="n">1,242</td><td class="n">84 °F</td><td class="n">41</td><td class="n">238</td><td class="n">63%</td><td><span class="pill g">Mild</span> passes all three limits</td></tr>
+  <tr><td>Dallas, TX</td><td class="n">3,143</td><td class="n">94 °F</td><td class="n">358</td><td class="n">1,025</td><td class="n">39%</td><td><span class="pill m">Moderate</span> free cooling 39% (&lt; 55%), 1,025 humid and 358 hot hours (over the Mild limits, under the Demanding ones)</td></tr>
+  <tr><td>Houston, TX</td><td class="n">3,374</td><td class="n">91 °F</td><td class="n">157</td><td class="n">2,397</td><td class="n">28%</td><td><span class="pill b">Demanding</span> only 28% free cooling and 2,397 humid hours</td></tr>
+  <tr><td>Phoenix, AZ</td><td class="n">4,861</td><td class="n">105 °F</td><td class="n">1,585</td><td class="n">97</td><td class="n">34%</td><td><span class="pill b">Demanding</span> 1,585 hours at 95 °F or more, 34% free cooling</td></tr>
+</table>
+<p>Notice the two kinds of "demanding": <b>Houston is hard because it is humid</b> (evaporative cooling struggles), while <b>Phoenix is hard because it is hot</b> (air-cooled chillers lose capacity, and its dry air makes evaporative cooling thirsty for water). The grade is the same, but the engineering answer and the water risk differ, which is why the brief shows the underlying measures and not just the grade.</p>
+
+<h2>3. What the climate grade does <u>not</u> do</h2>
+<div class="two">
+  <div class="box"><h3>It is not in the overall grade</h3>
+  <p>The Prototype's overall site grade is a weighted average of other factors. Climate is not among them:</p>
+  <ul>
+    <li><b>Texas counties:</b> Location 1 · Energy 2 · Policy 1.5 · Fiber 1 · Water 1 · Hazard 1 · Time to power 1</li>
+    <li><b>Other states:</b> Location 1 · Time to power 2 (stands in for energy) · Policy 1.5 · Fiber 1 · Water 1 · Hazard 1</li>
+  </ul>
+  <p class="small">Excellent = no Bad factor and a nearly all Good average. Bad = energy is Bad or the average is mostly Bad. Water is graded separately by the Prototype from WRI Aqueduct data.</p></div>
+  <div class="box"><h3>It does not change the plan numbers</h3>
+  <p>The cost and carbon figures in "What this means for a 75 MW plan" come from the Prototype's engine for the Texas (ERCOT) packet case, with the grid connection late by 0, 6 or 12 months. They use packet prices, wind and solar profiles, not the local temperature.</p>
+  <p class="small">The Prototype's separate "weather year" setting scales wind and solar profiles. It is unrelated to this climate summary.</p></div>
+</div>
+<div class="callout"><b>Why keep them apart?</b> Climate affects cooling energy and equipment, which the Prototype's dispatch model does not simulate. Folding an unmodelled factor into a grade judges can see through would make the overall grade look more precise than the evidence supports. Showing it beside the grade keeps each number honest.</div>
+
+<h2>4. How it affects the overall decision</h2>
+<p>Read the site brief top to bottom. Climate changes the decision through <b>cost, equipment and risk</b>, not through the grade arithmetic.</p>
+<table>
+  <tr><th style="width:21%">If the climate is…</th><th>What it usually means for a 75 MW campus</th><th>What to do with it</th></tr>
+  <tr><td><span class="pill g">Mild</span></td><td>Outside air covers more than half the year. Lower cooling energy, lower operating cost, more headroom on hot days.</td><td>Treat as a tiebreaker in favour of the site when grades are close. Still confirm the design day.</td></tr>
+  <tr><td><span class="pill m">Moderate</span></td><td>A real mechanical cooling plant is needed for a large part of the year. Cost and capacity sit in the middle.</td><td>Look at which measure held it back (humid or hot hours) and ask the cooling engineer to size for it.</td></tr>
+  <tr><td><span class="pill b">Demanding</span></td><td>Heavy mechanical cooling most of the year, or capacity loss on the hottest hours. Expect higher power use and a bigger cooling plant.</td><td>Budget for it explicitly. In dry-hot places (Phoenix type) also check the Water grade, since evaporative cooling uses a lot of water.</td></tr>
+</table>
+
+<h3>A practical way to combine the pieces</h3>
+<ol style="margin:4px 0 4px 18px;padding:0">
+  <li><b>Start with the overall grade and the three headline chips</b> (time to power, hazard, policy). These screen sites in or out.</li>
+  <li><b>Check timing risk</b> in "What this means for a 75 MW plan". A Moderate or Bad time to power means a later opening and lost revenue: about $48M of 10-year profit per 6 months late in the Prototype's Texas case.</li>
+  <li><b>Then read cooling climate</b> for the operating-cost and equipment side. Two sites with the same overall grade can differ a lot here.</li>
+  <li><b>Cross-check water</b> when climate is Demanding, and the zero-carbon share of nearby plants if carbon matters to the customer.</li>
+</ol>
+<p><b>Example.</b> Ashburn, VA and Houston, TX can both screen acceptably on the Prototype's grades. Ashburn is <span class="pill g">Mild</span> and Houston is <span class="pill b">Demanding</span>. With everything else equal, that tilts the operating-cost and cooling-capex question toward Ashburn, even though neither number moves the overall grade.</p>
+
+<h2>5. Limits an investor should know</h2>
+<ul>
+  <li><b>It describes the climate, not a cooling design.</b> It does not say how much power a given chiller plant would use or what PUE you would get.</li>
+  <li><b>Model grid, not a weather station.</b> ERA5 values are about 10 km cells and can differ from conditions at the site, especially near coasts and mountains.</li>
+  <li><b>Three years is a short record.</b> It captures recent conditions, not rare extremes or long-term change.</li>
+  <li><b>Wet-bulb is calculated</b> with Stull's formula (about ±1 °C in the stated range), so humid-hour counts are screening numbers.</li>
+  <li><b>Thresholds are a team assumption</b> (55% / 300 / 100 and 35% / 1,500 / 1,000), not an industry standard. Change them in one place if your engineers prefer others.</li>
+  <li><b>Weather data by Open-Meteo.com</b> (CC BY 4.0). The free API is for non-commercial use only.</li>
+</ul>
+
+<p class="foot">Source files: <span class="mono">peak-power/js/climate-weather.js</span> (calculation and grading), <span class="mono">peak-power/js/site-panel.js</span> (display), <span class="mono">tests/unit/site-brief.test.js</span> (tests). Example figures computed from Open-Meteo ERA5 hourly data, 2023–2025.</p>
+</body></html>

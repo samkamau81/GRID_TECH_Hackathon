@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Peak Power - Investor Pitch and Judging Guide</title>
+<style>
+@page{size:Letter;margin:0.55in 0.6in 0.65in 0.6in;
+ @bottom-left{content:"Peak Power · Investor Pitch and Judging Guide";font:8pt "Segoe UI",Arial,sans-serif;color:#6b7785}
+ @bottom-right{content:"Page " counter(page);font:8pt "Segoe UI",Arial,sans-serif;color:#6b7785}}
+*{box-sizing:border-box}
+body{font:9.6pt/1.38 "Segoe UI",Arial,sans-serif;color:#1b2733;margin:0}
+.page{page-break-after:always;break-after:page}
+.page:last-child{page-break-after:auto;break-after:auto}
+h1{font-size:21pt;margin:0 0 2pt;color:#0d3b5c;line-height:1.15}
+h2{font-size:14pt;margin:0 0 6pt;color:#0d3b5c;border-bottom:2px solid #0d3b5c;padding-bottom:3pt}
+h3{font-size:10.5pt;margin:9pt 0 3pt;color:#0d3b5c}
+.kick{font-size:8.5pt;letter-spacing:.08em;text-transform:uppercase;color:#6b7785;margin:0 0 2pt}
+p{margin:0 0 6pt}
+ul,ol{margin:0 0 5pt;padding-left:16pt}ul{list-style:none;padding-left:13pt}ul>li{position:relative}ul>li::before{content:"\2022";position:absolute;left:-11pt;color:#0d3b5c}li{margin:0 0 2.5pt}
+.sub{color:#51606f;font-size:9.5pt}
+table{border-collapse:collapse;width:100%;margin:4pt 0 7pt;font-size:8.3pt;line-height:1.3}
+th{background:#0d3b5c;color:#fff;text-align:left;padding:3.5pt 5pt;font-weight:600}
+td{border:1px solid #d3dbe3;padding:3.5pt 5pt;vertical-align:top}
+tr{break-inside:avoid}
+tbody tr:nth-child(even) td{background:#f5f8fb}
+.script{border-left:4px solid #0d3b5c;background:#eef4f9;padding:7pt 10pt;margin:6pt 0 8pt;font-size:9.9pt;line-height:1.46}
+.script .hd{font-size:8pt;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#0d3b5c;margin-bottom:3pt}
+.coach{border-left:4px solid #c98500;background:#fff7e6;padding:5pt 9pt;margin:6pt 0;font-size:9pt}
+.coach b.l{color:#8a5a00}
+.warn{border-left:4px solid #b3261e;background:#fdeceb;padding:5pt 9pt;margin:6pt 0;font-size:9pt}
+.vp{font-size:12.5pt;font-weight:600;color:#0d3b5c;border:2px solid #0d3b5c;border-radius:6pt;padding:8pt 11pt;margin:6pt 0 8pt}
+.tag{display:inline-block;font-size:6.8pt;font-weight:700;border-radius:0;padding:0.5pt 4pt;margin:0 3pt 0 1pt;vertical-align:1pt;color:#fff;white-space:nowrap;line-height:1.3}
+.tag.v{background:#1b7f4b;border:1px solid #1b7f4b}.tag.p{background:#1f6fb5;border:1px solid #1f6fb5}.tag.a{background:#b07400;border:1px solid #b07400}.tag.f{background:#6b4fa3;border:1px solid #6b4fa3}.tag.u{background:#b3261e;border:1px solid #b3261e}
+.legend>span{margin-right:9pt;font-size:8.6pt}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10pt}
+.q{margin:0 0 6.5pt;break-inside:avoid}
+.q .qq{font-weight:700;color:#0d3b5c}
+.q .ev{font-size:8.5pt;color:#51606f}
+.small{font-size:8.5pt}
+.cheat h3{margin-top:6pt}
+.cheat{font-size:9pt;line-height:1.34}
+.cheat ul,.cheat ol{margin-bottom:3pt}.cheat ul{padding-left:12pt}
+.box{border:1.5px solid #0d3b5c;border-radius:5pt;padding:5pt 9pt;margin:4pt 0}
+.num{font-variant-numeric:tabular-nums}
+</style></head><body>
+
+<!-- ============ FRONT: HOW TO USE + RUBRIC ============ -->
+<section class="page">
+<p class="kick">GridTech Hackathon · Columbia Energy Symposium</p>
+<h1>Peak Power: Investor Pitch and Judging Guide</h1>
+<p class="sub">A speaker-preparation guide built only from the team's own files (rubric, packet, README, docs, prototype code, packet outputs). Prepared 4 Nov 2026. The campus, offers and scenarios in the benchmark are fictional. Numbers were read from stored files; the live prototype and the checker were not re-run for this guide.</p>
+
+<h3>How to use it</h3>
+<ol>
+<li>Read Sections 1&ndash;5 once to understand the story. The tags show what you can say as fact and what you must hedge.</li>
+<li>Rehearse the script (Section 6) out loud twice with a timer, then the Q&amp;A (Section 7) with a teammate asking at random.</li>
+<li>Review the cheat sheet (Section 8) five minutes before presenting. The appendix lists sources and gaps.</li></ol>
+
+<table style="width:62%"><thead><tr><th>Section</th><th>Page</th></tr></thead><tbody>
+<tr><td>Rubric alignment</td><td>2</td></tr>
+<tr><td>1 The problem &middot; 2 Our solution</td><td>3 &middot; 4</td></tr>
+<tr><td>3 How the prototype works &middot; 4 Investor value</td><td>5 &middot; 6</td></tr>
+<tr><td>5 Technical credibility &middot; 6 Full script</td><td>7 &middot; 8</td></tr>
+<tr><td>7 Investor and judge Q&amp;A</td><td>9&ndash;10</td></tr>
+<tr><td>8 Cheat sheet &middot; Appendix: sources and gaps</td><td>11 &middot; 12</td></tr></tbody></table>
+
+<p class="legend"><b>Status tags used throughout:</b>
+<span><span class="tag v">VERIFIED</span>stated in a file or output</span>
+<span><span class="tag p">PROTOTYPE</span>implemented in the code</span>
+<span><span class="tag a">ASSUMPTION</span>packet or team assumption</span>
+<span><span class="tag f">PLANNED</span>proposed, not built</span>
+<span><span class="tag u">UNVERIFIED</span>no evidence in the files</span></p>
+
+<div class="warn"><b>Rubric conflict: confirm before you present.</b> The repository holds two different rubrics. <b>(1)</b> <i>docs/Judging Rubric.xlsx</i> (the newest file): three guiding questions that are "not scored separately"; four judges (Travis, Joe, Hunter, Ryan) each split <b>100 points across three teams</b>; ties go to the team with more first-place votes. <b>(2)</b> <i>scoring rubric/Judging Rubric &ndash; Rubric.csv and .pdf</i>, which matches the team's CLAUDE.md: <b>five criteria at 20% each, scored 1&ndash;5</b>, from a <b>5-minute presentation and demo</b> with no hands-on time; "visual polish is not scored." This guide covers both. Ask an organizer which one the judges will use.</div>
+
+<h3>Status at a glance: what is real, what is partial, what is not built</h3>
+<table><thead><tr><th style="width:38%">Working in the prototype <span class="tag p">PROTOTYPE</span></th><th style="width:31%">Partial or limited</th><th>Not built, or no evidence <span class="tag f">PLANNED</span> <span class="tag u">UNVERIFIED</span></th></tr></thead><tbody><tr>
+<td><ul style="margin:0"><li>Nine-variable grades and an Overall grade, with reasons</li><li>US county map (3,142 counties, 8 layers)</li><li>Four-project portfolio comparison and timeline</li><li>384 plans, all passing the packet checker</li><li>Hourly 87,600-hour dispatch, V2 battery rules, grid-stress response</li><li>What Changed / What to Watch panel</li><li>Data Center Climate Explorer with current weather</li></ul></td>
+<td><ul style="margin:0"><li>Energy grade: Texas only</li><li>Weather: separate page; not connected to the power model</li><li>Three of four projects are team sample sites</li><li>Sources listed, but county source files are not in the repository</li><li>Two separate calculation engines (browser and Python)</li></ul></td>
+<td><ul style="margin:0"><li>Nationwide price, grid headroom, congestion, reliability data</li><li>Real battery (BESS) project data</li><li>Validation against real site outcomes</li><li>Customers, pricing, revenue, pilots, competitor comparison</li><li>A business model for Peak Power</li></ul></td></tr></tbody></table>
+</section>
+
+<section class="page">
+<p class="kick">Rubric alignment</p><h2>How the pitch maps to the judging rubric</h2>
+<h3>A. The three questions in the .xlsx (no weights; each judge splits 100 points across three teams)</h3>
+<table><thead><tr><th style="width:22%">Judging question</th><th style="width:15%">Weight</th><th style="width:15%">Where addressed</th><th style="width:25%">Evidence you can point to</th><th>Likely challenge or weakness</th></tr></thead><tbody>
+<tr><td>1. Would a data-center developer actually use this tool to make a real decision?</td><td>Not scored separately; a guiding question</td><td>Sections 1, 2, 3, 6</td><td>Nine-variable screen of 3,142 counties; recommended plan with cost, carbon and dates; 384 checker-passed plans</td><td>Energy graded for Texas only; no real customer has used it <span class="tag u">UNVERIFIED</span></td></tr>
+<tr><td>2. Does the reasoning behind the tool hold up when challenged?</td><td>Same</td><td>Sections 5, 7</td><td>"Where these grades come from" list; hard requirements vs preferences; official checker; stated limits</td><td>Proxy metrics (queue wait); rule-based dispatch; two calculation engines</td></tr>
+<tr><td>3. Does the team deeply understand what it built and why it matters?</td><td>Same</td><td>Whole guide; live Q&amp;A</td><td>You can explain every tag in this guide, including what is not built</td><td>Rationale for the variable weights; why browser and Python numbers differ</td></tr></tbody></table>
+
+<h3>B. The five weighted criteria in the .csv/.pdf (scored 1&ndash;5 each)</h3>
+<table><thead><tr><th style="width:15%">Criterion</th><th style="width:7%">Weight</th><th style="width:14%">Where addressed</th><th style="width:34%">Evidence</th><th>Likely challenge</th></tr></thead><tbody>
+<tr><td>Product</td><td>20%</td><td>Section 3; script &sect;5</td><td>Change a requirement live (carbon limit) and the recommendation changes; hard requirements kept apart from preferences</td><td>Plan computation takes about 10 s; open the page a minute early</td></tr>
+<tr><td>Methodology</td><td>20%</td><td>Section 5; "How it works" panel</td><td>Inputs, then filter by hard requirements, then rank by preferences, then 87,600-hour dispatch; assumptions listed</td><td>Rule-based dispatch, not an optimizer; "earliest feasible" claims need support</td></tr>
+<tr><td>Portfolio viability</td><td>20%</td><td>Script &sect;5; Section 7</td><td>Opens month 20, full demand month 30; Tier 0 unserved 0 MWh; stress response; cleaner alternative</td><td>Show what is relocated or interrupted, and imports during stress</td></tr>
+<tr><td>Financial outcomes</td><td>20%</td><td>Script &sect;5, &sect;6</td><td>$283.1M vs $399.5M (undiscounted, constant 2023 $); relocation and interruption costs separate from business revenue</td><td>"What drives the cost?" Answer from the screen</td></tr>
+<tr><td>Environmental outcomes</td><td>20%</td><td>Script &sect;5; Section 7</td><td>155 to 61 kg CO<sub>2</sub>/MWh; clean share 62.6% to 78.6%; what the cleaner plan costs</td><td>Grid-charged battery energy earns no clean credit (V2 rules)</td></tr></tbody></table>
+
+<div class="coach"><b class="l">What the rubric text itself tells you.</b> (1) Judges score <b>only what they see and hear</b> in 5 minutes. (2) They judge you <b>against the priorities and requirements you state in the demo</b>, so state your customer's priorities in the first 20 seconds of the demo. (3) They score how the tool handles each dimension, <b>not whether the numbers are optimal</b>. (4) Five equal criteria: do not spend the whole demo on one.</div>
+</section>
+
+<!-- ============ PAGE 1: PROBLEM ============ -->
+<section class="page">
+<p class="kick">Section 1</p><h2>The problem</h2>
+
+<h3>The story in plain English</h3>
+<p>A developer who wants to build a data center has to answer two linked questions: <b>where can we build, and how do we power it?</b> Power is not one thing. It arrives in stages, from different sources, at different prices and carbon levels, and a site that looks good on a map can be slow, expensive or blocked.</p>
+<p>In the packet's benchmark the grid connection for a 75 MW campus comes in steps: <b>0 &rarr; 25 &rarr; 50 &rarr; 75 MW at months 18, 24 and 30</b> <span class="tag a">ASSUMPTION</span>. Until then the developer must cover the gap with onsite power, contracts and batteries, and the customer is trading off <b>speed to power, cost and environmental performance</b> <span class="tag v">VERIFIED</span> (Problem Statement; intro page).</p>
+<p><b>Who feels this:</b> developers and their finance teams (capital at risk before power is certain), site-selection and energy advisers (many counties, scattered data), and utilities and communities (large new loads). <b>Why investors care:</b> a wrong early site decision is expensive to undo. <i>This last point is general reasoning, not a sourced statistic.</i></p>
+
+<h3>Evidence in the files you may quote</h3>
+<table><thead><tr><th style="width:46%">Fact</th><th style="width:14%">Status</th><th>Source and caveat</th></tr></thead><tbody>
+<tr><td>Median wait from interconnection request to operation for power plants that came online 2021&ndash;2025: ERCOT 3.8 years; CAISO 7.9; PJM 5.8; SPP 5.8; NYISO 5.2; MISO 4.4; Southeast 4.5; West 3.9. No median for ISO-NE.</td><td><span class="tag v">VERIFIED</span></td><td>LBNL <i>Queued Up</i>, via DATA_GAPS.md. Measures <b>generation</b> queues, by region. It is a congestion signal, <b>not</b> a data-center load wait.</td></tr>
+<tr><td>Texas has paused data-center environmental permits while ERCOT audits loads of 75 MW and up (shown "since Sep 21"); Senate Bill 6 (2025) sets rules for 75 MW+ loads.</td><td><span class="tag p">PROTOTYPE</span></td><td>Text and a source link are in prototype.js. Open the link and confirm the wording before quoting it to judges.</td></tr>
+<tr><td>4,802 mapped data-center facilities worldwide; 1,789 in the US records.</td><td><span class="tag v">VERIFIED</span></td><td>OpenStreetMap-derived extract. Not a census; no power-capacity field.</td></tr>
+<tr><td>No market-size, growth or cost-of-delay statistics appear in the provided sources.</td><td><span class="tag u">UNVERIFIED</span></td><td>Do not quote outside figures unless the team verifies them.</td></tr></tbody></table>
+
+<div class="script"><div class="hd">30&ndash;45 second speaking script (about 100 words)</div>
+Picture a developer with a 75-megawatt data center to build. Two questions decide everything: <b>where can I build, and how do I power it?</b> [pause] The grid doesn't show up all at once. In our benchmark it arrives in three steps over thirty months. So the developer has to bridge the gap with onsite power, contracts and batteries, and balance <b>speed, cost and carbon</b>. Add a state permit pause and half-complete data, and a site that looks great on a map can turn out slow, expensive, or blocked. [pause] Today, those two questions are answered separately. <b>That's the problem we built Peak Power to solve.</b></div>
+
+<div class="coach"><b class="l">Delivery.</b> Slow down on "<b>where</b>" and "<b>how</b>"; pause after each. Pause again before the last line, then say it a little lower and slower. Look at the judges, not the screen.</div>
+</section>
+
+<!-- ============ PAGE 2: SOLUTION ============ -->
+<section class="page">
+<p class="kick">Section 2</p><h2>Our solution: Peak Power</h2>
+
+<h3>What it is, in plain English</h3>
+<p>Peak Power is a <b>planning and operations simulator</b> that runs entirely in the browser, with no accounts or online services needed for the core product <span class="tag p">PROTOTYPE</span>. It helps a developer <b>pick a site and a power plan together</b>, then replays every hour of a 10-year plan (87,600 hours) to show cost, carbon and how the plan behaves in a grid emergency.</p>
+<div class="vp">Peak Power shows a data-center developer where they can build, how to power it, and what every alternative costs in time, money and carbon, before they commit.</div>
+
+<h3>Who it is designed for, and the decisions it supports</h3>
+<ul>
+<li><b>Audience:</b> a data-center developer and the advisers around them <span class="tag a">ASSUMPTION</span>. The files name the developer as the customer; no real customer has been interviewed <span class="tag u">UNVERIFIED</span>.</li>
+<li><b>Decisions:</b> which project or county looks strongest; when it could open; which power sources to combine and in what size; what it costs; how clean it is; what happens during grid stress; what the cleaner or faster alternative gives up.</li>
+<li><b>Hard requirements vs preferences:</b> a hard requirement (for example a carbon limit or a service deadline) removes plans; a preference only ranks the plans that remain. Business revenue is kept apart from power cost. <span class="tag p">PROTOTYPE</span></li></ul>
+
+<h3>How it combines the four kinds of information</h3>
+<table><thead><tr><th style="width:17%">Information</th><th style="width:44%">What Peak Power uses</th><th>Status</th></tr></thead><tbody>
+<tr><td>Geographic</td><td>3,142 US counties (254 in Texas) graded on location (distance to 57 metro anchors), policy, fiber proximity, water stress and natural-hazard risk</td><td><span class="tag p">PROTOTYPE</span> published sources; thresholds are team choices <span class="tag a">ASSUMPTION</span></td></tr>
+<tr><td>Energy and grid</td><td>ERCOT 2023 hourly price, wind, solar and load (packet); staged grid connection; grid-queue wait by region; Texas energy-availability screen</td><td><span class="tag p">PROTOTYPE</span> Texas only for dispatch and energy grade</td></tr>
+<tr><td>Infrastructure</td><td>Fiber/network facility distance (CAIDA IXP, PeeringDB); land (acres) for onsite power; battery and gas equipment catalog</td><td><span class="tag p">PROTOTYPE</span> facility locations, not fiber routes</td></tr>
+<tr><td>Weather</td><td>Climate Explorer shows <b>current</b> local weather (Open-Meteo) for a selected data center. The Prototype's "weather year" setting only <b>scales the packet's 2023 wind and solar profiles</b>.</td><td><span class="tag p">PROTOTYPE</span> <b>not linked</b> to the site grades or the dispatch</td></tr></tbody></table>
+
+<p><b>Why it is useful:</b> every grade and plan shows its reason, and missing data is shown as "Not graded" instead of guessed.</p>
+
+<div class="script"><div class="hd">45&ndash;60 second speaking script (about 135 words)</div>
+Peak Power is a <b>planning tool for data-center developers</b>. [pause] It works in two layers. First, it screens sites: across more than three thousand US counties, it grades location, energy, policy, fiber, land, grid reliability, water, hazard and time to power. Second, for a campus, it builds a power plan, and replays <b>every hour of ten years</b> to show what it costs, how clean it is, and what happens in a grid emergency. [pause] The key is that it's <b>honest about what's a requirement and what's a preference</b>. A carbon limit removes plans. A preference just ranks what's left. And where we don't have data, we say "not graded" rather than guess. [pause] The result: a developer sees <b>where to build, how to power it, and what each alternative gives up</b>, before committing.</div>
+
+<div class="coach"><b class="l">Delivery.</b> Emphasize "<b>every hour of ten years</b>", "<b>requirement</b>" vs "<b>preference</b>" and "<b>gives up</b>". Say "I'll show you" as the transition into the demo, then stop talking while the screen loads.</div>
+</section>
+
+<!-- ============ PAGE 3: PROTOTYPE ============ -->
+<section class="page">
+<p class="kick">Section 3</p><h2>How the prototype works: demo order</h2>
+<p class="sub">Tabs: Portfolio, Project plan, Run the plant, Live Operations, plus a separate Data Center Climate Explorer page. Open <i>prototype.html</i> one minute early and wait for the status line to say "Ready"; do not reload.</p>
+<table><thead><tr><th style="width:13%">Feature</th><th style="width:33%">What it does and why it matters</th><th style="width:30%">What to say while demonstrating</th><th>Status and caveat</th></tr></thead><tbody>
+<tr><td>1 Project Portfolio</td><td>Four Texas projects side by side: grades on nine dimensions, an Overall grade, and whether each holds up in a bad grid week</td><td>"Four candidate projects. Green, amber, red, each with a reason."</td><td><span class="tag p">PROTOTYPE</span> Williamson is the packet site; the other three are <b>team sample sites</b> <span class="tag a">ASSUMPTION</span></td></tr>
+<tr><td>2 Compare projects</td><td>"When each could open" timeline; blockers and things to watch per project</td><td>"The earliest any could open is month&hellip;; one is blocked by a permit pause."</td><td><span class="tag p">PROTOTYPE</span></td></tr>
+<tr><td>3 Find a Site map</td><td>US county map: 3,142 counties, eight layers (Overall, Location, Energy, Policy, Fiber, Water, Hazard, Time to power); click a county for reasons</td><td>"Same grades for every county. Click one and it tells you why."</td><td><span class="tag p">PROTOTYPE</span></td></tr>
+<tr><td>4 Texas energy analysis</td><td>Texas only (254 counties): within 140 miles of DFW, Houston, Austin or San Antonio is Good; West Texas wind belt is Moderate (congestion); elsewhere "Not graded"</td><td>"Energy is Texas-only because our dispatch model covers ERCOT. Elsewhere we say so, not guess."</td><td><span class="tag p">PROTOTYPE</span> a team screen <span class="tag a">ASSUMPTION</span>, not measured data</td></tr>
+<tr><td>5 Nine site variables</td><td>Location, Energy, Policy, Fiber, Land, Grid reliability, Water, Hazard, Time to power. Overall counts energy 2&times;, policy 1.5&times;, others 1&times;.</td><td>"Nine variables; energy counts double, policy one and a half times."</td><td><span class="tag p">PROTOTYPE</span> weights verified in code; <b>rationale not documented</b> <span class="tag u">UNVERIFIED</span>. Prepare one sentence.</td></tr>
+<tr><td>6 Recommended plan and alternatives</td><td>Opening month, full-demand month, portfolio, 10-year power cost, kg CO<sub>2</sub>/MWh, clean share; cleaner, cheaper or faster alternatives where they exist</td><td>"This is the recommendation. The cleaner plan costs about $X more for Y kg/MWh less; choose it if&hellip;" (read from the screen)</td><td><span class="tag p">PROTOTYPE</span> library of 384 checker-passed plans</td></tr>
+<tr><td>7 Run the plant / Live Operations</td><td>Grid-stress alert: imports fall to 60%; protected load stays local; choose a response (move flexible work off-site) and see event cost and MWh moved</td><td>"Imports drop. Protected load stays local. Here is what moves and what it costs."</td><td><span class="tag p">PROTOTYPE</span></td></tr>
+<tr><td>8 Climate Explorer</td><td>World and US map of 4,802 mapped facilities; filters, clusters, heatmap</td><td>"A separate page for context: where facilities cluster."</td><td><span class="tag p">PROTOTYPE</span> OSM data; no power capacity</td></tr>
+<tr><td>9 Weather</td><td>Click a facility for current temperature, humidity, wind, precipitation (Open-Meteo, cached)</td><td>"Live weather is on the explorer. It does not yet feed the power model."</td><td><span class="tag p">PROTOTYPE</span> current only; free tier is <b>non-commercial</b></td></tr>
+<tr><td>10 BESS (battery)</td><td>4-hour battery, 1&ndash;53 MW, $1,220/kW; charges from any source; clean credit in proportion to how clean the charging was</td><td>"The cheapest plan is battery-free; the lowest-carbon plan uses a 30 MW battery."</td><td><span class="tag p">PROTOTYPE</span> packet catalog only; <b>no real BESS project data</b></td></tr>
+<tr><td>11 What Changed / What to Watch</td><td>The Texas permit pause and what happens "if the pause lifts"; "since your last visit" comparison of grades, opening months and profit</td><td>"Policy moves. This panel shows what changed and which projects would change grade."</td><td><span class="tag p">PROTOTYPE</span> comparison uses this browser's storage; a first visit shows no changes</td></tr></tbody></table>
+
+<div class="coach"><b class="l">Time check (a suggestion; the team decides).</b> Five minutes cannot show eleven features. The team's <i>docs/DEMO_SCRIPT.md</i> path: Portfolio, How it works, recommended plan and cleaner alternative, change the carbon limit to "Below 200 kg/MWh", then a stress event. Give items 3&ndash;5 and 11 a 20-second mention. Do <b>not</b> use a 250 or 384 kg/MWh limit: the default plan already passes those, so nothing changes on screen.</div>
+</section>
+
+<!-- ============ PAGE 4: INVESTORS ============ -->
+<section class="page">
+<p class="kick">Section 4</p><h2>Why Peak Power matters to investors</h2>
+<div class="warn"><b>Be candid.</b> The materials contain <b>no customers, revenue, pilots, partnerships, pricing or measured time or cost savings</b> for Peak Power <span class="tag u">UNVERIFIED</span>. Everything below is the <i>intended</i> value, argued from what the prototype does. Say "built to" and "designed to", never "has saved".</div>
+
+<h3>Value, tied to what the prototype actually does</h3>
+<table><thead><tr><th style="width:24%">Intended value</th><th style="width:44%">What in the prototype supports it</th><th>Status</th></tr></thead><tbody>
+<tr><td>Faster early-stage site screening</td><td>One map grades 3,142 counties on the same nine dimensions with reasons, so a team can shortlist before paying for studies</td><td><span class="tag p">PROTOTYPE</span> speed gain not measured</td></tr>
+<tr><td>Better-informed decisions</td><td>Power plan, cost, carbon and stress response sit next to the site grade; alternatives show what they give up</td><td><span class="tag p">PROTOTYPE</span></td></tr>
+<tr><td>Reduced uncertainty</td><td>Sources and vintages listed; missing data shown as "Not graded"; hard requirements separate from preferences</td><td><span class="tag p">PROTOTYPE</span></td></tr>
+<tr><td>Less wasted development effort</td><td>Blockers surface early (for example a permit pause turns Policy red for every Texas project)</td><td><span class="tag f">PLANNED</span> as an outcome; reduction not measured</td></tr>
+<tr><td>Portfolio-level visibility</td><td>Four projects compared on grades, earliest opening and 10-year profit, with a one-page export</td><td><span class="tag p">PROTOTYPE</span> three of the four are sample sites</td></tr></tbody></table>
+
+<h3>Business model: not in the materials</h3>
+<p>The "revenue models" in the tool are <b>tenant pricing for the data center</b>, a modelled input, <b>not</b> a business model for Peak Power. <span class="tag u">UNVERIFIED</span> If asked, label any of these as a <b>proposal for discussion</b> <span class="tag f">PLANNED</span>: a subscription for developers and site-selection advisers; a fee per project analysis; or paid regional data modules as coverage expands beyond Texas. None is validated with a customer.</p>
+
+<h3>What commercialization would require</h3>
+<ul>
+<li><b>Data:</b> replace fictional benchmark inputs with real prices, grid headroom, congestion and reliability. Public sources are named in DATA_GAPS.md: EIA-861, ISO/RTO congestion data, utility capacity statements, EIA-860 storage data. <span class="tag f">PLANNED</span></li>
+<li><b>Licences:</b> the free Open-Meteo API is non-commercial only; commercial use needs a paid plan, and a paid key must not sit in browser code.</li>
+<li><b>One engine:</b> the browser page and the Python API run separate calculation paths today.</li>
+<li><b>Validation with a real developer</b> against a real site decision.</li></ul>
+
+<div class="script"><div class="hd">45 second investor-focused speaking script (about 115 words)</div>
+For an investor, the point is <b>early clarity</b>. Before a developer spends on studies, land options and legal work, they need to know which sites are even plausible and what it takes to power them. Peak Power puts that in one place, with reasons and sources. [pause] I want to be straight about where we are. This is a working prototype on a benchmark campus. We have <b>not</b> run it with a paying customer, and our energy grading covers Texas. [pause] But the foundation is there: every power plan we show passes the official checker, assumptions are visible, and the path to a real product is clear: <b>real market data, more regions, and validation with a developer</b>.</div>
+
+<div class="coach"><b class="l">Delivery.</b> Stating limits yourself earns trust. Say the limitation in the same calm tone as the strengths, then go straight to the next step. Pause after "straight about where we are."</div>
+</section>
+
+<!-- ============ PAGE 5: TECHNICAL ============ -->
+<section class="page">
+<p class="kick">Section 5</p><h2>Technical credibility and differentiation</h2>
+
+<h3>Main data sources</h3>
+<table><thead><tr><th style="width:26%">Source</th><th style="width:26%">Used for</th><th>Vintage and caveat</th></tr></thead><tbody>
+<tr><td>Symposium packet V2 (ERCOT 2023 hourly price, wind, solar, load; resource catalog)</td><td>Hourly dispatch, costs, carbon, plans</td><td>Fictional campus; regional proxy shapes repeated across 10 years; constant 2023 $, undiscounted. Files labelled v6.0.1 "V2"; folder name says 6.6.1, unresolved.</td></tr>
+<tr><td>LBNL <i>Queued Up</i></td><td>Time to power (by grid region)</td><td>Through 2025. Generation queues, not data-center load waits; not by county.</td></tr>
+<tr><td>FEMA National Risk Index; WRI Aqueduct 4.0</td><td>Hazard; water stress</td><td>Dec 2025 / baseline. Hazard missing for 9 counties; water missing for 62.</td></tr>
+<tr><td>CAIDA IXP / PeeringDB; moratorium tracker and state policy research</td><td>Fiber; Policy (state level)</td><td>Oct 2026 / Nov 2026. Fiber shows where networks meet, not where fiber runs. Local zoning not loaded.</td></tr>
+<tr><td>US Census boundaries; OSM data-center extract; Open-Meteo</td><td>Map; Explorer; current weather</td><td>Alaska (29) and Connecticut (8) use older geometry. County source files are not in the repository. Weather is point-based, current only.</td></tr></tbody></table>
+
+<h3>How it works, two ways</h3>
+<div class="two">
+<div class="box"><b>For non-technical investors</b><p class="small" style="margin:3pt 0 0">"Think of it as a flight simulator for a power plant. We feed in every hour of a ten-year period: how much power the campus needs, how much wind and sun there is, and what electricity costs. We test each plan hour by hour. If it can't keep the lights on or meet a requirement, it's thrown out. What's left is ranked by what the customer cares about."</p></div>
+<div class="box"><b>For technical judges</b><p class="small" style="margin:3pt 0 0">"A library of 384 pre-simulated plans, each replayed through the packet's official checker (all pass). The browser engine re-dispatches chosen capacities over 87,600 hours with rule-based merit-order logic: grid-delivered contracts and merchant imports share the connection limit; onsite resources and a 4-hour battery balance the rest; during stress, Tier 0 is protected, Tier 1 can relocate, Tier 2 can pause. It is not an optimizer."</p></div></div>
+
+<h3>Key numbers from the packet-path outputs <span class="tag v">VERIFIED</span> <span class="small">(data/Symposium_Packet/outputs, official checker passed)</span></h3>
+<table><thead><tr><th></th><th>Lowest cost (strict policy)</th><th>Lowest carbon</th><th>Difference (derived)</th></tr></thead><tbody>
+<tr><td>Portfolio (MW)</td><td>25 gas turbine, 5 gas engine, 100 wind, 50 solar; no battery</td><td>25 gas turbine, 5 fuel cell, 150 wind, 50 solar, 30 battery</td><td></td></tr>
+<tr><td>Opening / full demand</td><td>Month 20 / month 30</td><td>Month 20 / month 30</td><td>Same</td></tr>
+<tr><td>10-year cost</td><td class="num">$283.1M</td><td class="num">$399.5M</td><td class="num">+$116.4M (+41%)</td></tr>
+<tr><td>CO<sub>2</sub> intensity / clean share</td><td class="num">155 kg/MWh / 62.6%</td><td class="num">60.6 kg/MWh / 78.6%</td><td class="num">&minus;94.8 kg/MWh; about $253 per tonne avoided</td></tr>
+</tbody></table>
+<p class="small">Tier 0 unserved: 0 MWh in both; land 2.75 vs 7.25 acres. The $/tonne figure is <b>derived by this guide</b> from the two files ($116.4M &divide; 460,122 t); confirm before quoting. The <b>browser</b> screen uses a different engine (maximizes 10-year profit) and shows different numbers, for example $341M and 227 kg/MWh, with a cleaner alternative at $512M and 148 kg/MWh (DEMO_SCRIPT).</p>
+
+<h3>Limits and differentiation</h3>
+<ul>
+<li><b>Limits:</b> rule-based dispatch; no startup, ramping, outage or gas-delivery detail; battery plans fixed at 30 MW in the browser; results are screening comparisons, not quotes.</li>
+<li><b>Differentiation the evidence supports:</b> site screening plus a checker-validated 10-year plan in one offline tool with visible assumptions. <b>No competitor comparison exists in the materials</b> <span class="tag u">UNVERIFIED</span>; do not claim it beats other tools.</li></ul>
+</section>
+
+<!-- ============ PAGE 6: FULL SCRIPT ============ -->
+<section class="page">
+<p class="kick">Section 6</p><h2>Full presentation script (about 4&frac12; minutes)</h2>
+<div class="warn" style="margin-top:0"><b>Timing check:</b> the official slot is <b>5 minutes including the demo</b>. The script is about 465 spoken words: roughly 3 min 20 s of talking at 140 words a minute, plus about a minute of clicking and pauses in the demo. If you run long, cut section 3 and the first sentence of section 6. Time yourself.</div>
+
+<h3>1. Opening &middot; 0:00&ndash;0:20</h3>
+<p>Every data center starts with two questions: <b>where can we build, and how do we power it?</b> [pause] Answer them in the wrong order, or with the wrong data, and you can lose years. Our team of four, from business, mechanical engineering, sustainability and AI at Columbia, built <b>Peak Power</b> to answer both.</p>
+
+<h3>2. The problem &middot; 0:20&ndash;0:55</h3>
+<p>Take a 75-megawatt campus. The grid connection doesn't arrive all at once. In our benchmark it comes in three steps over thirty months: 25, then 50, then 75 megawatts. [pause] Until then, the developer has to fill the gap with onsite generation, contracts and batteries, while balancing <b>speed, cost and carbon</b>. Those three pull against each other. Faster usually means more gas. Cleaner usually means more cost.</p>
+
+<h3>3. Why today's decisions are hard &middot; 0:55&ndash;1:15</h3>
+<p>And the site question is just as messy. Policy changes: Texas has an active permit pause. Water, hazard, fiber and grid wait times all live in different datasets. <b>Nobody sees it in one place.</b></p>
+
+<h3>4. Introducing Peak Power &middot; 1:15&ndash;1:45</h3>
+<p>Peak Power puts it in one place. It grades more than three thousand US counties on nine factors, then for a campus it builds a power plan and replays <b>every hour of ten years</b>: cost, carbon, and what happens in a grid emergency. And it keeps hard requirements, like a carbon limit, separate from preferences. [pause] Let me show you.</p>
+
+<h3>5. Live demonstration &middot; 1:45&ndash;3:30</h3>
+<p><i>[Portfolio tab, 15 s]</i> Here are four candidate projects, each graded with a reason. <b>The Texas projects show red for Policy</b> because of the permit pause, and the panel below shows what changes if it lifts. <i>[Open selected project]</i></p>
+<p><i>[Recommended plan table, 30 s]</i> This is the recommendation: opens in month X, full demand in month Y, with this mix of wind, gas and solar. It costs this much over ten years, at this carbon intensity. And here's the <b>cleaner alternative</b>: about this much more for this much less carbon. Choose it if you have a carbon target. <i>(Read the numbers from the screen.)</i></p>
+<p><i>[Change the answer, 30 s]</i> Now the customer says: carbon must be below 200. That is a <b>hard requirement</b>. The old recommendation is removed, the alternative takes over, and the table shows exactly what the limit costs.</p>
+<p><i>[Run the plant, 25 s]</i> Finally, a grid-stress event. Imports drop to sixty percent. <b>Protected load stays on site</b>; flexible work moves off site. Here's the cost and the megawatt-hours moved.</p>
+
+<h3>6. Investor and industry value &middot; 3:30&ndash;4:15</h3>
+<p>Why does this matter? Because the expensive mistakes happen early. Peak Power is built to <b>shortlist sites faster, show the trade-offs, and say clearly what it doesn't know.</b> [pause] I'll be straight about where we are: it's a prototype on a benchmark campus. Energy grading covers Texas; the dispatch is rule-based and every plan is checker-validated, but it's a screening tool, not a quote.</p>
+
+<h3>7. Closing &middot; 4:15&ndash;4:40</h3>
+<p>Our next steps are real market data, more regions, and testing with a developer. [pause] <b>Peak Power helps a developer see, before committing, where they can build, how to power it, and what every alternative gives up.</b> Thank you.</p>
+
+<div class="coach"><b class="l">Coaching.</b> Speak at roughly 140 words a minute. <b>Pause</b> at every [pause]. For the demo, say what you are about to click <i>before</i> you click, then name the one number that matters. If the screen is slow, keep talking about the idea, not about the delay. Finish on the closing sentence and stop; do not add "so, yeah."</div>
+</section>
+
+<!-- ============ PAGE 7-8: Q&A ============ -->
+<section class="page">
+<p class="kick">Section 7</p><h2>Investor and judge Q&amp;A</h2>
+<p class="sub">Each answer is 20&ndash;40 seconds spoken. If you do not know: say "we haven't verified that; here is what we do know," then give the closest verified fact. <b>Never invent a result.</b></p>
+
+<div class="q"><div class="qq">1. What makes Peak Power different?</div>
+It joins two things usually done apart: a nine-variable screen of every US county, and an hour-by-hour ten-year simulation of the power plan for a campus, in one offline tool with the assumptions visible. We haven't benchmarked against commercial tools, so we won't claim we are better, only that this combination is what we built.
+<div class="ev">Evidence: prototype; 384/384 plans pass the packet checker. Competitor comparison: <span class="tag u">UNVERIFIED</span></div></div>
+
+<div class="q"><div class="qq">2. Who would pay for this?</div>
+We believe developers and the advisers who screen sites for them, because it compresses early screening and shows the trade-offs. But we haven't interviewed customers or tested pricing yet, so that is a hypothesis.
+<div class="ev">Evidence: none in the materials. <span class="tag u">UNVERIFIED</span> Pricing ideas are <span class="tag f">PLANNED</span> proposals only.</div></div>
+
+<div class="q"><div class="qq">3. How reliable is the underlying data?</div>
+It is a mix, and we label which is which. Published data: ERCOT 2023, FEMA, WRI water, LBNL queue, CAIDA fiber. Packet assumptions: the fictional campus, prices and stress events. Team assumptions: grading thresholds and the Texas energy screen. Known gaps are shown: 62 counties without water data, 9 without hazard, 35 without a queue region.
+<div class="ev">Evidence: DATA_GAPS.md; PROTOTYPE_INTEGRATION.md "Data classes". <span class="tag v">VERIFIED</span></div></div>
+
+<div class="q"><div class="qq">4. How do you validate site recommendations?</div>
+Two levels. The power plans are replayed through the packet's official checker for physical balance and accounting, and all 384 pass. The site grades are <b>not</b> validated against real project outcomes; they are transparent rules over published sources, so a judge can challenge each one.
+<div class="ev">Evidence: verify_plan_library.py result; "Where these grades come from" list. Real-world validation: <span class="tag u">UNVERIFIED</span></div></div>
+
+<div class="q"><div class="qq">5. What happens when grid information is unavailable?</div>
+We don't guess. The tool shows "Not graded" or "Data needed". Outside Texas the energy grade is not computed, and the Overall grade uses the grid-queue wait as a stand-in. 102 counties have no queue median at all. A grid-delay input lets you test what a late connection does to a project.
+<div class="ev">Evidence: DATA_GAPS.md &sect;2; prototype.js (LAYTXT, projDims). <span class="tag v">VERIFIED</span></div></div>
+
+<div class="q"><div class="qq">6. Why is Texas better covered than other states?</div>
+The benchmark campus and hourly data are ERCOT, so dispatch and the energy screen exist only there. The map itself covers all 3,142 counties. Extending energy needs separate data per region, such as EIA-861 prices and reliability and ISO congestion data; we have not loaded them.
+<div class="ev">Evidence: DATA_GAPS.md recommended order. <span class="tag f">PLANNED</span></div></div>
+
+<div class="q"><div class="qq">7. How does BESS affect the analysis?</div>
+Under the V2 rules a 4-hour battery up to 53 MW may charge from any source, and its clean credit is proportional to how clean that charging was, so grid-charged energy earns none. Result: the cheapest plan is battery-free because the battery's capital cost exceeds the savings; the lowest-carbon plan uses a 30 MW battery. The browser plan library only tests 30 MW batteries, and our battery dispatch is rule-based, so storage may be undervalued. We have no real battery project data.
+<div class="ev">Evidence: summary.json; carbon_alternative.json; DATA_GAPS.md &sect;3. <span class="tag v">VERIFIED</span></div></div>
+
+<div class="q"><div class="qq">8. How much does cleaner supply cost?</div>
+In the validated packet run, about $116 million more over ten years (+41%) for roughly 95 kg/MWh less carbon, which works out to about $253 per tonne by our arithmetic. Choose it if the customer has a carbon target worth more than that price. On screen, read the live figure.
+<div class="ev">Evidence: official_check.json vs carbon_alternative.json; $/t is derived. <span class="tag v">VERIFIED</span></div></div>
+</section>
+
+<section class="page">
+<div class="q"><div class="qq">9. Why do the on-screen numbers differ from your packet outputs?</div>
+Two calculation paths. The browser engine maximizes 10-year profit across its 384-plan library; the Python/packet path minimizes cost. They share the packet's rules and both are checker-validated, but they pick different plans. We quote whichever source we are showing, never both together.
+<div class="ev">Evidence: README.md "Implemented approach"; DEMO_SCRIPT.md. <span class="tag v">VERIFIED</span></div></div>
+
+<div class="q"><div class="qq">10. Can the platform scale nationwide?</div>
+The site map already does. The power simulation does not: it needs hourly price, wind, solar and load data for each region, and we only have ERCOT. We haven't estimated the effort to extend it, so we won't put a timeline on it.
+<div class="ev">Evidence: DATA_GAPS.md. Effort estimate: <span class="tag u">UNVERIFIED</span></div></div>
+
+<div class="q"><div class="qq">11. What are the technical limitations?</div>
+Dispatch is rule-based, not an optimizer, so we show screening comparisons, not proven optima. No startup, ramping, outage or gas-delivery detail. The benchmark repeats one reference year. Time to power uses generation-queue waits as a proxy. And the browser and Python engines are separate.
+<div class="ev">Evidence: README.md "Limitations"; summary.json limitations. <span class="tag v">VERIFIED</span></div></div>
+
+<div class="q"><div class="qq">12. What evidence supports the project's impact?</div>
+Honestly, we have no measured real-world impact: no pilot and no users. What we can show is a quantified trade-off on a validated benchmark, in dollars, carbon and timing, and a transparent method. Impact on real decisions is what the next step would test.
+<div class="ev">Evidence: official checker outputs. Real-world impact: <span class="tag u">UNVERIFIED</span></div></div>
+
+<div class="q"><div class="qq">13. How do hard requirements differ from preferences in your tool?</div>
+A hard requirement, such as a carbon limit or deadline, removes plans. A preference only ranks what is left. In our demo, a carbon limit below 200 kg/MWh removes the default plan, and the table shows what the limit costs and when to relax it.
+<div class="ev">Evidence: DEMO_SCRIPT.md (example: $341M to $512M, about $436/t; read live). <span class="tag p">PROTOTYPE</span></div></div>
+
+<div class="q"><div class="qq">14. What would be required to commercialize it?</div>
+Real market and grid data replacing the fictional benchmark; one unified engine; a commercial weather licence, since the free Open-Meteo tier is non-commercial; hosting and support; and validation against a real developer's site decision.
+<div class="ev">Evidence: peak-power/README.md (licence); DATA_GAPS.md. <span class="tag f">PLANNED</span></div></div>
+
+<div class="q"><div class="qq">15. What is the next major development milestone?</div>
+Load the public datasets named in our data-gap report in this order: EIA-861 industrial prices and reliability by state; ISO/RTO congestion for the regions we already name; then utility capacity statements for named projects, each as its own labelled variable. Then test with a developer.
+<div class="ev">Evidence: DATA_GAPS.md "Recommended order". Not started. <span class="tag f">PLANNED</span></div></div>
+
+<div class="coach"><b class="l">When you are uncertain.</b> Use this three-part shape: <b>"We haven't verified that. What we do know is&hellip; and here's how we'd find out."</b> Short, calm, no apology. Never fill the silence with a number you can't point to on the screen.</div>
+</section>
+
+<!-- ============ PAGE 9: CHEAT SHEET ============ -->
+<section class="page cheat">
+<p class="kick">Section 8 · Read five minutes before you present</p><h2>Final preparation cheat sheet</h2>
+<div class="two">
+<div>
+<h3>The problem, one sentence</h3><p>Developers must decide <b>where to build and how to power a data center</b>, balancing speed, cost and carbon, with grid power arriving in stages and data scattered.</p>
+<h3>The solution, one sentence</h3><p>Peak Power screens US counties and simulates every hour of a ten-year power plan, showing <b>cost, carbon, timing, stress response and what each alternative gives up</b>.</p>
+<h3>Three strongest advantages</h3><ol><li>Site screen <b>and</b> power plan in one tool</li><li>Every plan <b>checker-validated</b> (384 of 384)</li><li><b>Transparent</b>: sources shown; gaps labelled "Not graded"</li></ol>
+<h3>Three key facts</h3><ol><li>87,600 hours &middot; 3,142 counties &middot; 9 variables</li><li>Opens month 20, full demand month 30; $283.1M, 155 kg/MWh</li><li>Cleaner plan: +$116.4M (+41%) for about 95 kg/MWh less</li></ol>
+<h3>Three features to demonstrate</h3><ol><li>Portfolio + Find a Site (grades with reasons)</li><li>Recommended plan, cleaner alternative, change the carbon limit</li><li>Grid-stress event: protected load local, flexible work moved</li></ol>
+<h3>Three limitations to acknowledge</h3><ol><li>Energy graded for <b>Texas only</b></li><li><b>Screening tool</b>: rule-based dispatch, fictional benchmark</li><li>No real customers or real-world validation yet</li></ol>
+</div>
+<div>
+<h3>Five hard questions to expect</h3><ol>
+<li><b>Who pays?</b> Hypothesis only; no customer testing.</li>
+<li><b>Why Texas only?</b> ERCOT benchmark; other regions need data.</li>
+<li><b>Why is the cheapest plan battery-free?</b> Capex exceeds savings.</li>
+<li><b>Why do screen and packet numbers differ?</b> Two engines: profit vs cost.</li>
+<li><b>What impact is proven?</b> None measured; validated benchmark only.</li></ol>
+<h3>Numbers to keep straight</h3>
+<table style="font-size:8.3pt"><tbody>
+<tr><td>Grid steps</td><td>25 / 50 / 75 MW at months 18 / 24 / 30</td></tr>
+<tr><td>Stress event</td><td>Imports fall to 60%; Tier 0 stays local</td></tr>
+<tr><td>Packet path</td><td>$283.1M, 62.6% clean, 155 kg/MWh</td></tr>
+<tr><td>Carbon option</td><td>$399.5M, 78.6% clean, 60.6 kg/MWh</td></tr>
+<tr><td>Browser default</td><td>Read live (example $341M, 227 kg/MWh)</td></tr></tbody></table>
+<h3>Delivery reminders</h3><ul>
+<li>Open the prototype a minute early; wait for "Ready"; do not reload.</li>
+<li>Say what you will click, then click, then name <b>one</b> number.</li>
+<li>Pause after the problem; pause before the closing line.</li>
+<li>Limits first, calmly. It builds trust.</li>
+<li>Stop at 5:00. Cut section 3 if behind.</li></ul>
+<h3>Memorable closing</h3>
+<div class="vp" style="font-size:11pt">"Before you commit to a site, Peak Power shows you how fast you can get power, what it costs, how clean it is, and what every alternative gives up."</div>
+</div></div>
+</section>
+
+<!-- ============ APPENDIX ============ -->
+<section class="page">
+<p class="kick">Appendix</p><h2>Sources, gaps and what was not checked</h2>
+<h3>Source list (paths relative to the repository root)</h3>
+<table><thead><tr><th style="width:5%">#</th><th style="width:42%">File</th><th>Used for</th></tr></thead><tbody>
+<tr><td>S1</td><td>docs/Judging Rubric.xlsx</td><td>Three guiding questions; 100-point split across three teams; tiebreak rule</td></tr>
+<tr><td>S2</td><td>scoring rubric/Judging Rubric - Rubric.csv and .pdf; CLAUDE.md</td><td>Five criteria at 20%, 1&ndash;5 anchors; 5-minute presentation and demo; "visual polish is not scored"</td></tr>
+<tr><td>S3</td><td>data/Symposium_Packet/Problem_Statement.md</td><td>The challenge; hard requirements vs preferences; flexibility</td></tr>
+<tr><td>S4</td><td>README.md (approach report)</td><td>Method, 384 plans, limitations, two engines</td></tr>
+<tr><td>S5</td><td>peak-power/README.md; peak-power/index.html</td><td>Pages, data, Open-Meteo reliability and licence, team and intro text</td></tr>
+<tr><td>S6</td><td>docs/PROTOTYPE_INTEGRATION.md</td><td>Nine dimensions, feature checklist, data classes</td></tr>
+<tr><td>S7</td><td>docs/DATA_GAPS.md</td><td>County counts, Texas-only energy, queue medians, BESS and weather status, recommended next data</td></tr>
+<tr><td>S8</td><td>docs/DEMO_SCRIPT.md</td><td>Demo path, on-screen example numbers, failure plan</td></tr>
+<tr><td>S9</td><td>data/Symposium_Packet/outputs/*.json</td><td>Validated cost, carbon, clean share, portfolios, dates</td></tr>
+<tr><td>S10</td><td>peak-power/js/prototype.js</td><td>Nine variables, weights (energy 2, policy 1.5), sample sites, What Changed panel logic</td></tr>
+<tr><td>S11</td><td>output/pdf/Peak_Power_Mock_Judge_Report.pdf</td><td>Cross-check of known weaknesses</td></tr></tbody></table>
+
+<h3>Missing or uncertain evidence that could weaken the pitch</h3>
+<ul>
+<li><b>Which rubric applies</b> (three questions vs five weighted criteria). Ask an organizer.</li>
+<li><b>No customer, revenue, pilot, pricing or competitor evidence.</b> Do not fill the gap with claims.</li>
+<li><b>Rationale for the nine-variable weights</b> is not documented. Prepare one sentence.</li>
+<li><b>Two sets of numbers</b> (browser vs packet). Decide which one you will quote and stay consistent.</li>
+<li><b>Packet label</b> (v6.0.1 vs folder name 6.6.1) is unresolved.</li>
+<li><b>Weather</b> does not connect to the power model; <b>BESS</b> has no real project data.</li>
+<li><b>$253 per tonne</b> is derived by this guide; the Texas permit-pause text should be re-read at its source link.</li>
+<li><b>Not checked in this guide:</b> the live prototype, the unit and end-to-end tests, and the checker were not re-run. Numbers come from stored outputs and documents.</li></ul>
+</section>
+</body></html>

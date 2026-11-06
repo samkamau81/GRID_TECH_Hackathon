@@ -1,0 +1,55 @@
+<!-- ============ FRONT: HOW TO USE + RUBRIC ============ -->
+<section class="page">
+<p class="kick">GridTech Hackathon · Columbia Energy Symposium</p>
+<h1>Peak Power: Investor Pitch and Judging Guide</h1>
+<p class="sub">A speaker-preparation guide built only from the team's own files (rubric, packet, README, docs, prototype code, packet outputs). Prepared 4 Nov 2026. The campus, offers and scenarios in the benchmark are fictional. Numbers were read from stored files; the live prototype and the checker were not re-run for this guide.</p>
+
+<h3>How to use it</h3>
+<ol>
+<li>Read Sections 1&ndash;5 once to understand the story. The tags show what you can say as fact and what you must hedge.</li>
+<li>Rehearse the script (Section 6) out loud twice with a timer, then the Q&amp;A (Section 7) with a teammate asking at random.</li>
+<li>Review the cheat sheet (Section 8) five minutes before presenting. The appendix lists sources and gaps.</li></ol>
+
+<table style="width:62%"><thead><tr><th>Section</th><th>Page</th></tr></thead><tbody>
+<tr><td>Rubric alignment</td><td>2</td></tr>
+<tr><td>1 The problem &middot; 2 Our solution</td><td>3 &middot; 4</td></tr>
+<tr><td>3 How the prototype works &middot; 4 Investor value</td><td>5 &middot; 6</td></tr>
+<tr><td>5 Technical credibility &middot; 6 Full script</td><td>7 &middot; 8</td></tr>
+<tr><td>7 Investor and judge Q&amp;A</td><td>9&ndash;10</td></tr>
+<tr><td>8 Cheat sheet &middot; Appendix: sources and gaps</td><td>11 &middot; 12</td></tr></tbody></table>
+
+<p class="legend"><b>Status tags used throughout:</b>
+<span><span class="tag v">VERIFIED</span>stated in a file or output</span>
+<span><span class="tag p">PROTOTYPE</span>implemented in the code</span>
+<span><span class="tag a">ASSUMPTION</span>packet or team assumption</span>
+<span><span class="tag f">PLANNED</span>proposed, not built</span>
+<span><span class="tag u">UNVERIFIED</span>no evidence in the files</span></p>
+
+<div class="warn"><b>Rubric conflict: confirm before you present.</b> The repository holds two different rubrics. <b>(1)</b> <i>docs/Judging Rubric.xlsx</i> (the newest file): three guiding questions that are "not scored separately"; four judges (Travis, Joe, Hunter, Ryan) each split <b>100 points across three teams</b>; ties go to the team with more first-place votes. <b>(2)</b> <i>scoring rubric/Judging Rubric &ndash; Rubric.csv and .pdf</i>, which matches the team's CLAUDE.md: <b>five criteria at 20% each, scored 1&ndash;5</b>, from a <b>5-minute presentation and demo</b> with no hands-on time; "visual polish is not scored." This guide covers both. Ask an organizer which one the judges will use.</div>
+
+<h3>Status at a glance: what is real, what is partial, what is not built</h3>
+<table><thead><tr><th style="width:38%">Working in the prototype <span class="tag p">PROTOTYPE</span></th><th style="width:31%">Partial or limited</th><th>Not built, or no evidence <span class="tag f">PLANNED</span> <span class="tag u">UNVERIFIED</span></th></tr></thead><tbody><tr>
+<td><ul style="margin:0"><li>Nine-variable grades and an Overall grade, with reasons</li><li>US county map (3,142 counties, 8 layers)</li><li>Four-project portfolio comparison and timeline</li><li>384 plans, all passing the packet checker</li><li>Hourly 87,600-hour dispatch, V2 battery rules, grid-stress response</li><li>What Changed / What to Watch panel</li><li>Data Center Climate Explorer with current weather</li></ul></td>
+<td><ul style="margin:0"><li>Energy grade: Texas only</li><li>Weather: separate page; not connected to the power model</li><li>Three of four projects are team sample sites</li><li>Sources listed, but county source files are not in the repository</li><li>Two separate calculation engines (browser and Python)</li></ul></td>
+<td><ul style="margin:0"><li>Nationwide price, grid headroom, congestion, reliability data</li><li>Real battery (BESS) project data</li><li>Validation against real site outcomes</li><li>Customers, pricing, revenue, pilots, competitor comparison</li><li>A business model for Peak Power</li></ul></td></tr></tbody></table>
+</section>
+
+<section class="page">
+<p class="kick">Rubric alignment</p><h2>How the pitch maps to the judging rubric</h2>
+<h3>A. The three questions in the .xlsx (no weights; each judge splits 100 points across three teams)</h3>
+<table><thead><tr><th style="width:22%">Judging question</th><th style="width:15%">Weight</th><th style="width:15%">Where addressed</th><th style="width:25%">Evidence you can point to</th><th>Likely challenge or weakness</th></tr></thead><tbody>
+<tr><td>1. Would a data-center developer actually use this tool to make a real decision?</td><td>Not scored separately; a guiding question</td><td>Sections 1, 2, 3, 6</td><td>Nine-variable screen of 3,142 counties; recommended plan with cost, carbon and dates; 384 checker-passed plans</td><td>Energy graded for Texas only; no real customer has used it <span class="tag u">UNVERIFIED</span></td></tr>
+<tr><td>2. Does the reasoning behind the tool hold up when challenged?</td><td>Same</td><td>Sections 5, 7</td><td>"Where these grades come from" list; hard requirements vs preferences; official checker; stated limits</td><td>Proxy metrics (queue wait); rule-based dispatch; two calculation engines</td></tr>
+<tr><td>3. Does the team deeply understand what it built and why it matters?</td><td>Same</td><td>Whole guide; live Q&amp;A</td><td>You can explain every tag in this guide, including what is not built</td><td>Rationale for the variable weights; why browser and Python numbers differ</td></tr></tbody></table>
+
+<h3>B. The five weighted criteria in the .csv/.pdf (scored 1&ndash;5 each)</h3>
+<table><thead><tr><th style="width:15%">Criterion</th><th style="width:7%">Weight</th><th style="width:14%">Where addressed</th><th style="width:34%">Evidence</th><th>Likely challenge</th></tr></thead><tbody>
+<tr><td>Product</td><td>20%</td><td>Section 3; script &sect;5</td><td>Change a requirement live (carbon limit) and the recommendation changes; hard requirements kept apart from preferences</td><td>Plan computation takes about 10 s; open the page a minute early</td></tr>
+<tr><td>Methodology</td><td>20%</td><td>Section 5; "How it works" panel</td><td>Inputs, then filter by hard requirements, then rank by preferences, then 87,600-hour dispatch; assumptions listed</td><td>Rule-based dispatch, not an optimizer; "earliest feasible" claims need support</td></tr>
+<tr><td>Portfolio viability</td><td>20%</td><td>Script &sect;5; Section 7</td><td>Opens month 20, full demand month 30; Tier 0 unserved 0 MWh; stress response; cleaner alternative</td><td>Show what is relocated or interrupted, and imports during stress</td></tr>
+<tr><td>Financial outcomes</td><td>20%</td><td>Script &sect;5, &sect;6</td><td>$283.1M vs $399.5M (undiscounted, constant 2023 $); relocation and interruption costs separate from business revenue</td><td>"What drives the cost?" Answer from the screen</td></tr>
+<tr><td>Environmental outcomes</td><td>20%</td><td>Script &sect;5; Section 7</td><td>155 to 61 kg CO<sub>2</sub>/MWh; clean share 62.6% to 78.6%; what the cleaner plan costs</td><td>Grid-charged battery energy earns no clean credit (V2 rules)</td></tr></tbody></table>
+
+<div class="coach"><b class="l">What the rubric text itself tells you.</b> (1) Judges score <b>only what they see and hear</b> in 5 minutes. (2) They judge you <b>against the priorities and requirements you state in the demo</b>, so state your customer's priorities in the first 20 seconds of the demo. (3) They score how the tool handles each dimension, <b>not whether the numbers are optimal</b>. (4) Five equal criteria: do not spend the whole demo on one.</div>
+</section>
+

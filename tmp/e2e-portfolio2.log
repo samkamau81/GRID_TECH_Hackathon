@@ -1,0 +1,28 @@
+PASS portfolio shows four project cards
+PASS site navigation has exactly three tabs
+PASS prototype has its four steps (Portfolio, Project plan, Run the plant, Live Operations)
+PASS no Investment Intelligence tab or text
+PASS first project card carries all nine dimensions: Location, Energy, Policy, Fiber, Land, Grid reliability, Water, Hazard, Time to power
+PASS the comparison list has nine rows
+PASS timeline ("When each could open") is drawn
+PASS project selector lists all projects plus the portfolio view
+PASS switching project updates the header (Ellis County)
+PASS Texas map shows 254 counties
+PASS US map shows 3142 counties
+PASS county identifiers are unique five-digit FIPS codes
+PASS switching the map layer recolors counties
+PASS clicking a county opens its detail (Autauga, AL)
+PASS a county outside Texas shows Energy as "Not graded", explained (the dispatch model covers ERCOT only), not an invented value
+PASS Texas filter: Travis County can be selected
+PASS the collapsible "Where these grades come from" source list is present
+PASS portfolio simulation finishes
+PASS What changed: first visit is reported as such
+PASS the visit snapshot is stored (the only persistence, as in the artifact)
+PASS What to watch: the Texas permit pause is listed with its effect on each project
+PASS Open selected project goes to the Project plan
+PASS Energy section shows the V2 battery limit (up to 53 MW)
+PASS Energy section shows the V2 wind price ($45/MWh)
+PASS Run the plant (board review) renders
+PASS Live Operations renders
+PASS footer states the symposium packet as the data source
+PASS no JavaScript errors in these flows 
