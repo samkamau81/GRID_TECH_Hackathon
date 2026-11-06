@@ -102,14 +102,24 @@ h1 span { color: var(--accent); }
 @media (max-width: 560px) { .who { grid-template-columns: minmax(0, 1fr); } }
 
 
-/* QR card: pinned to the top-right of the hero, out of normal flow (position:absolute), so it takes no grid space and moves nothing.
-   It sits in the empty corner above the DATA CENTER box; static, no effects, so it scans cleanly. */
-.hero-in { position: relative; }
-.qr-card { position: absolute; top: -26px; right: 20px; z-index: 2; box-sizing: border-box; width: 180px; padding: 6px 6px 8px; text-align: center; background: var(--panel); border: 1px solid var(--rule); border-top: 3px solid var(--gold); border-radius: 12px; box-shadow: var(--shadow); }
+
+/* QR card: small, centred under the DATA CENTER box. It is absolutely positioned inside .viz-wrap (which is exactly as tall as the
+   illustration), so it takes no layout space and moves nothing. The box occupies the right-hand 31% of the illustration and ends at
+   65% of its height, so these percentages keep the card under the box at every width. Static and effect-free so it scans cleanly. */
+.viz-wrap { position: relative; }
+.qr-card { position: absolute; left: calc(84.375% - 58px); top: calc(65% + 6px); z-index: 2; box-sizing: border-box; width: 116px; padding: 4px 4px 3px; text-align: center; background: var(--panel); border: 1px solid var(--rule); border-top: 2px solid var(--gold); border-radius: 8px; box-shadow: 0 6px 14px -10px rgb(23 23 23 / .35); }
 .qr-link { display: block; line-height: 0; }
-.qr-link img { width: 164px; height: 164px; display: block; margin: 0 auto; }
-.qr-cap { font-family: var(--f-display); font-weight: 600; font-size: .85rem; line-height: 1.25; color: var(--ink); margin-top: 4px; }
+.qr-link img { width: 100px; height: 100px; display: block; margin: 0 auto; }
+.qr-cap { font-family: var(--f-display); font-weight: 600; font-size: 11px; line-height: 1.25; text-wrap: balance; color: var(--ink); margin-top: 3px; }
+/* two-column layouts too narrow for the caption: QR only, same spot */
+@media (max-width: 1099px) {
+  .qr-card { left: calc(84.375% - 48px); width: 96px; }
+  .qr-link img { width: 86px; height: 86px; }
+  .qr-cap { display: none; }
+}
 /* one-column layout: no free corner, so the card follows the illustration as a normal block (nothing above it moves) */
 @media (max-width: 880px) {
-  .qr-card { position: static; margin: 0 auto; }
+  .qr-card { position: static; width: 150px; margin: 12px auto 0; padding: 6px 6px 5px; }
+  .qr-link img { width: 136px; height: 136px; }
+  .qr-cap { display: block; font-size: 12px; margin-top: 4px; }
 }
