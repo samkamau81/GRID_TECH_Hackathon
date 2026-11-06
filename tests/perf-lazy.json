@@ -1,0 +1,49 @@
+{
+ "label": "lazy",
+ "when": "2026-11-05T23:43:40.870Z",
+ "runs": 3,
+ "pages": {
+  "prototype.html": {
+   "load_ms_median": 1546,
+   "load_ms_all": [
+    1546,
+    1468,
+    1752
+   ],
+   "heap_mb_median": 252,
+   "requests": 8,
+   "same_origin_bytes": 1943825,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/js/data/reference-data.js",
+     "b": 744745,
+     "ms": 340
+    },
+    {
+     "u": "/js/data/site-counties.js",
+     "b": 555480,
+     "ms": 334
+    },
+    {
+     "u": "/js/data/scenarios.js",
+     "b": 262029,
+     "ms": 313
+    },
+    {
+     "u": "/js/prototype.js",
+     "b": 252781,
+     "ms": 331
+    }
+   ],
+   "errors": [],
+   "failed": []
+  }
+ },
+ "prototype_interactions_ms": {
+  "portfolio_to_plan": 566,
+  "plan_to_portfolio": 977,
+  "find_site_first_view": 2050
+ },
+ "prototype_heap_after_mb": 545.9
+}

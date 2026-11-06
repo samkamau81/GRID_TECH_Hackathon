@@ -1,5 +1,5 @@
 /* Shared styles for every Peak Power page: base, navigation, type, buttons, footer.
-   Colours and fonts come from css/tokens.css. Page-specific styles live in landing.css and data-centers.css. */
+   Colours and fonts come from css/tokens.css. Page-specific styles live in landing.css and appendix.css. */
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 72px; }

@@ -1,0 +1,121 @@
+{
+ "label": "after",
+ "when": "2026-11-05T23:29:06.006Z",
+ "runs": 3,
+ "pages": {
+  "index.html": {
+   "load_ms_median": 609,
+   "load_ms_all": [
+    716,
+    609,
+    606
+   ],
+   "heap_mb_median": 0.8,
+   "requests": 8,
+   "same_origin_bytes": 503777,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/assets/images/Mridul.jpeg",
+     "b": 267553,
+     "ms": 107
+    },
+    {
+     "u": "/assets/images/md_joy.jpeg",
+     "b": 190589,
+     "ms": 81
+    },
+    {
+     "u": "/assets/images/samwel.jpg",
+     "b": 19609,
+     "ms": 101
+    },
+    {
+     "u": "/css/theme.css",
+     "b": 9134,
+     "ms": 69
+    }
+   ],
+   "errors": [],
+   "failed": []
+  },
+  "prototype.html": {
+   "load_ms_median": 1433,
+   "load_ms_all": [
+    1433,
+    1353,
+    1705
+   ],
+   "heap_mb_median": 204.6,
+   "requests": 7,
+   "same_origin_bytes": 2372548,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/js/data/site-counties.js",
+     "b": 1025429,
+     "ms": 64
+    },
+    {
+     "u": "/js/data/reference-data.js",
+     "b": 744745,
+     "ms": 59
+    },
+    {
+     "u": "/js/data/scenarios.js",
+     "b": 262029,
+     "ms": 46
+    },
+    {
+     "u": "/js/prototype.js",
+     "b": 251880,
+     "ms": 48
+    }
+   ],
+   "errors": [],
+   "failed": []
+  },
+  "appendix.html": {
+   "load_ms_median": 261,
+   "load_ms_all": [
+    318,
+    258,
+    261
+   ],
+   "heap_mb_median": 0.8,
+   "requests": 5,
+   "same_origin_bytes": 56323,
+   "duplicate_requests": [],
+   "biggest": [
+    {
+     "u": "/js/appendix.js",
+     "b": 32018,
+     "ms": 38
+    },
+    {
+     "u": "/css/theme.css",
+     "b": 9134,
+     "ms": 37
+    },
+    {
+     "u": "/css/appendix.css",
+     "b": 8178,
+     "ms": 38
+    },
+    {
+     "u": "/css/main.css",
+     "b": 4655,
+     "ms": 37
+    }
+   ],
+   "errors": [],
+   "failed": []
+  }
+ },
+ "prototype_interactions_ms": {
+  "portfolio_to_plan": 1456,
+  "plan_to_portfolio": 515,
+  "find_site_first_view": 203
+ },
+ "prototype_heap_after_mb": 597.7
+}

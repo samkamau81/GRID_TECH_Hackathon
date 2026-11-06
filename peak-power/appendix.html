@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Peak Power – Appendix: model, data and evidence</title>
+<meta name="description" content="The technical foundation of Peak Power: how the model works, where every dataset comes from, what the data does and does not show, and what is still missing.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpolygon fill='%23D4AF37' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/appendix.css">
+<link rel="stylesheet" href="css/theme.css">
+</head>
+<body>
+<a class="skip" href="#appx">Skip to content</a>
+
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="index.html" aria-label="Peak Power, introduction"><span class="mark" aria-hidden="true"></span>PEAK POWER</a>
+    <nav aria-label="Peak Power pages">
+      <a href="index.html">Introduction</a>
+      <a class="nav-cta" href="prototype.html">Prototype</a>
+      <a href="appendix.html" aria-current="page">Appendix</a>
+    </nav>
+  </div>
+</header>
+
+<main id="appx" class="wrap appx">
+  <section class="ahead">
+    <p class="eyebrow">Appendix</p>
+    <h1>The evidence behind the recommendation</h1>
+    <p class="lede">How Peak Power turns a customer's answers into a plan, which data it stands on, what that data does and does not show, and what is still missing. Everything here is read from the code and files the Prototype ships with. Where something is not modelled, we say so.</p>
+  </section>
+
+  <div class="atabs" role="tablist" aria-label="Appendix sections" id="atabs">
+    <button role="tab" id="t-model" aria-controls="s-model" aria-selected="true" data-sec="model"><span class="k">A</span>Model and methodology</button>
+    <button role="tab" id="t-data" aria-controls="s-data" aria-selected="false" data-sec="data" tabindex="-1"><span class="k">B</span>Data sources and integrity</button>
+    <button role="tab" id="t-insights" aria-controls="s-insights" aria-selected="false" data-sec="insights" tabindex="-1"><span class="k">C</span>Correlations and insights</button>
+    <button role="tab" id="t-limits" aria-controls="s-limits" aria-selected="false" data-sec="limits" tabindex="-1"><span class="k">D</span>Limitations and next steps</button>
+  </div>
+
+  <!-- ============ A. MODEL ============ -->
+  <section class="asec" id="s-model" role="tabpanel" aria-labelledby="t-model">
+    <div class="card">
+      <h2>How an answer becomes a recommendation</h2>
+      <ol class="flow">
+        <li><b>Customer answers</b><span>Revenue model, rent or price, carbon limit, full-campus deadline, grid-connection delay, land for onsite power, weather year, grid stress.</span></li>
+        <li><b>Plan library</b><span>384 candidate power plans, each already simulated hour by hour and replayed through the packet's official checker.</span></li>
+        <li><b>Re-simulation</b><span>When a setting differs from the packet case, onsite gas is re-sized and the plan is re-run for all 87,600 hours (10 years).</span></li>
+        <li><b>Economics</b><span>10-year revenue minus power cost, with unserved energy priced at $1,000 per MWh.</span></li>
+        <li><b>Recommendation</b><span>The opening month with the best profit among plans that fit the land, meet the carbon limit, serve the load and meet the deadline.</span></li>
+      </ol>
+      <p class="muted">The model is a deterministic simulation and a rule-based screen. There is no statistical or machine-learning model, no fitted weights and no forecasting in this application.</p>
+    </div>
+
+    <div class="card">
+      <h2>How a location is evaluated: nine comparison dimensions</h2>
+      <p>Each project on the Prototype's Portfolio page carries nine dimensions, each graded <b>Good</b>, <b>Moderate</b>, <b>Bad</b> or <b>Not graded</b> (<b>Excellent</b> appears only in the Overall grade). The same county-level rules paint the Find a site map. Grades are ordinal bands, not scores out of 100.</p>
+      <div class="tscroll"><table class="dt" id="dim-table">
+        <thead><tr><th>Dimension</th><th>Level</th><th>Rule as implemented</th><th>Input data</th></tr></thead>
+        <tbody>
+          <tr><td>Location</td><td>County</td><td>Distance to the nearest metro anchor: Good within 90 miles, Moderate within 170, otherwise Bad. Counties inside a metro are held at Moderate (land is scarce and costly); the Texas Gulf coast is held back one step.</td><td>Public geography, computed from county centroids</td></tr>
+          <tr><td>Energy</td><td>County, Texas only</td><td>ERCOT counties within 140 miles of Dallas Fort Worth, Houston, Austin or San Antonio: Good. West Texas wind belt: Moderate (transmission congestion). Outside ERCOT: Bad. Other states are <b>not graded</b>, because the hourly model covers ERCOT only. A project's grid delay lifts Good to no better than Moderate.</td><td>Team screen with an approximate market boundary</td></tr>
+          <tr><td>Policy</td><td>State</td><td>Bad where a statewide pause on data center permits is in effect (Texas, New York). Moderate where incentives are frozen or narrowed, a moratorium is proposed, or sources conflict. Good where no pause was found. Local zoning and abatements are not loaded.</td><td>State actions in public sources, Nov 2026</td></tr>
+          <tr><td>Fiber</td><td>County</td><td>Distance to the nearest colocation or network facility: Good within 50 miles, Moderate within 150, otherwise Bad (if no facility is listed, distance to a carrier hub: 100 / 250 miles). Facility locations, not fiber routes.</td><td>CAIDA IXP dataset (PeeringDB-based), Oct 2026</td></tr>
+          <tr><td>Land</td><td>Project</td><td>Acres for onsite power: 12 or more Good, 8 to under 12 Moderate, under 8 Bad. Land use is 0.05 acre per MW of engines and fuel cells, 0.10 for turbines, 0.15 for batteries.</td><td>Project data and packet land per MW</td></tr>
+          <tr><td>Grid reliability</td><td>Project</td><td>The project's design stress case: calm Good, packet-style events Moderate, tighter events (imports cut to 40%) Bad. Separately, the 10-year test must serve every MWh under the stress case.</td><td>Dispatch engine, packet grid-stress events</td></tr>
+          <tr><td>Water</td><td>County</td><td>Share of available water already withdrawn in the county's watershed: under 20% Good, 20 to 40% Moderate, over 40% Bad. The Edwards Aquifer counties are Bad regardless. The watershed is matched to the county centroid.</td><td>WRI Aqueduct 4.0 baseline water stress</td></tr>
+          <tr><td>Hazard</td><td>County</td><td>FEMA expected annual building loss per dollar of buildings, as a national percentile: under 60 Good, 60 to 85 Moderate, over 85 Bad.</td><td>FEMA National Risk Index v1.20, Dec 2025</td></tr>
+          <tr><td>Time to power</td><td>Grid region</td><td>Median years from interconnection request to operation for plants that came online in 2021 to 2025: under 4 Good, 4 to 6 Moderate, over 6 Bad. Not graded if fewer than 15 plants reached operation. It measures <em>generation</em> queues as a sign of congestion, not a data center load wait.</td><td>LBNL "Queued Up", through 2025</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted">A tenth county factor, local zoning, is only flagged for seven places under a local pause and does not change the Overall grade.</p>
+    </div>
+
+    <div class="card">
+      <h2>Scoring and weighting</h2>
+      <div class="two">
+        <div>
+          <h3>Overall grade</h3>
+          <p>The Overall grade combines the scored dimensions with a <b>weighted average of grade values</b> (Good = 0, Moderate = 1, Bad = 2). Weights: Energy 2, Policy 1.5, every other scored dimension 1. "Not graded" dimensions are left out of the average, not counted as good or bad.</p>
+          <ul class="tick">
+            <li><b>Bad</b> if Energy is Bad, or the weighted average is 1 or more.</li>
+            <li><b>Excellent</b> if no dimension is Bad and the average is 0.35 or less.</li>
+            <li><b>Good</b> if at most one dimension is Bad and the average is 0.6 or less.</li>
+            <li><b>Moderate</b> otherwise.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Special cases</h3>
+          <ul class="tick">
+            <li><b>Outside Texas</b> Energy is not graded, so the grid queue wait (Time to power) stands in for it with weight 2.</li>
+            <li>If the energy stand-in has no grade (for example ISO-NE, with no measurable queue), Overall is Bad when two or more scored dimensions are Bad and Not graded otherwise.</li>
+            <li><b>Project cards</b> add Land and Grid reliability. A project whose 10-year plan fails the reliability test is graded Bad overall.</li>
+            <li>The grid delay for a project changes only the Energy row.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="muted">The weights are judgement calls, not estimates fitted to outcomes. They are visible in the code and are the first thing to challenge with a customer.</p>
+    </div>
+
+    <div class="card">
+      <h2>Energy, grid and finance calculations</h2>
+      <div class="tscroll"><table class="dt">
+        <thead><tr><th>Calculation</th><th>As implemented</th></tr></thead>
+        <tbody>
+          <tr><td>Demand</td><td>Packet 75 MW campus, one reference year of 8,760 hours repeated for 10 years (87,600 steps). After opening, load starts at one third of full and ramps: <code>f = min(1, 1/3 + k/15)</code>, k = months since opening, so full demand arrives 10 months after the first service month. Optional growth after full campus is compounded monthly.</td></tr>
+          <tr><td>Grid import limit</td><td>25 MW from month 18, 50 MW from 24, 75 MW from 30, each shifted by the grid-connection delay. Stress events cut imports (60% in the packet case; 40% in the tighter case; optional 2-week August heat wave at 50%).</td></tr>
+          <tr><td>Dispatch</td><td>Hour by hour. Contracted wind, solar and nuclear energy is used first (it arrives over the same grid connection, so it shares the import limit). During a grid-stress event, movable load can be relocated and batch load can be paused, by the plan's policy. The battery covers shortfalls. The rest comes from onsite gas and merchant grid purchases: in <i>cost</i> mode, cheapest first by hourly price; in <i>carbon</i> mode, grid first and gas in order of lowest emissions. Load still unserved is recorded and charged.</td></tr>
+          <tr><td>Battery (BESS)</td><td>4-hour battery, round-trip efficiency 0.85, up to 365 cycles a year. Charges below $45/MWh, discharges above $100/MWh. It may charge from any source behind the meter; discharge earns clean credit only in proportion to the clean share of that year's charging.</td></tr>
+          <tr><td>Power cost</td><td>Per resource: fixed charge (CAPEX annualised with a capital recovery factor at 8% over the resource's life, plus fixed O&amp;M) + energy payments (contract $/MWh on available output; gas $/MWh plus heat rate × gas price) + merchant grid purchases at the hourly price. Relocated load costs $123.5 per MWh (1.05 × $70 + $50) and interrupted work $1,000 per MWh; these two are shown separately from the plan's energy cost. Unserved energy is penalised at $1,000 per MWh in the profit calculation.</td></tr>
+          <tr><td>Carbon</td><td>kg CO₂ per MWh = onsite gas emissions + grid purchases × grid emission factor (0.3329 t/MWh in year 1, declining 3% a year), divided by energy delivered. The carbon limit is tested on the 10-year average, or on every year if "stricter" is selected.</td></tr>
+          <tr><td>Revenue models</td><td><b>Lease</b>: rent per kW-month by load tier × MWh served. <b>Pass-through</b>: rent + power cost × (1 + markup). <b>Bundled</b>: a price per MWh delivered. <b>Hybrid</b>: tier-based rent for the always-on and movable tiers, cost plus markup for the movable tier, and a price per MWh for the batch tier. Profit = revenue − power cost − unserved penalty.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="card">
+      <h2>Portfolio comparison logic</h2>
+      <ul class="tick">
+        <li><b>Each project</b> is a site with its own grid delay, acres, permit assumption and stress case. State is kept per project, so switching projects does not carry settings across.</li>
+        <li><b>For every possible opening month</b> the app picks the plan with the best 10-year profit that fits the land, meets the carbon limit and the wind-and-solar share cap, and serves the load.</li>
+        <li><b>The recommendation</b> is the feasible opening month with the highest profit within the deadline. Neighbouring months are shown beside it so the trade (earlier revenue against more gas cost) is visible.</li>
+        <li><b>The alternatives table</b> shows the recommended plan next to a cleaner plan (same opening month, lowest carbon that passes), a faster plan (earliest credible opening) and, when a carbon limit is set, a cheaper plan without that limit. It states the dollars per tonne of CO₂ the limit costs.</li>
+        <li><b>Relocation and interruption costs</b> are reported separately from the business assumptions (rent, markup, price).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Assumptions and limitations of the model</h2>
+      <ul class="tick">
+        <li>One weather and price year (ERCOT 2023, from the packet) is repeated for ten years; the "weather year" setting scales wind and solar, it does not load other years.</li>
+        <li>Only ERCOT has an hourly model. Counties elsewhere are screened with the grade rules above, not simulated.</li>
+        <li>The 384-plan library is a coarse search, not an optimiser; re-sizing under changed settings adds onsite gas only.</li>
+        <li>Costs are screening estimates, not quotes. Business assumptions (rent tiers, markup, bundled price) are team inputs, not market data.</li>
+        <li>Grades are ordinal bands with cut-offs chosen by the team; a county just below a cut-off is not meaningfully different from one just above.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ B. DATA ============ -->
+  <section class="asec" id="s-data" role="tabpanel" aria-labelledby="t-data" hidden>
+    <div class="card">
+      <h2>Dataset inventory</h2>
+      <p>Every dataset the application ships or reads, with where it came from and how it is used. Filter by name, source or use.</p>
+      <div class="tools"><label class="sr" for="ds-q">Filter datasets</label><input id="ds-q" type="search" placeholder="Filter: e.g. FEMA, county, hourly, EIA" autocomplete="off"><span class="muted" id="ds-count" aria-live="polite"></span></div>
+      <div id="ds-list" class="dslist"></div>
+    </div>
+    <div class="card">
+      <h2>How the datasets connect to the model and the visuals</h2>
+      <div class="tscroll"><table class="dt">
+        <thead><tr><th>Dataset</th><th>Join key</th><th>Feeds</th></tr></thead>
+        <tbody>
+          <tr><td>Packet reference year and resource catalogue</td><td>Hour of year (0 to 8,759); resource id</td><td>Dispatch engine → every cost, carbon and reliability figure on Project Plan, Run the plant and Live operations</td></tr>
+          <tr><td>Plan library (384 plans)</td><td>Opening month, contract mix, battery size, policy, mode</td><td>Start-month chart, recommendation, alternatives table</td></tr>
+          <tr><td>County attributes</td><td>5-digit county FIPS (state 2 digits + county 3 digits)</td><td>Find a site map, county grades, the nine project dimensions, Appendix correlations</td></tr>
+          <tr><td>County grades (generated)</td><td>County FIPS</td><td>Appendix grade distribution and grade-agreement matrix; produced by running the Prototype's own grading code</td></tr>
+          <tr><td>EIA-860 plants</td><td>State abbreviation</td><td>Appendix state-level capacity analysis</td></tr>
+          <tr><td>Data center locations</td><td>State abbreviation (from the source's state tag or inferred from boundaries)</td><td>Appendix state-level analysis</td></tr>
+        </tbody>
+      </table></div>
+      <p class="muted">The county and state joins use FIPS and state codes only. Two geometry-vintage mismatches are known: Alaska (29 areas in the map, 30 in newer sources) and Connecticut (8 counties here, 9 planning regions in newer sources), so newer datasets cannot be joined for those two states without a crosswalk.</p>
+    </div>
+    <div class="card">
+      <h2>Integrity checks</h2>
+      <p>These are run by the automated tests in <code>tests/unit/appendix-rules.test.js</code> and re-run whenever the data changes.</p>
+      <ul class="tick" id="integrity"></ul>
+    </div>
+  </section>
+
+  <!-- ============ C. INSIGHTS ============ -->
+  <section class="asec" id="s-insights" role="tabpanel" aria-labelledby="t-insights" hidden>
+    <div class="card callout">
+      <h2>Read this first</h2>
+      <p>These are <b>exploratory correlations</b> in the data the application ships. They describe how the variables move together across counties or states. They do <b>not</b> show that one thing causes another, they are not predictions, and they are not used by the model. Nearby counties share geography and grid regions, so observations are not independent and the confidence ranges are optimistic. The statistic is Spearman rank correlation (ρ), which measures whether two variables rise together without assuming a straight line. ρ near 0 means no monotonic relationship.</p>
+    </div>
+
+    <div class="card">
+      <h2>1. Raw county variables: what moves together</h2>
+      <p>Five measured variables, all counties with data for each pair. Click a cell to see the scatter plot behind it.</p>
+      <div class="insgrid">
+        <div><div id="matrix" class="matrix" role="group" aria-label="Spearman correlation matrix of five county variables"></div><p class="muted sm" id="matrix-note"></p></div>
+        <div>
+          <div class="pick"><label for="vx">X axis</label><select id="vx"></select><label for="vy">Y axis</label><select id="vy"></select></div>
+          <canvas id="scatter" width="560" height="360" role="img" aria-label="Scatter plot of the selected county variables"></canvas>
+          <div id="scatter-read" class="read" aria-live="polite"></div>
+        </div>
+      </div>
+      <div id="findings" class="findings"></div>
+    </div>
+
+    <div class="card">
+      <h2>2. Energy infrastructure and data center locations (states)</h2>
+      <div class="insgrid">
+        <div><canvas id="state-sc" width="560" height="340" role="img" aria-label="Scatter plot of state operating power capacity against number of data centers"></canvas><p class="muted sm" id="state-read"></p></div>
+        <div id="state-find" class="findings"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. Do the model's grades add independent information?</h2>
+      <p class="callout-s"><b>Model-generated.</b> Grades are computed from the same inputs by rules we wrote. Correlations between grades, or between inputs and the grade made from them, are built in. They show how the screen is constructed (for example, which dimensions overlap), <b>not</b> real-world relationships.</p>
+      <div class="seg" role="group" aria-label="Choose view" id="g-view"><button type="button" data-v="dist" aria-pressed="true">Grade distribution</button><button type="button" data-v="mat" aria-pressed="false">Grade agreement</button><button type="button" data-v="inp" aria-pressed="false">Input by grade</button></div>
+      <div id="g-out"></div>
+    </div>
+
+    <div class="card">
+      <h2>Analyses we could not perform, and why</h2>
+      <ul class="tick" id="notdone"></ul>
+    </div>
+  </section>
+
+  <!-- ============ D. LIMITS ============ -->
+  <section class="asec" id="s-limits" role="tabpanel" aria-labelledby="t-limits" hidden>
+    <div class="card">
+      <h2>Technical limitations</h2>
+      <div class="two">
+        <div>
+          <h3>Data availability</h3>
+          <ul class="tick">
+            <li>No electricity price, outage (SAIDI/SAIFI) or substation-capacity data outside Texas.</li>
+            <li>Policy is graded by state only; no county or city zoning data.</li>
+            <li>Climate is not stored. Cooling load is not modelled by location: the campus load profile is the packet's.</li>
+            <li>Water and hazard values are missing for a small number of counties (shown as Not graded).</li>
+          </ul>
+          <h3>Geographic resolution</h3>
+          <ul class="tick">
+            <li>County centroids stand in for sites; a county can contain very different land.</li>
+            <li>Time to power is regional, not local. Eight regions carry all the information.</li>
+            <li>Fiber uses facility locations, not routes; unregistered facilities are absent.</li>
+            <li>County outlines are generalised to about 4.7 km.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Modelling assumptions</h3>
+          <ul class="tick">
+            <li>One historical year repeated; no multi-year weather or price risk.</li>
+            <li>Grade cut-offs and weights are expert judgement, not calibrated.</li>
+            <li>Business inputs (rent, markup, price) are assumptions.</li>
+            <li>The plan library is a pre-simulated search space, not a global optimum.</li>
+          </ul>
+          <h3>Validation still required</h3>
+          <ul class="tick">
+            <li>Compare grades with outcomes at real sites (queue-to-energisation times, utility load studies).</li>
+            <li>Sensitivity analysis of the grade weights and cut-offs.</li>
+            <li>Independent review of state policy readings; they change monthly.</li>
+            <li>Back-test the plan economics against a second price year.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Areas for additional research and future improvements</h2>
+      <div class="tscroll"><table class="dt">
+        <thead><tr><th>Improvement</th><th>What it would add</th><th>Candidate public source</th></tr></thead>
+        <tbody>
+          <tr><td>Industrial electricity price and reliability by state</td><td>The missing cost and outage dimension outside Texas</td><td>EIA Electric Power Monthly; EIA-861</td></tr>
+          <tr><td>Transmission congestion by region</td><td>Replace the qualitative Texas screen with price separation</td><td>ISO/RTO congestion data (ERCOT, PJM, MISO, SPP, CAISO, NYISO, ISO-NE)</td></tr>
+          <tr><td>Generation near a site (county point-in-polygon)</td><td>Supply-side context per county instead of per state</td><td>EIA-860 plant locations (already shipped)</td></tr>
+          <tr><td>Historical climate per site and a cooling model</td><td>Cooling energy and water use by location</td><td>ERA5 reanalysis</td></tr>
+          <tr><td>County and city zoning and ordinances</td><td>A real zoning dimension</td><td>Municipal codes; moratorium trackers</td></tr>
+          <tr><td>Additional weather years</td><td>Range of outcomes rather than one year</td><td>ERCOT and weather archives</td></tr>
+          <tr><td>Backtesting and calibration of grades</td><td>Evidence that Good/Moderate/Bad predict real outcomes</td><td>Utility interconnection studies; LBNL queue outcomes</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <footer class="afoot"><span>Peak Power · Appendix</span><span id="built" class="muted"></span></footer>
+</main>
+
+<script src="js/appendix.js"></script>
+</body>
+</html>
