@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#FAF9F6">
 <title>Peak Power – Plan the power. Run the plant.</title>
 <meta name="description" content="Peak Power is a data center planning and operations simulation platform: screen sites, simulate power decisions and compare cost, energy and reliability trade-offs.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23D4AF37'/%3E%3Cstop offset='1' stop-color='%23B8860B'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon fill='url(%23g)' points='60,0 0,58 42,58 30,100 100,36 56,36'/%3E%3C/svg%3E">
@@ -38,7 +40,7 @@
         <p class="eyebrow hero-a1">Data center planning and operations</p>
         <h1 id="hero-title" class="hero-a2">PEAK <span>POWER</span></h1>
         <p class="tagline hero-a3">Decide where to build, how to power it, and how it holds up.</p>
-        <p class="lede hero-a4">Peak Power is a data center planning and operations simulation platform. It helps developers, operators and investors screen sites, simulate power and infrastructure decisions, compare scenarios, and see the cost, energy and reliability trade-offs before capital is committed.</p>
+        <p class="lede hero-a4">Peak Power is a data center planning and operations simulation platform. It helps developers, operators, infrastructure investors and planning teams screen sites, simulate power and infrastructure decisions, compare scenarios, and see the cost, energy and reliability trade-offs before capital is committed.</p>
         <div class="hero-actions hero-a5">
           <a class="btn btn-primary" href="prototype.html">Open the prototype <span aria-hidden="true">→</span></a>
           <a class="btn btn-ghost" href="#about">Why Peak Power?</a>
@@ -49,35 +51,39 @@
       </div>
 
       <figure class="hero-visual hero-a3">
-        <svg viewBox="0 0 480 400" role="img" aria-labelledby="viz-t viz-d">
-          <defs><linearGradient id="vgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--brand-blue)"/><stop offset="1" style="stop-color:var(--brand-green)"/></linearGradient></defs>
-          <title id="viz-t">Planning considerations around a data center</title>
-          <desc id="viz-d">An illustration of the considerations Peak Power brings together for a data center: grid connection, power supply, land and permits, fiber and network, water and hazard risk, and policy.</desc>
-          <g class="viz-links" fill="none" stroke-width="3" stroke-linecap="round">
-            <path d="M150 50 C240 50 240 200 330 200"  style="stroke:var(--s-grid)"/>
-            <path d="M150 115 C240 115 240 200 330 200" style="stroke:var(--s-solar)"/>
-            <path d="M150 180 C240 180 240 200 330 200" style="stroke:var(--s-rel)"/>
-            <path d="M150 245 C240 245 240 200 330 200" style="stroke:var(--s-bat)"/>
-            <path d="M150 310 C240 310 240 200 330 200" style="stroke:var(--s-wind)"/>
-            <path d="M150 375 C240 375 240 200 330 200" style="stroke:var(--s-gas)"/>
-          </g>
-          <g class="viz-nodes">
-            <rect x="0" y="30"  width="150" height="40" rx="8"/><text x="14" y="55">Grid connection</text>
-            <rect x="0" y="95"  width="150" height="40" rx="8"/><text x="14" y="120">Power supply</text>
-            <rect x="0" y="160" width="150" height="40" rx="8"/><text x="14" y="185">Land and permits</text>
-            <rect x="0" y="225" width="150" height="40" rx="8"/><text x="14" y="250">Fiber and network</text>
-            <rect x="0" y="290" width="150" height="40" rx="8"/><text x="14" y="315">Water and hazards</text>
-            <rect x="0" y="355" width="150" height="40" rx="8"/><text x="14" y="380">Policy</text>
-          </g>
-          <g class="viz-campus">
-            <rect x="330" y="140" width="150" height="120" rx="12"/>
-            <text x="405" y="206" text-anchor="middle" class="big">Data Center</text>
-          </g>
-        </svg>
+        <div class="dc" role="group" aria-label="The six planning considerations Peak Power connects to a data center">
+          <ul class="dc-nodes dc-left"><li class="dc-node b"><span class="dc-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2 8 22M12 2l4 20M9.5 9h5M8.2 15h7.6M4 6h16"/></svg></span><span class="dc-tx"><b>Grid Connection</b><small>Interconnection access</small></span></li><li class="dc-node b"><span class="dc-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/></svg></span><span class="dc-tx"><b>Power Supply</b><small>Supply and reliability</small></span></li><li class="dc-node g"><span class="dc-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6Z"/><path d="m9 13 2 2 4-4"/></svg></span><span class="dc-tx"><b>Land &amp; Permits</b><small>Site and approvals</small></span></li></ul>
+          <svg class="dc-links" viewBox="0 0 36 280" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="dl-b" d="M0 46.7 C20 46.7 16 130 36 130"/><path class="dl-b" d="M0 140 C20 140 16 170 36 170"/><path class="dl-g" d="M0 233.3 C20 233.3 16 210 36 210"/><circle class="dl-dot" cx="36" cy="130" r="3"/><circle class="dl-dot" cx="36" cy="170" r="3"/><circle class="dl-dot" cx="36" cy="210" r="3"/></svg>
+          <svg class="dc-bld" viewBox="0 0 150 280" role="img" aria-labelledby="dc-t dc-d">
+            <title id="dc-t">Data center</title>
+            <desc id="dc-d">A data center building at the centre, connected to the six planning considerations Peak Power brings together: grid connection, power supply, land and permits, fiber network, water, and hazards and policy.</desc>
+            <defs>
+              <linearGradient id="dcf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2b2b"/><stop offset="1" stop-color="#171717"/></linearGradient>
+              <linearGradient id="dcs" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#232323"/><stop offset="1" stop-color="#0f0f0f"/></linearGradient>
+              <linearGradient id="dct" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3E5AB"/><stop offset="1" stop-color="#D4AF37"/></linearGradient>
+            </defs>
+            <ellipse cx="76" cy="244" rx="74" ry="14" class="dc-shadow"/>
+            <path d="M98 100 144 74v140l-46 26Z" fill="url(#dcs)"/>
+            <g class="dc-vent"><path d="M110 94.5v140M122 87.8v140M134 81v140"/></g>
+            <path d="M2 100 48 74h96L98 100Z" fill="url(#dct)"/>
+            <ellipse cx="62" cy="87" rx="11" ry="3.6" class="dc-fan"/><ellipse cx="100" cy="87" rx="11" ry="3.6" class="dc-fan"/>
+            <rect x="2" y="100" width="96" height="140" fill="url(#dcf)"/>
+            <rect x="2" y="100" width="96" height="4" fill="#B8860B"/>
+            <g class="dc-racks">
+              <rect x="12" y="114" width="76" height="16" rx="2"/><rect x="12" y="136" width="76" height="16" rx="2"/><rect x="12" y="158" width="76" height="16" rx="2"/><rect x="12" y="180" width="76" height="16" rx="2"/>
+            </g>
+            <g class="dc-led">
+              <circle cx="20" cy="122" r="2"/><circle cx="28" cy="122" r="2" class="y"/><circle cx="20" cy="144" r="2" class="y"/><circle cx="28" cy="144" r="2"/>
+              <circle cx="20" cy="166" r="2"/><circle cx="28" cy="166" r="2"/><circle cx="20" cy="188" r="2" class="y"/><circle cx="28" cy="188" r="2"/>
+            </g>
+            <rect x="38" y="212" width="24" height="28" rx="2" fill="#D4AF37"/><rect x="48" y="212" width="2" height="28" fill="#B8860B"/>
+          </svg>
+          <svg class="dc-links" viewBox="0 0 36 280" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="dl-b" d="M0 100 C20 100 16 46.7 36 46.7"/><path class="dl-g" d="M0 140 C20 140 16 140 36 140"/><path class="dl-g" d="M0 180 C20 180 16 233.3 36 233.3"/><circle class="dl-dot" cx="0" cy="100" r="3"/><circle class="dl-dot" cx="0" cy="140" r="3"/><circle class="dl-dot" cx="0" cy="180" r="3"/></svg>
+          <ul class="dc-nodes dc-right"><li class="dc-node b"><span class="dc-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 8c6 0 6 8 18 8M3 16c6 0 6-8 18-8"/><circle cx="3" cy="8" r="1"/><circle cx="3" cy="16" r="1"/><circle cx="21" cy="8" r="1"/><circle cx="21" cy="16" r="1"/></svg></span><span class="dc-tx"><b>Fiber Network</b><small>Connectivity routes</small></span></li><li class="dc-node g"><span class="dc-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11Z"/></svg></span><span class="dc-tx"><b>Water</b><small>Cooling availability</small></span></li><li class="dc-node g"><span class="dc-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/><path d="M12 8v5M12 16v.5"/></svg></span><span class="dc-tx"><b>Hazards &amp; Policy</b><small>Risk and regulation</small></span></li></ul>
+        </div>
         <figcaption>Illustrative: the considerations Peak Power brings into one planning view.</figcaption>
       </figure>
     </div>
-    <a class="scroll-hint" href="#about" aria-label="Scroll to the next section"><span aria-hidden="true">↓</span></a>
   </section>
 
   <!-- Section 2: About -->
@@ -91,7 +97,8 @@
       <ul class="who">
         <li class="card reveal"><h3>Developers</h3><p>Screen counties and compare projects before spending on land, studies and interconnection requests.</p></li>
         <li class="card reveal"><h3>Operators</h3><p>Test how a power plan behaves through stress: grid events, wind and solar lulls, equipment outages.</p></li>
-        <li class="card reveal"><h3>Investors</h3><p>See what a plan costs, how clean it is and what it gives up, with the assumptions shown rather than hidden.</p></li>
+        <li class="card reveal"><h3>Infrastructure investors</h3><p>See what a plan costs, how clean it is and what it gives up, with the assumptions shown rather than hidden.</p></li>
+        <li class="card reveal"><h3>Planning teams</h3><p>Compare sites and power plans side by side on cost, carbon and reliability, and keep the reasoning in one place.</p></li>
       </ul>
 
       <div class="grid-2">
@@ -117,26 +124,6 @@
           </ul>
         </article>
       </div>
-
-      <div class="reveal">
-        <h3 class="sub-h">Objectives, and where you can see them</h3>
-        <p class="section-lede narrow">Each objective maps to something you can try in the prototype today.</p>
-      </div>
-      <div class="tscroll reveal"><table class="obj">
-        <thead><tr><th>Objective</th><th>In the prototype</th></tr></thead>
-        <tbody>
-          <tr><td>Screen and compare sites</td><td><b>Portfolio</b>: project cards graded on nine dimensions, a timeline, and a county map to find a site.</td></tr>
-          <tr><td>Recommend a feasible power plan</td><td><b>Project plan</b>: revenue model, the best start month, and the energy and reliability tests behind it.</td></tr>
-          <tr><td>Show cost, carbon and trade-offs</td><td><b>Run the plant</b>: 10-year cost, carbon limits and the decisions a board would weigh.</td></tr>
-          <tr><td>Test operations under stress</td><td><b>Live operations</b>: hour-by-hour dispatch and simulated events such as an outage or a wind lull.</td></tr>
-          <tr><td>Be transparent about evidence</td><td><b>Appendix</b>: methodology, data sources, correlations, limitations and the business model.</td></tr>
-        </tbody>
-      </table></div>
-
-      <aside class="expect reveal" aria-label="What to expect">
-        <h3>What to expect</h3>
-        <p>Peak Power is a screening tool built from benchmark assumptions. Results compare options; they are not a project quote or a guarantee of uptime. The Appendix is explicit about what is modelled, what is not, and what would need validating.</p>
-      </aside>
     </div>
   </section>
 

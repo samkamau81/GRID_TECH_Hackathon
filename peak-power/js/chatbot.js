@@ -47,7 +47,7 @@
         /* a lone keyword in a question made mostly of words we have never seen is not an answer */
         var h0 = hits[0], weak = h0 && h0.matched != null && h0.matched <= 1 && h0.unknown * 2 >= h0.n && h0.score < 20;
         if (hits.length && hits[0].score >= THRESHOLD && !weak) return { kind: 'answer', entry: hits[0].entry, related: hits.slice(1).filter(function (h) { return h.score >= THRESHOLD * 0.6; }).map(function (h) { return h.entry; }) };
-        return { kind: 'fallback', text: 'I do not have a verified answer to that. I can only answer from the Peak Power FAQ, and I would rather say so than guess.', related: hits.slice(0, 2).map(function (h) { return h.entry; }) };
+        return { kind: 'fallback', text: 'I do not have a verified answer to that, and I would rather say so than guess. Try one of the suggested questions.', related: hits.slice(0, 2).map(function (h) { return h.entry; }) };
       });
     }
     return { retrieve: retrieve, ask: ask, score: score, setRetriever: function (fn) { custom = fn; }, faq: faq, THRESHOLD: THRESHOLD };
@@ -69,9 +69,9 @@
   var loading = null, opened = false;
   function build() {
     var btn = el('button', 'pp-chat-btn'); btn.type = 'button'; btn.setAttribute('aria-haspopup', 'dialog'); btn.setAttribute('aria-expanded', 'false'); btn.setAttribute('aria-controls', 'pp-chat');
-    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5Z"/></svg><span>Ask Peak Power</span>';
-    var box = el('section', 'pp-chat'); box.id = 'pp-chat'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Peak Power FAQ assistant'); box.hidden = true;
-    var head = el('header', 'pp-chat-h'); var ttl = el('div'); ttl.appendChild(el('b', null, 'Peak Power assistant')); ttl.appendChild(el('small', null, 'Answers come from a verified FAQ. Not an AI model.'));
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5Z"/></svg><span>Peak Power Assistant</span>';
+    var box = el('section', 'pp-chat'); box.id = 'pp-chat'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Peak Power Assistant'); box.hidden = true;
+    var head = el('header', 'pp-chat-h'); var ttl = el('div'); ttl.appendChild(el('b', null, 'Peak Power Assistant')); ttl.appendChild(el('small', null, 'Ask about the platform, the model and the data'));
     var close = el('button', 'pp-chat-x', '×'); close.type = 'button'; close.setAttribute('aria-label', 'Close assistant'); head.appendChild(ttl); head.appendChild(close);
     var log = el('div', 'pp-chat-log'); log.setAttribute('role', 'log'); log.setAttribute('aria-live', 'polite');
     var chips = el('div', 'pp-chat-chips');
@@ -100,7 +100,7 @@
       loading = loading || loadFaq().then(function () { api = makeAssistant(root.PEAKPOWER_FAQ || []); root.PeakPowerAssistant = api; });
       loading.then(function () {
         box.hidden = false; btn.setAttribute('aria-expanded', 'true'); btn.hidden = true;
-        if (!log.children.length) { say('Hello. I answer questions about Peak Power from a curated, verified FAQ. Pick a question or type your own.', 'bot'); showChips(); }
+        if (!log.children.length) { say('Hello, I am the Peak Power Assistant. Pick a question below or type your own.', 'bot'); showChips(); }
         input.focus(); opened = true;
       });
     }
