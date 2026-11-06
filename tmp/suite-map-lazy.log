@@ -2,3 +2,9 @@ PASS Texas map draws 254 county paths
 PASS US shapes not requested on load
 PASS Texas shapes requested once
 PASS paths carry real geometry
+PASS US view draws 3,142 counties and the border
+PASS US shapes requested once across repeated toggles
+PASS layer recolor works
+PASS no console errors
+PASS no failed requests
+9 passed, 0 failed

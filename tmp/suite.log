@@ -7,3 +7,8 @@ exit 0  PASS lines: 27
 == business-chat
 exit 127  PASS lines: 
 == map-lazy
+exit 124
+3
+Binary file tmp/suite-business-chat.log matches
+== map-lazy
+exit 0
