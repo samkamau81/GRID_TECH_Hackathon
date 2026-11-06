@@ -1,11 +1,11 @@
 # Render Blueprint: deploys peak-power/ as a static site (no build step, no environment variables or secrets).
-# Branch below is the one with the current work; change it to main after merging.
+# Deploys the main branch.
 services:
   - type: web
     name: peak-power
     runtime: static
     repo: https://github.com/samkamau81/GRID_TECH_Hackathon
-    branch: prototype-sync-from-copy
+    branch: main
     buildCommand: echo "static site, nothing to build"
     staticPublishPath: ./peak-power
     headers:
