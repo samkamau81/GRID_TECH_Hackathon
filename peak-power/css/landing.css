@@ -12,40 +12,14 @@ h1 span { color: var(--accent); }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 .hero-visual { margin: 0; }
 .hero-visual figcaption { font-size: 12.5px; color: var(--ink-2); margin-top: 8px; text-align: center; }
-/* ---- data center graphic: HTML labels around an SVG building; connectors stretch to the row heights ---- */
-.dc { display: grid; grid-template-columns: minmax(0, 1fr) 36px auto 36px minmax(0, 1fr); height: 280px; align-items: stretch; }
-.dc-nodes { list-style: none; margin: 0; padding: 0; display: grid; grid-template-rows: repeat(3, 1fr); gap: 14px; }
-.dc-node { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 0 10px; background: var(--panel); border: 1px solid color-mix(in srgb, var(--gold-deep) 28%, var(--rule)); border-radius: 12px; box-shadow: var(--shadow); }
-.dc-ic { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--grad-soft); color: var(--accent); }
-.dc-node.b .dc-ic { background: var(--blue-soft); color: var(--blue-deep); }
-.dc-ic svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.dc-tx { min-width: 0; line-height: 1.2; }
-.dc-tx b { display: block; font-family: var(--f-display); font-size: .98rem; font-weight: 600; color: var(--ink); }
-.dc-tx small { display: none; font-size: 12px; color: var(--ink-2); margin-top: 2px; }
-.dc-links { max-width: none; width: 36px; height: 100%; display: block; overflow: visible; }
-.dc-links path { fill: none; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 5 5; vector-effect: non-scaling-stroke; animation: flow 1.6s linear infinite; }
-.dc-links .dl-b { stroke: var(--blue); }
-.dc-links .dl-g { stroke: var(--gold-deep); }
-.dc-links .dl-dot { fill: var(--gold); stroke: var(--charcoal); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.dc-bld { max-width: none; height: 100%; width: auto; display: block; filter: drop-shadow(0 14px 18px color-mix(in srgb, var(--gold-deep) 30%, transparent)); }
-.dc-shadow { fill: color-mix(in srgb, var(--charcoal) 14%, transparent); }
-.dc-vent path { stroke: #3a3a3a; stroke-width: 1.2; }
-.dc-fan { fill: #7a5c0a; stroke: var(--charcoal); stroke-width: 1; }
-.dc-racks rect { fill: #262626; stroke: #3d3d3d; stroke-width: 1; }
-.dc-led circle { fill: var(--blue); animation: blink 3s ease-in-out infinite; }
-.dc-led circle.y { fill: var(--gold); animation-delay: 1.2s; }
-@keyframes blink { 50% { opacity: .35; } }
-@keyframes flow { to { stroke-dashoffset: -20; } }
-@media (max-width: 600px) {
-  .dc { height: auto; display: flex; flex-direction: column; align-items: center; gap: 14px; }
-  .dc-links { display: none; }
-  .dc-bld { height: 190px; order: -1; }
-  .dc-nodes { width: 100%; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; gap: 10px; }
-  .dc-right { margin-top: -4px; }
-  .dc-node { padding: 10px; min-height: 58px; }
-  .dc-tx small { display: block; }
-}
-
+.hero-visual svg { width: 100%; height: auto; display: block; }
+.viz-nodes rect { fill: var(--panel); stroke: var(--rule); stroke-width: 1.5; }
+.viz-nodes text { fill: var(--ink); font-family: var(--f-body); font-size: 14px; font-weight: 500; }
+.viz-campus rect { fill: var(--accent); }
+.viz-campus text { fill: var(--accent-ink); font-family: var(--f-body); font-size: 14px; }
+.viz-campus text.big { font-family: var(--f-display); font-size: 19px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
+.viz-links path { stroke-dasharray: 8 8; animation: flow 1.4s linear infinite; opacity: .9; }
+@keyframes flow { to { stroke-dashoffset: -32; } }
 
 /* hero entrance (pure CSS so it plays immediately) */
 .hero-a1, .hero-a2, .hero-a3, .hero-a4, .hero-a5 { animation: rise .7s cubic-bezier(.2, .7, .2, 1) both; }

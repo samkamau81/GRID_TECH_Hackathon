@@ -14,7 +14,7 @@ try {
   const p = await openPage(b, { width: 1400, height: 900, url: BASE + 'index.html' }); await sleep(500);
   const txt = await p.ev(`document.body.innerText`);
   ok(!/75\s?MW|876,?000|87,600|Williamson|Texas|fictional|in your browser/i.test(txt), 'landing page has no 75 MW / 10-year / 876,000 metrics, Texas, fictional or browser-operation text');
-  ok(await p.ev(`(()=>{const v=document.querySelector('.hero-visual');const t=v.textContent;return !!v.querySelector('svg.dc-bld title')&&['Grid Connection','Power Supply','Land & Permits','Fiber Network','Water','Hazards & Policy'].every(x=>t.includes(x))&&v.querySelectorAll('.dc-node').length===6&&!/Campus|\d{2,}\s?MW/.test(t)})()`), 'graphic: data center with the six labelled dimensions and no numbers');
+  ok(await p.ev(`(()=>{const v=document.querySelector('.hero-visual');const t=v.textContent;return !!v.querySelector('svg title')&&['Grid connection','Power supply','Land and permits','Fiber and network','Water and hazards','Policy','Data Center'].every(x=>t.includes(x))&&!/Campus|\d{2,}\s?MW/.test(t)})()`), 'graphic: data center with the six labelled dimensions and no numbers');
   ok(await p.ev(`!document.querySelector('dl.stats')`), 'metric strip removed');
   for (const h of ['What Is Peak Power?', 'The problem', 'Our solution']) ok(txt.includes(h), 'section present: ' + h);
   ok(!/Objectives|What to expect|Where you can see them/i.test(txt) && await p.ev(`!document.querySelector('table.obj, .expect')`), 'Objectives and What to expect sections removed');
